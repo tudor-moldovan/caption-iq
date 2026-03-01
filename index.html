@@ -848,6 +848,8 @@
           const brightLabel = cv.brightness < 55 ? '🌑 Dark' : cv.brightness > 215 ? '☀️ Bright' : '💡 Well-lit';
           imgMetaEl.innerHTML += `<span class="img-meta-badge">${brightLabel}</span>`;
           if (cv.hasFace) imgMetaEl.innerHTML += `<span class="img-meta-badge">👤 Face</span>`;
+          // Re-render with canvas data if the user already ran analysis
+          if (!document.getElementById('results').classList.contains('hidden')) analyze();
         });
       };
       img.src = url;
@@ -1340,7 +1342,9 @@
       },
     ];
 
-    const matched = cats.flatMap(c => c.kw.some(k => t.includes(k)) ? c.tags : []);
+    // Word-boundary match: \b before keyword prevents "food" matching inside "seafood"
+    const kwMatch = (str, kw) => new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(str);
+    const matched = cats.flatMap(c => c.kw.some(k => kwMatch(t, k)) ? c.tags : []);
     const all = [...general, ...matched];
     const seen = new Set();
     return all.filter(h => { if (seen.has(h.tag)) return false; seen.add(h.tag); return true; }).slice(0, 20);
