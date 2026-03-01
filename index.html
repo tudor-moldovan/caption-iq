@@ -421,6 +421,101 @@
       flex-shrink: 0;
     }
 
+    /* Image upload zone */
+    .upload-zone {
+      border: 2px dashed var(--sep);
+      border-radius: 12px;
+      padding: 18px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: var(--accent);
+      background: rgba(147,51,234,0.05);
+    }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+    .upload-icon { font-size: 26px; margin-bottom: 5px; }
+    .upload-label { font-size: 13px; color: var(--subtext); line-height: 1.45; }
+    .upload-label strong { color: var(--text); }
+
+    /* Image preview */
+    .img-preview-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+      background: var(--sep);
+      position: relative;
+    }
+    .img-preview {
+      width: 100%;
+      max-height: 220px;
+      object-fit: cover;
+      display: block;
+    }
+    .img-remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      border: none;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      line-height: 1;
+    }
+    .img-meta {
+      font-size: 11px;
+      color: var(--subtext);
+      padding: 6px 10px 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .img-meta-badge {
+      background: var(--sep);
+      border-radius: 6px;
+      padding: 2px 7px;
+    }
+
+    /* Image fit card (full width) */
+    .image-fit-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .img-score-block { flex-shrink: 0; text-align: center; }
+    .img-score-num {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -1.5px;
+      line-height: 1;
+    }
+    .img-score-label { font-size: 10px; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
+    .img-fit-info { flex: 1; min-width: 0; }
+    .img-fit-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .img-fit-tip { font-size: 12.5px; color: var(--subtext); line-height: 1.45; }
+
     /* Utility */
     .c-green  { color: var(--green);  }
     .c-yellow { color: var(--yellow); }
@@ -478,6 +573,18 @@
 
   <main>
     <div class="input-card">
+      <!-- Image upload -->
+      <div class="upload-zone" id="upload-zone">
+        <input type="file" id="img-input" accept="image/*" />
+        <div class="upload-icon">🖼️</div>
+        <div class="upload-label"><strong>Add your photo or story</strong><br>Tap to upload · drag &amp; drop</div>
+      </div>
+      <div class="img-preview-wrap hidden" id="img-preview-wrap">
+        <img class="img-preview" id="img-preview" src="" alt="Preview" />
+        <button class="img-remove-btn" id="img-remove-btn" aria-label="Remove image">✕</button>
+        <div class="img-meta" id="img-meta"></div>
+      </div>
+
       <textarea
         class="caption-textarea"
         id="caption-input"
@@ -513,6 +620,18 @@
 
       <!-- 4 metric cards -->
       <div class="metrics-grid" id="metrics-grid"></div>
+
+      <!-- Image fit card (shown only when image uploaded) -->
+      <div class="image-fit-card hidden" id="image-fit-card">
+        <div class="img-score-block">
+          <div class="img-score-num" id="img-score-num">–</div>
+          <div class="img-score-label">Image Fit</div>
+        </div>
+        <div class="img-fit-info">
+          <div class="img-fit-title" id="img-fit-title"></div>
+          <div class="img-fit-tip"   id="img-fit-tip"></div>
+        </div>
+      </div>
 
       <!-- Style & grammar -->
       <div class="info-card" id="style-card">
@@ -556,6 +675,7 @@
 
   // ── State ────────────────────────────────────────────────
   let platform = localStorage.getItem('captioniq-platform') || 'instagram';
+  let imageData = null;
   const CIRC = 226.2; // 2π × 36
 
   // ── Boot ─────────────────────────────────────────────────
@@ -585,16 +705,94 @@
     btn.className = 'analyze-btn ' + (platform === 'tiktok' ? 'tt' : 'ig');
   }
 
+  // ── Image upload ─────────────────────────────────────────
+  const imgInput       = document.getElementById('img-input');
+  const uploadZone     = document.getElementById('upload-zone');
+  const imgPreviewWrap = document.getElementById('img-preview-wrap');
+  const imgPreviewEl   = document.getElementById('img-preview');
+  const imgRemoveBtn   = document.getElementById('img-remove-btn');
+  const imgMetaEl      = document.getElementById('img-meta');
+
+  imgInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) loadImage(file);
+  });
+
+  uploadZone.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadZone.classList.add('drag-over');
+  });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) loadImage(file);
+  });
+
+  imgRemoveBtn.addEventListener('click', () => {
+    imageData = null;
+    imgInput.value = '';
+    imgPreviewWrap.classList.add('hidden');
+    uploadZone.classList.remove('hidden');
+    updateAnalyzeBtnState();
+  });
+
+  function loadImage(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const url = e.target.result;
+      const img = new Image();
+      img.onload = () => {
+        imageData = {
+          url,
+          width:    img.naturalWidth,
+          height:   img.naturalHeight,
+          ratio:    img.naturalWidth / img.naturalHeight,
+          fileSize: file.size,
+          fileType: file.type,
+        };
+        imgPreviewEl.src = url;
+        const sizeKB = file.size / 1024;
+        const sizeStr = sizeKB >= 1024
+          ? (sizeKB / 1024).toFixed(1) + ' MB'
+          : Math.round(sizeKB) + ' KB';
+        imgMetaEl.innerHTML =
+          `<span class="img-meta-badge">${img.naturalWidth}×${img.naturalHeight}</span>` +
+          `<span class="img-meta-badge">${getRatioLabel(imageData.ratio)}</span>` +
+          `<span class="img-meta-badge">${sizeStr}</span>`;
+        imgPreviewWrap.classList.remove('hidden');
+        uploadZone.classList.add('hidden');
+        updateAnalyzeBtnState();
+      };
+      img.src = url;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function getRatioLabel(r) {
+    if (Math.abs(r - 1)      < 0.06) return '1:1';
+    if (Math.abs(r - 0.8)    < 0.07) return '4:5';
+    if (Math.abs(r - 0.5625) < 0.06) return '9:16';
+    if (Math.abs(r - 1.7778) < 0.10) return '16:9';
+    if (Math.abs(r - 1.9101) < 0.10) return '1.91:1';
+    return r < 1 ? 'Portrait' : 'Landscape';
+  }
+
   // ── Textarea ─────────────────────────────────────────────
-  const textarea  = document.getElementById('caption-input');
-  const charCount = document.getElementById('char-count');
+  const textarea   = document.getElementById('caption-input');
+  const charCount  = document.getElementById('char-count');
   const analyzeBtn = document.getElementById('analyze-btn');
+
+  function updateAnalyzeBtnState() {
+    analyzeBtn.disabled = textarea.value.trim().length === 0 && imageData === null;
+  }
 
   textarea.addEventListener('input', () => {
     const len = textarea.value.length;
     charCount.textContent = `${len} / 2200`;
     charCount.classList.toggle('over', len > 2200);
-    analyzeBtn.disabled = len === 0;
+    updateAnalyzeBtnState();
   });
 
   analyzeBtn.addEventListener('click', analyze);
@@ -602,8 +800,8 @@
   // ── Analyze ───────────────────────────────────────────────
   function analyze() {
     const text = textarea.value;
-    if (!text.trim()) return;
-    const result = run(text, platform);
+    if (!text.trim() && !imageData) return;
+    const result = run(text, platform, imageData);
     render(result);
     const resultsEl = document.getElementById('results');
     resultsEl.classList.remove('hidden');
@@ -615,16 +813,72 @@
   }
 
   // ── Scoring engine ────────────────────────────────────────
-  function run(text, plat) {
+  function run(text, plat, img) {
+    const hasText = text.trim().length > 0;
     const firstLine = text.split('\n')[0] || '';
-    const hook    = scoreHook(firstLine);
-    const length  = scoreLength(text.length, plat);
-    const cta     = scoreCTA(text);
-    const style   = checkStyle(text);
-    const tags    = suggestTags(text, plat);
-    const tips    = platformTips(text, plat, hook, length, cta);
-    const overall = Math.round((hook + length + cta + style.score) / 4);
-    return { overall, hook, length, cta, style, tags, tips, plat };
+    const hook    = hasText ? scoreHook(firstLine)      : null;
+    const length  = hasText ? scoreLength(text.length, plat) : null;
+    const cta     = hasText ? scoreCTA(text)            : null;
+    const style   = hasText ? checkStyle(text)          : null;
+    const tags    = hasText ? suggestTags(text, plat)   : [];
+    const tips    = platformTips(text, plat, hook || 0, length || 0, cta || 0, img);
+    const image   = img ? scoreImage(img, plat) : null;
+
+    const scores = [hook, length, cta, style ? style.score : null, image ? image.score : null]
+      .filter(s => s !== null);
+    const overall = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+
+    return { overall, hook, length, cta, style, tags, tips, image, plat };
+  }
+
+  function scoreImage(img, plat) {
+    const r = img.ratio;
+    let score, label, tip;
+
+    if (plat === 'instagram') {
+      if (Math.abs(r - 0.8) < 0.08) {
+        score = 100; label = '4:5 Portrait — Perfect for IG';
+        tip = 'Ideal ratio for the Instagram feed. Takes up maximum vertical real estate, keeping viewers focused on your content.';
+      } else if (Math.abs(r - 1) < 0.06) {
+        score = 86; label = '1:1 Square — Great';
+        tip = 'Classic Instagram square. Works well across feed, profile grid, and older integrations.';
+      } else if (r > 1.7 && r < 2.1) {
+        score = 68; label = 'Landscape — Reduced visibility';
+        tip = 'Landscape takes up less vertical space in the feed. Consider cropping to 4:5 portrait for more impact.';
+      } else if (r < 0.65) {
+        score = 78; label = 'Tall Portrait — Story-ready';
+        tip = '9:16 is perfect for Instagram Stories/Reels but gets letterboxed in the main feed. Prepare a 4:5 crop for feed posts.';
+      } else {
+        score = 55; label = 'Non-standard ratio';
+        tip = 'Unusual ratio may get cropped unexpectedly by Instagram. Aim for 4:5 (portrait) or 1:1 (square) for best results.';
+      }
+    } else {
+      if (Math.abs(r - 0.5625) < 0.07) {
+        score = 100; label = '9:16 Vertical — Perfect for TikTok';
+        tip = 'Full-screen vertical is the gold standard on TikTok. This format maximises viewer immersion and engagement.';
+      } else if (Math.abs(r - 0.8) < 0.08) {
+        score = 76; label = '4:5 Portrait — Good';
+        tip = 'Good portrait ratio but not full-screen on TikTok. Crop to 9:16 to remove the black bars and fill the screen.';
+      } else if (Math.abs(r - 1) < 0.06) {
+        score = 62; label = '1:1 Square — Pillarboxed';
+        tip = 'Square video shows with black bars on TikTok and performs noticeably worse. Re-shoot or reframe vertically if possible.';
+      } else if (r > 1) {
+        score = 34; label = 'Landscape — Poor fit for TikTok';
+        tip = 'Landscape gets heavy black bars and is scroll-unfriendly on TikTok. Strongly recommend reframing to 9:16 vertical.';
+      } else {
+        score = 65; label = 'Portrait — Decent';
+        tip = 'Portrait is in the right direction for TikTok. A 9:16 crop would fill the screen and improve performance.';
+      }
+    }
+
+    // Penalise very large files
+    if (img.fileSize > 8 * 1024 * 1024) {
+      const mb = (img.fileSize / 1024 / 1024).toFixed(1);
+      tip += ` Note: your file is ${mb} MB — compress it before uploading to avoid quality loss from platform recompression.`;
+      score = Math.max(0, score - 8);
+    }
+
+    return { score, label, tip };
   }
 
   function scoreHook(firstLine) {
@@ -889,7 +1143,7 @@
     return all.filter(h => { if (seen.has(h.tag)) return false; seen.add(h.tag); return true; }).slice(0, 20);
   }
 
-  function platformTips(text, plat, hook, length, cta) {
+  function platformTips(text, plat, hook, length, cta, img) {
     const t = text.toLowerCase();
     const tips = [];
 
@@ -918,6 +1172,17 @@
       tips.push({ icon: '⏰', text: 'Best IG posting windows: Tue–Fri, 9am–1pm in your audience\'s local time' });
     }
 
+    // Image-specific tips
+    if (img) {
+      const r = img.ratio;
+      if (plat === 'instagram' && Math.abs(r - 0.8) > 0.08 && Math.abs(r - 1) > 0.08) {
+        tips.unshift({ icon: '📐', text: 'Crop your image to 4:5 (portrait) before posting — it\'s the highest-performing ratio on Instagram, taking up more feed space than any other format.' });
+      }
+      if (plat === 'tiktok' && Math.abs(r - 0.5625) > 0.07) {
+        tips.unshift({ icon: '📱', text: 'Reframe your content to 9:16 vertical — TikTok is a full-screen experience and anything other than vertical gets black bars that kill engagement.' });
+      }
+    }
+
     return tips.slice(0, 4);
   }
 
@@ -926,7 +1191,7 @@
   function grade(s) { return s >= 82 ? 'Strong' : s >= 65 ? 'Good' : s >= 45 ? 'Fair' : 'Weak'; }
 
   function render(r) {
-    const { overall, hook, length, cta, style, tags, tips, plat } = r;
+    const { overall, hook, length, cta, style, tags, tips, image, plat } = r;
 
     // Ring
     const ring = document.getElementById('ring-fill');
@@ -951,31 +1216,30 @@
     };
     document.getElementById('hero-desc').textContent = descs[col(overall)];
 
-    // Metric cards
-    const metrics = [
-      {
-        name: 'Hook', score: hook,
-        tip: hook >= 75 ? 'Great opening line — scroll-stopping!' :
-             hook >= 50 ? 'Could be punchier. Try a question or bold claim.' :
-                          'Weak hook. Rewrite the first line completely.',
-      },
-      {
-        name: 'Length', score: length,
-        tip: plat === 'instagram'
-          ? (length >= 80 ? 'Good length for Instagram.' : 'Aim for 138–300 chars for best IG engagement.')
-          : (length >= 80 ? 'Good length for TikTok.' : 'TikTok captions work best at 50–150 chars.'),
-      },
-      {
-        name: 'CTA', score: cta,
-        tip: cta >= 75 ? 'Strong call-to-action!' :
-             cta >= 40 ? 'CTA present but could be more specific or prominent.' :
-                         'Missing CTA. Tell your audience exactly what to do next.',
-      },
-      {
-        name: 'Style', score: style.score,
-        tip: style.score >= 85 ? 'Clean and readable. Great work!' : 'See style notes below for fixes.',
-      },
-    ];
+    // Metric cards (only show text metrics when text is present)
+    const metrics = [];
+    if (hook !== null)   metrics.push({
+      name: 'Hook', score: hook,
+      tip: hook >= 75 ? 'Great opening line — scroll-stopping!' :
+           hook >= 50 ? 'Could be punchier. Try a question or bold claim.' :
+                        'Weak hook. Rewrite the first line completely.',
+    });
+    if (length !== null) metrics.push({
+      name: 'Length', score: length,
+      tip: plat === 'instagram'
+        ? (length >= 80 ? 'Good length for Instagram.' : 'Aim for 138–300 chars for best IG engagement.')
+        : (length >= 80 ? 'Good length for TikTok.'   : 'TikTok captions work best at 50–150 chars.'),
+    });
+    if (cta !== null)    metrics.push({
+      name: 'CTA', score: cta,
+      tip: cta >= 75 ? 'Strong call-to-action!' :
+           cta >= 40 ? 'CTA present but could be more specific or prominent.' :
+                       'Missing CTA. Tell your audience exactly what to do next.',
+    });
+    if (style !== null)  metrics.push({
+      name: 'Style', score: style.score,
+      tip: style.score >= 85 ? 'Clean and readable. Great work!' : 'See style notes below for fixes.',
+    });
 
     document.getElementById('metrics-grid').innerHTML = metrics.map(m => `
       <div class="metric-card">
@@ -990,13 +1254,32 @@
       </div>
     `).join('');
 
+    // Image fit card
+    const imgFitCard = document.getElementById('image-fit-card');
+    if (image) {
+      document.getElementById('img-score-num').textContent  = image.score;
+      document.getElementById('img-score-num').className    = `img-score-num c-${col(image.score)}`;
+      document.getElementById('img-fit-title').textContent  = image.label;
+      document.getElementById('img-fit-title').className    = `img-fit-title c-${col(image.score)}`;
+      document.getElementById('img-fit-tip').textContent    = image.tip;
+      imgFitCard.classList.remove('hidden');
+    } else {
+      imgFitCard.classList.add('hidden');
+    }
+
     // Style issues
-    document.getElementById('style-issues').innerHTML = style.issues.map(i => `
-      <div class="issue-row">
-        <span class="issue-icon">${i.ok ? '✅' : '⚠️'}</span>
-        <span>${i.msg}</span>
-      </div>
-    `).join('');
+    const styleCard = document.getElementById('style-card');
+    if (style) {
+      styleCard.classList.remove('hidden');
+      document.getElementById('style-issues').innerHTML = style.issues.map(i => `
+        <div class="issue-row">
+          <span class="issue-icon">${i.ok ? '✅' : '⚠️'}</span>
+          <span>${i.msg}</span>
+        </div>
+      `).join('');
+    } else {
+      styleCard.classList.add('hidden');
+    }
 
     // Platform tips
     document.getElementById('tips-title').textContent = plat === 'tiktok' ? 'TikTok Tips' : 'Instagram Tips';
@@ -1008,23 +1291,27 @@
     `).join('');
 
     // Hashtags
-    const grid = document.getElementById('hashtag-grid');
-    grid.innerHTML = tags.map(h => `
-      <button class="h-chip ${h.size}" data-tag="${h.tag}">${h.tag}</button>
-    `).join('');
-
-    grid.querySelectorAll('.h-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        copyText(chip.dataset.tag);
-        showToast('Copied ' + chip.dataset.tag);
+    const hashtagSection = document.getElementById('hashtag-section');
+    if (tags.length) {
+      hashtagSection.classList.remove('hidden');
+      const grid = document.getElementById('hashtag-grid');
+      grid.innerHTML = tags.map(h => `
+        <button class="h-chip ${h.size}" data-tag="${h.tag}">${h.tag}</button>
+      `).join('');
+      grid.querySelectorAll('.h-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          copyText(chip.dataset.tag);
+          showToast('Copied ' + chip.dataset.tag);
+        });
       });
-    });
-
-    document.getElementById('copy-all-btn').onclick = () => {
-      const all = tags.map(h => h.tag).join(' ');
-      copyText(all);
-      showToast('Copied all ' + tags.length + ' hashtags');
-    };
+      document.getElementById('copy-all-btn').onclick = () => {
+        const all = tags.map(h => h.tag).join(' ');
+        copyText(all);
+        showToast('Copied all ' + tags.length + ' hashtags');
+      };
+    } else {
+      hashtagSection.classList.add('hidden');
+    }
   }
 
   // ── Utilities ─────────────────────────────────────────────
