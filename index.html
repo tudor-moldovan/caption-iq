@@ -1048,40 +1048,117 @@
 
   function rewriteCaption(text, plat, hookScore, ctaScore) {
     const hashtags = (text.match(/#\w+/g) || []).join(' ');
-    const body = text.replace(/#\w+/g, '').trim();
-    const hasCTA = ctaScore >= 40;
-    const hLine = hashtags ? '\n.\n.\n.\n' + hashtags : '';
-    // Deterministic opener selection based on text length
-    const idx = text.length % 4;
-    const openers = plat === 'tiktok' ? [
-      'Wait — hear me out on this... 👀',
-      'POV: you just discovered this.',
-      'Real talk — most people get this wrong:',
-      'The part nobody tells you about this...',
-    ] : [
-      'Here\'s something I wish I knew sooner: 👇',
-      'Nobody talks about this, but it matters.',
-      'If this resonates, save it for later 👇',
-      'Real talk: this changed how I approach everything.',
+    const body     = text.replace(/#\w+/g, '').trim();
+    const hasCTA   = ctaScore >= 40;
+    const hLine    = hashtags ? '\n.\n.\n.\n' + hashtags : '';
+    const t        = text.toLowerCase();
+    const kwRe     = kw => new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(t);
+
+    const topics = [
+      {
+        id: 'food',
+        kw: ['food','eat','recipe','cook','meal','restaurant','dinner','lunch','breakfast','bake','chef','cuisine','delicious','tasty'],
+        hooks: ['This recipe is the reason I stopped eating out:', 'Honestly? Best thing I\'ve made in months.', 'I\'ve cooked this 4 times this week — no notes. 🍳'],
+        qHook: { ig: 'What\'s the one meal you could eat every single day? 👇', tt: 'Am I the only one who does this in the kitchen? 👀' },
+        cta: { ig: '\n\nSave this recipe before you scroll past 🔖\nTag someone who needs to try this 👇', tt: '\n\nComment "RECIPE" for the full version 🍳\nFollow so you don\'t miss the next one 🎯' },
+      },
+      {
+        id: 'fitness',
+        kw: ['fitness','workout','gym','exercise','train','lift','run','cardio','muscle','gains','squat','deadlift','crossfit'],
+        hooks: ['The one training change that actually moved the needle:', 'Most gym advice is noise. Here\'s what actually works:', 'I stopped doing this and my results completely changed 👇'],
+        qHook: { ig: 'What\'s the fitness habit you wish you started sooner? 💭', tt: 'Be honest — are you training hard or just staying comfortable? 👀' },
+        cta: { ig: '\n\nSave this for your next session 🔖\nDrop your current split in the comments 👇', tt: '\n\nComment your PR 💪 let\'s see those numbers!\nFollow for weekly programming 🎯' },
+      },
+      {
+        id: 'travel',
+        kw: ['travel','trip','adventur','explor','wanderlust','vacation','holiday','destination','hotel','flight','passport','backpack'],
+        hooks: ['This place genuinely stopped me mid-trip:', 'The travel tip I wish I had before I left:', 'Hidden gem alert — not sharing the exact location though. 😅'],
+        qHook: { ig: 'What destination is on your non-negotiable bucket list? 🌍', tt: 'Would you book a trip somewhere you know nothing about? 👀' },
+        cta: { ig: '\n\nSave this for your next trip 🗺️\nWhere should I go next? Drop it below 👇', tt: '\n\nComment your dream destination 🌍\nFollow for honest travel content 🎯' },
+      },
+      {
+        id: 'fashion',
+        kw: ['fashion','style','outfit','ootd','wear','dress','clothes','brand','trend','closet','wardrobe','accessory'],
+        hooks: ['The outfit formula I keep coming back to (it never fails):', 'This one piece made everything in my wardrobe click:', 'I used to overcomplicate getting dressed. Then I found this:'],
+        qHook: { ig: 'What\'s the one item that elevated your entire wardrobe? 👇', tt: 'Be honest — how long does getting dressed actually take you? 😅' },
+        cta: { ig: '\n\nSave this look for outfit inspo 🔖\nDrop a 🔥 if you\'d wear this 👇', tt: '\n\nComment your vibe: classic, streetwear, or maximalist? 💅\nFollow for daily looks 🎯' },
+      },
+      {
+        id: 'beauty',
+        kw: ['beauty','makeup','skincare','skin','glow','lipstick','foundation','eyeshadow','routine','moisturizer','serum','concealer','blush'],
+        hooks: ['The skincare step everyone skips (and why it matters most):', 'This one product quietly fixed 80% of my skin issues:', 'I\'ve tried everything. Here\'s what actually works:'],
+        qHook: { ig: 'What\'s your non-negotiable skincare step? Drop it below 👇', tt: 'Be honest — how many half-empty products do you have? 😅' },
+        cta: { ig: '\n\nSave this routine — your future skin will thank you 🔖\nWhat\'s your holy grail product? 👇', tt: '\n\nComment your skin type 🧖 I\'ll give you a rec!\nFollow for honest beauty reviews 🎯' },
+      },
+      {
+        id: 'business',
+        kw: ['business','entrepreneur','money','income','side hustle','startup','marketing','success','invest','passive income','brand'],
+        hooks: ['The business lesson that cost me the most to learn — for free:', 'Everyone\'s talking about passive income. Here\'s the real math:', 'I almost quit before this happened. Here\'s what changed:'],
+        qHook: { ig: 'What\'s the hardest business lesson you\'ve had to learn? 💭', tt: 'Are you building a business or just creating a job for yourself? 👀' },
+        cta: { ig: '\n\nSave this — worth revisiting as you grow 🔖\nBiggest business challenge right now? Drop it below 👇', tt: '\n\nComment your revenue goal this year 💰\nFollow for real business talk, no fluff 🎯' },
+      },
+      {
+        id: 'motivation',
+        kw: ['motivat','inspir','mindset','quote','positive','growth','self','discipline','consistency'],
+        hooks: ['The mindset shift that changed how I approach everything:', 'Nobody talks about the quiet, unglamorous part of real growth:', 'This is the reminder I come back to every time I want to quit:'],
+        qHook: { ig: 'What\'s the one thing you\'d tell your past self today? 💭', tt: 'What would you attempt if you knew you couldn\'t fail? 👀' },
+        cta: { ig: '\n\nSave this for when you need it most 🔖\nTag someone who needs to hear this 💜', tt: '\n\nComment "YES" if this hit different 🙌\nFollow for daily mindset content 🎯' },
+      },
+      {
+        id: 'pet',
+        kw: ['pet','dog','cat','puppy','kitten','animal','pup','fur baby','furball','adopt'],
+        hooks: ['My pet did this and I\'ve been thinking about it ever since:', 'The moment I realised my pet understands me better than most people:', 'Nobody warned me about this part of pet ownership. 😅'],
+        qHook: { ig: 'What\'s the most unhinged thing your pet has ever done? 🐾', tt: 'Does your pet do this too or is it just mine? 👀' },
+        cta: { ig: '\n\nSave this — instant mood boost 🔖\nDrop a 🐾 if your pet does this too 👇', tt: '\n\nComment your pet\'s name below 🐶\nFollow for the best pet content on here 🎯' },
+      },
+      {
+        id: 'tech',
+        kw: ['tech','technology','software','app','coding','developer','ai','gadget','phone','computer','iphone','android','review'],
+        hooks: ['This tool changed how I work — I can\'t go back now:', 'The tech mistake costing most people hours every week:', 'I tested this so you don\'t have to. Here\'s my honest take:'],
+        qHook: { ig: 'What\'s the best tool or app you\'ve discovered recently? 👇', tt: 'How much time does bad tech actually cost you per week? ⏱️' },
+        cta: { ig: '\n\nSave this for your next setup upgrade 🔖\nBest tech purchase this year? Drop it below 👇', tt: '\n\nComment "LINK" for where to get it 🔗\nFollow for weekly tech finds 🎯' },
+      },
+      {
+        id: 'parenting',
+        kw: ['parent','mom','dad','baby','kid','toddler','family','children','pregnan','newborn'],
+        hooks: ['The parenting moment nobody prepares you for:', 'My kid said something that completely stopped me in my tracks:', 'The part of parenting they leave out of all the books:'],
+        qHook: { ig: 'What\'s the one thing you wish you knew before becoming a parent? 💭', tt: 'Is it just me or does parenting get harder the older they get? 👀' },
+        cta: { ig: '\n\nSave this for the hard days 🔖\nTag a parent who needs this reminder 💜', tt: '\n\nComment your kid\'s age 👶 you\'re not alone!\nFollow for real parenting content 🎯' },
+      },
     ];
-    const opener = openers[idx];
-    const ctaA = plat === 'tiktok'
-      ? '\n\nWhat\'s your take? Drop it in the comments 👇\nFollow for more like this 🎯'
-      : '\n\nSave this — you\'ll want to come back to it 🔖\nFollow for more tips like this 💜';
-    const ctaB = plat === 'tiktok'
-      ? '\n\nComment "YES" if this hit different 🙌\nFollow so you never miss one 🎯'
-      : '\n\nDrop your thoughts below 👇 I read every comment.\nSave this post so you can find it again 🔖';
-    const v1 = (opener + '\n\n' + body + (hasCTA ? '' : ctaA) + hLine).trim();
-    const v2 = (body + ctaB + hLine).trim();
+
+    const matched = topics.find(tp => tp.kw.some(kwRe));
+    const idx     = text.length % 3;
+
+    const topicHook = matched ? matched.hooks[idx]
+      : (plat === 'tiktok'
+          ? ['The part nobody talks about 👀', 'Okay but why didn\'t anyone tell me this sooner:', 'POV: this actually works.'][idx]
+          : ['Here\'s something I wish I knew sooner 👇', 'The thing most people get completely wrong:', 'Saving this for myself — and for you. 💜'][idx]);
+
+    const qHook = matched
+      ? (plat === 'instagram' ? matched.qHook.ig : matched.qHook.tt)
+      : (plat === 'tiktok' ? 'Does this actually work or is it just me? 👀' : 'Is this just me, or does everyone feel this way? 👇');
+
+    const ctaText = matched
+      ? (plat === 'instagram' ? matched.cta.ig : matched.cta.tt)
+      : (plat === 'tiktok'
+          ? '\n\nComment your thoughts below 💬\nFollow so you never miss one 🎯'
+          : '\n\nSave this — you\'ll want to come back to it 🔖\nFollow for more like this 💜');
+
+    // Variant 1: Hook-first — replace a weak opener with the topic-matched hook
+    const sentences = body.split(/(?<=[.!?…])\s+/);
+    const v1Body    = hookScore < 55 && sentences.length > 1 ? sentences.slice(1).join(' ') : body;
+    const v1        = (topicHook + '\n\n' + v1Body + (hasCTA ? '' : ctaText) + hLine).trim();
+
+    // Variant 2: Question-driven — curiosity-gap opener that drives comments
+    const v2 = (qHook + '\n\n' + body + (hasCTA ? '' : ctaText) + hLine).trim();
+
     return [
       { label: 'Hook-first', icon: '🔥',
-        desc: 'Pattern-interrupt opener to stop the scroll',
+        desc: matched ? `Topic-matched opener for ${matched.id} content` : 'Pattern-interrupt opener to stop the scroll',
         text: v1 },
-      { label: plat === 'instagram' ? 'Save-driven' : 'Comment-driven',
-        icon: plat === 'instagram' ? '🔖' : '💬',
-        desc: plat === 'instagram'
-          ? 'Optimised for saves — the highest IG ranking signal (Later, 2024)'
-          : 'Optimised for comments — TikTok\'s #1 distribution signal',
+      { label: 'Question-driven', icon: '💭',
+        desc: 'Curiosity-gap question — drives comments and algorithm reach',
         text: v2 },
     ];
   }
