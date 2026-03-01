@@ -1,4 +1,4 @@
-const CACHE = 'todos-v1';
+const CACHE = 'captioniq-v1';
 const ASSETS = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', e => {

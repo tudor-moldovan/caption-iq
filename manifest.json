@@ -1,11 +1,11 @@
 {
-  "name": "My Todos",
-  "short_name": "Todos",
-  "description": "A simple, fast todo app",
+  "name": "CaptionIQ — Social Content Optimizer",
+  "short_name": "CaptionIQ",
+  "description": "Score and optimize your Instagram & TikTok captions before posting",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F2F2F7",
-  "theme_color": "#007AFF",
+  "background_color": "#0d0d10",
+  "theme_color": "#9333ea",
   "orientation": "portrait-primary",
   "icons": [
     {

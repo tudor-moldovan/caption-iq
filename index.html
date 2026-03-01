@@ -5,40 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Todos" />
-  <meta name="theme-color" content="#007AFF" />
+  <meta name="apple-mobile-web-app-title" content="CaptionIQ" />
+  <meta name="theme-color" content="#9333ea" />
   <link rel="manifest" href="manifest.json" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
-  <title>Todos</title>
+  <title>CaptionIQ</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --blue: #007AFF;
-      --red: #FF3B30;
-      --green: #34C759;
-      --bg: #F2F2F7;
-      --card: #FFFFFF;
-      --text: #1C1C1E;
-      --subtext: #8E8E93;
-      --separator: #C6C6C8;
-      --radius: 13px;
-      --safe-top: env(safe-area-inset-top, 0px);
+      --accent:  #9333ea;
+      --accent2: #ec4899;
+      --bg:      #f4f4f8;
+      --card:    #ffffff;
+      --text:    #111111;
+      --subtext: #6b6b80;
+      --sep:     #e2e2ea;
+      --radius:  16px;
+      --green:   #22c55e;
+      --yellow:  #f59e0b;
+      --red:     #ef4444;
+      --safe-top:    env(safe-area-inset-top,    0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg: #1C1C1E;
-        --card: #2C2C2E;
-        --text: #FFFFFF;
-        --subtext: #8E8E93;
-        --separator: #3A3A3C;
+        --bg:   #0d0d10;
+        --card: #1a1a20;
+        --text: #f0f0f5;
+        --subtext: #88889a;
+        --sep:  #2a2a35;
       }
     }
 
     html, body {
-      height: 100%;
+      min-height: 100%;
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
@@ -47,497 +48,1017 @@
     }
 
     #app {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
       max-width: 480px;
       margin: 0 auto;
-    }
-
-    /* Header */
-    header {
-      padding: calc(var(--safe-top) + 16px) 20px 0;
-      background: var(--bg);
-    }
-
-    .header-top {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-
-    h1 {
-      font-size: 34px;
-      font-weight: 700;
-      letter-spacing: 0.37px;
-      color: var(--text);
-    }
-
-    .header-count {
-      font-size: 15px;
-      color: var(--subtext);
-      padding-bottom: 6px;
-    }
-
-    /* Filter tabs */
-    .filters {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-    }
-    .filters::-webkit-scrollbar { display: none; }
-
-    .filter-btn {
-      flex-shrink: 0;
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: none;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      background: var(--card);
-      color: var(--subtext);
-      transition: all 0.15s ease;
-    }
-
-    .filter-btn.active {
-      background: var(--blue);
-      color: #fff;
-    }
-
-    /* Input area */
-    .input-area {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .todo-input {
-      flex: 1;
-      padding: 12px 16px;
-      border-radius: var(--radius);
-      border: none;
-      background: var(--card);
-      color: var(--text);
-      font-size: 16px;
-      font-family: inherit;
-      outline: none;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-
-    .todo-input::placeholder { color: var(--subtext); }
-
-    .add-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: none;
-      background: var(--blue);
-      color: #fff;
-      font-size: 24px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0,122,255,0.35);
-      transition: transform 0.1s ease, opacity 0.1s ease;
-    }
-
-    .add-btn:active { transform: scale(0.9); opacity: 0.85; }
-
-    /* List */
-    main {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 20px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .todo-list {
-      list-style: none;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      gap: 2px;
     }
 
-    .todo-item {
+    /* ── Header ── */
+    .app-header {
+      padding: calc(var(--safe-top) + 20px) 20px 16px;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+
+    .header-row {
       display: flex;
       align-items: center;
-      gap: 12px;
-      background: var(--card);
-      padding: 14px 16px;
-      border-radius: 0;
-      transition: opacity 0.2s;
-      position: relative;
-      cursor: pointer;
-      -webkit-user-select: none;
-      user-select: none;
+      justify-content: space-between;
+      margin-bottom: 14px;
     }
 
-    .todo-item:first-child { border-radius: var(--radius) var(--radius) 0 0; }
-    .todo-item:last-child  { border-radius: 0 0 var(--radius) var(--radius); }
-    .todo-item:only-child  { border-radius: var(--radius); }
-
-    .todo-item:not(:last-child)::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 54px;
-      right: 0;
-      height: 1px;
-      background: var(--separator);
+    .brand {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    /* Checkbox */
-    .check-btn {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      border: 2px solid var(--separator);
-      background: none;
-      cursor: pointer;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      padding: 0;
-    }
-
-    .check-btn.done {
-      background: var(--green);
-      border-color: var(--green);
-    }
-
-    .check-btn.done::after {
-      content: '';
-      width: 6px;
-      height: 10px;
-      border: 2.5px solid #fff;
-      border-top: none;
-      border-left: none;
-      transform: rotate(45deg) translate(-1px, -1px);
-    }
-
-    /* Todo text */
-    .todo-text-wrap {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .todo-text {
-      font-size: 16px;
-      color: var(--text);
-      word-break: break-word;
-      transition: all 0.2s ease;
-    }
-
-    .todo-item.done .todo-text {
-      color: var(--subtext);
-      text-decoration: line-through;
-    }
-
-    .todo-meta {
+    .brand-sub {
       font-size: 12px;
       color: var(--subtext);
-      margin-top: 2px;
+      font-weight: 500;
     }
 
-    /* Delete button */
-    .delete-btn {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: none;
-      background: none;
-      color: var(--red);
-      font-size: 20px;
-      line-height: 1;
-      cursor: pointer;
+    /* Platform toggle */
+    .platform-toggle {
       display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      transition: opacity 0.15s;
-      padding: 0;
-      flex-shrink: 0;
+      background: var(--card);
+      border-radius: 30px;
+      padding: 4px;
+      gap: 4px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.10);
     }
 
-    .todo-item:hover .delete-btn,
-    .todo-item.show-delete .delete-btn {
-      opacity: 1;
+    .plat-btn {
+      flex: 1;
+      padding: 9px 0;
+      border-radius: 26px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      background: transparent;
+      color: var(--subtext);
+      transition: background 0.2s, color 0.2s;
+      letter-spacing: 0.1px;
     }
 
-    /* Empty state */
-    .empty {
+    .plat-btn[data-p="instagram"].active {
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+    }
+
+    .plat-btn[data-p="tiktok"].active {
+      background: #111;
+      color: #fff;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      padding: 0 16px 24px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .empty-icon {
-      font-size: 56px;
-      line-height: 1;
+    /* Input card */
+    .input-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
     }
 
-    .empty-title {
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .empty-sub {
-      font-size: 15px;
-      color: var(--subtext);
-      text-align: center;
-    }
-
-    /* Footer */
-    footer {
-      padding: 12px 20px calc(var(--safe-bottom) + 12px);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-text {
-      font-size: 13px;
-      color: var(--subtext);
-    }
-
-    .clear-btn {
-      font-size: 13px;
-      color: var(--red);
-      background: none;
+    .caption-textarea {
+      width: 100%;
+      min-height: 150px;
       border: none;
-      cursor: pointer;
-      padding: 4px;
+      background: transparent;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      line-height: 1.55;
+      resize: none;
+      outline: none;
     }
 
-    .clear-btn:disabled { opacity: 0.3; pointer-events: none; }
+    .caption-textarea::placeholder { color: var(--subtext); }
 
-    /* Animations */
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-8px); }
+    .input-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--sep);
+    }
+
+    .char-count {
+      font-size: 12px;
+      color: var(--subtext);
+      font-variant-numeric: tabular-nums;
+    }
+    .char-count.over { color: var(--red); }
+
+    .analyze-btn {
+      padding: 10px 22px;
+      border-radius: 24px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      letter-spacing: 0.2px;
+      transition: transform 0.1s ease, opacity 0.1s ease;
+    }
+    .analyze-btn.ig  { background: linear-gradient(135deg, #9333ea, #ec4899); }
+    .analyze-btn.tt  { background: #111; }
+    .analyze-btn:active { transform: scale(0.95); opacity: 0.88; }
+    .analyze-btn:disabled { opacity: 0.35; pointer-events: none; }
+
+    /* ── Results ── */
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeUp 0.35s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .todo-item.new { animation: slideIn 0.2s ease forwards; }
+    /* Score hero */
+    .score-hero {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 22px 18px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+
+    .ring-wrap { flex-shrink: 0; }
+
+    .score-ring {
+      width: 88px;
+      height: 88px;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg   { fill: none; stroke: var(--sep); stroke-width: 9; }
+    .ring-fill {
+      fill: none;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 226.2;
+      stroke-dashoffset: 226.2;
+      transition: stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                  stroke 0.3s ease;
+    }
+
+    .hero-text { flex: 1; min-width: 0; }
+
+    .hero-num {
+      font-size: 46px;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .hero-grade {
+      font-size: 14px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    .hero-platform {
+      font-size: 11px;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-top: 2px;
+    }
+
+    .hero-desc {
+      font-size: 13px;
+      color: var(--subtext);
+      line-height: 1.45;
+      margin-top: 10px;
+    }
+
+    /* Metric cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .metric-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 14px 14px 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+
+    .mc-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .mc-name {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--subtext);
+    }
+
+    .mc-score {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+
+    .mc-bar-track {
+      height: 5px;
+      background: var(--sep);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 9px;
+    }
+
+    .mc-bar {
+      height: 100%;
+      border-radius: 3px;
+      width: 0;
+      transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .mc-tip {
+      font-size: 12px;
+      color: var(--subtext);
+      line-height: 1.4;
+    }
+
+    /* Shared card */
+    .info-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--subtext);
+      margin-bottom: 10px;
+    }
+
+    /* Style issues */
+    .issue-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--sep);
+      font-size: 13.5px;
+      line-height: 1.45;
+    }
+    .issue-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .issue-row:first-child { padding-top: 0; }
+    .issue-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+    /* Platform tips */
+    .tip-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--sep);
+    }
+    .tip-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .tip-row:first-child { padding-top: 0; }
+    .tip-icon { font-size: 18px; flex-shrink: 0; }
+    .tip-text { font-size: 13.5px; line-height: 1.45; }
+
+    /* Hashtags */
+    .hashtag-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .copy-all-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 0;
+    }
+
+    .hashtag-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .h-chip {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      transition: transform 0.1s ease, opacity 0.1s;
+      user-select: none;
+    }
+    .h-chip:active { transform: scale(0.92); opacity: 0.8; }
+
+    .h-chip.broad  { background: rgba(239,68,68,0.10);  border-color: rgba(239,68,68,0.30);  color: var(--red); }
+    .h-chip.medium { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.30); color: var(--yellow); }
+    .h-chip.niche  { background: rgba(34,197,94,0.10);  border-color: rgba(34,197,94,0.30);  color: var(--green); }
+
+    .h-legend {
+      display: flex;
+      gap: 14px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--sep);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--subtext);
+    }
+
+    .legend-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* Utility */
+    .c-green  { color: var(--green);  }
+    .c-yellow { color: var(--yellow); }
+    .c-red    { color: var(--red);    }
+    .bg-green  { background: var(--green);  }
+    .bg-yellow { background: var(--yellow); }
+    .bg-red    { background: var(--red);    }
+    .hidden    { display: none !important; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 28px);
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(10,10,10,0.88);
+      color: #fff;
+      padding: 10px 22px;
+      border-radius: 24px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      white-space: nowrap;
+      z-index: 999;
+      backdrop-filter: blur(8px);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Footer */
+    .app-footer {
+      padding: 10px 20px calc(var(--safe-bottom) + 14px);
+      text-align: center;
+    }
+    .footer-note { font-size: 11.5px; color: var(--subtext); }
   </style>
 </head>
 <body>
 <div id="app">
-  <header>
-    <div class="header-top">
-      <h1>My Todos</h1>
-      <span class="header-count" id="header-count"></span>
+
+  <header class="app-header">
+    <div class="header-row">
+      <span class="brand">CaptionIQ</span>
+      <span class="brand-sub">Social Content Optimizer</span>
     </div>
-    <div class="filters">
-      <button class="filter-btn active" data-filter="all">All</button>
-      <button class="filter-btn" data-filter="active">Active</button>
-      <button class="filter-btn" data-filter="done">Done</button>
-    </div>
-    <div class="input-area">
-      <input
-        class="todo-input"
-        id="todo-input"
-        type="text"
-        placeholder="Add a new task..."
-        autocomplete="off"
-        autocorrect="on"
-        autocapitalize="sentences"
-        maxlength="200"
-      />
-      <button class="add-btn" id="add-btn" aria-label="Add task">+</button>
+    <div class="platform-toggle">
+      <button class="plat-btn active" data-p="instagram">📸 Instagram</button>
+      <button class="plat-btn"        data-p="tiktok"   >🎵 TikTok</button>
     </div>
   </header>
 
-  <main id="main"></main>
+  <main>
+    <div class="input-card">
+      <textarea
+        class="caption-textarea"
+        id="caption-input"
+        placeholder="Paste or write your caption here…"
+        maxlength="2200"
+        autocorrect="on"
+        autocapitalize="sentences"
+        spellcheck="true"
+      ></textarea>
+      <div class="input-meta">
+        <span class="char-count" id="char-count">0 / 2200</span>
+        <button class="analyze-btn ig" id="analyze-btn" disabled>Analyze</button>
+      </div>
+    </div>
 
-  <footer>
-    <span class="footer-text" id="footer-text"></span>
-    <button class="clear-btn" id="clear-btn">Clear done</button>
+    <div class="results hidden" id="results">
+
+      <!-- Overall score ring -->
+      <div class="score-hero">
+        <div class="ring-wrap">
+          <svg class="score-ring" viewBox="0 0 88 88">
+            <circle class="ring-bg"   cx="44" cy="44" r="36"/>
+            <circle class="ring-fill" id="ring-fill" cx="44" cy="44" r="36"/>
+          </svg>
+        </div>
+        <div class="hero-text">
+          <div class="hero-num"      id="hero-num">–</div>
+          <div class="hero-grade"    id="hero-grade"></div>
+          <div class="hero-platform" id="hero-platform"></div>
+          <div class="hero-desc"     id="hero-desc"></div>
+        </div>
+      </div>
+
+      <!-- 4 metric cards -->
+      <div class="metrics-grid" id="metrics-grid"></div>
+
+      <!-- Style & grammar -->
+      <div class="info-card" id="style-card">
+        <div class="section-title">Style &amp; Grammar</div>
+        <div id="style-issues"></div>
+      </div>
+
+      <!-- Platform tips -->
+      <div class="info-card">
+        <div class="section-title" id="tips-title">Platform Tips</div>
+        <div id="tips-list"></div>
+      </div>
+
+      <!-- Hashtags -->
+      <div class="info-card" id="hashtag-section">
+        <div class="hashtag-header">
+          <div class="section-title" style="margin-bottom:0">Suggested Hashtags</div>
+          <button class="copy-all-btn" id="copy-all-btn">Copy all</button>
+        </div>
+        <div class="hashtag-grid" id="hashtag-grid"></div>
+        <div class="h-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Broad 1M+</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Medium 100K–1M</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Niche &lt;100K</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <p class="footer-note">Tap a hashtag to copy it • Scores follow social media best practices</p>
   </footer>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-  const STORAGE_KEY = 'todos-v1';
+(function () {
+  'use strict';
 
-  // State
-  let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-  let filter = 'all';
+  // ── State ────────────────────────────────────────────────
+  let platform = localStorage.getItem('captioniq-platform') || 'instagram';
+  const CIRC = 226.2; // 2π × 36
 
-  // Persist
-  function save() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-  }
-
-  // Render
-  function render() {
-    const main = document.getElementById('main');
-    const headerCount = document.getElementById('header-count');
-    const footerText = document.getElementById('footer-text');
-    const clearBtn = document.getElementById('clear-btn');
-
-    const total = todos.length;
-    const doneCount = todos.filter(t => t.done).length;
-    const activeCount = total - doneCount;
-
-    headerCount.textContent = total > 0 ? `${activeCount} left` : '';
-    footerText.textContent = total > 0 ? `${total} task${total !== 1 ? 's' : ''}` : '';
-    clearBtn.disabled = doneCount === 0;
-
-    const visible = todos.filter(t => {
-      if (filter === 'active') return !t.done;
-      if (filter === 'done')   return t.done;
-      return true;
-    });
-
-    if (visible.length === 0) {
-      const messages = {
-        all:    { icon: '📋', title: 'No tasks yet', sub: 'Add something to get started.' },
-        active: { icon: '✅', title: 'All done!',    sub: 'You have no active tasks.' },
-        done:   { icon: '📭', title: 'Nothing done', sub: 'Complete a task to see it here.' },
-      };
-      const m = messages[filter];
-      main.innerHTML = `
-        <div class="empty">
-          <div class="empty-icon">${m.icon}</div>
-          <div class="empty-title">${m.title}</div>
-          <div class="empty-sub">${m.sub}</div>
-        </div>`;
-      return;
-    }
-
-    const ul = document.createElement('ul');
-    ul.className = 'todo-list';
-
-    visible.forEach(todo => {
-      const li = document.createElement('li');
-      li.className = `todo-item${todo.done ? ' done' : ''}`;
-      li.dataset.id = todo.id;
-
-      const dateStr = new Date(todo.createdAt).toLocaleDateString(undefined, {
-        month: 'short', day: 'numeric'
-      });
-
-      li.innerHTML = `
-        <button class="check-btn ${todo.done ? 'done' : ''}" aria-label="Toggle done"></button>
-        <div class="todo-text-wrap">
-          <div class="todo-text">${escapeHtml(todo.text)}</div>
-          <div class="todo-meta">${dateStr}</div>
-        </div>
-        <button class="delete-btn" aria-label="Delete task">&#x2212;</button>
-      `;
-
-      // Toggle done on check button
-      li.querySelector('.check-btn').addEventListener('click', e => {
-        e.stopPropagation();
-        toggle(todo.id);
-      });
-
-      // Toggle done on row tap (mobile-friendly)
-      li.addEventListener('click', () => toggle(todo.id));
-
-      // Long-press to reveal delete on mobile
-      let pressTimer;
-      li.addEventListener('touchstart', () => {
-        pressTimer = setTimeout(() => li.classList.add('show-delete'), 500);
-      }, { passive: true });
-      li.addEventListener('touchend', () => clearTimeout(pressTimer), { passive: true });
-      li.addEventListener('touchmove', () => clearTimeout(pressTimer), { passive: true });
-
-      li.querySelector('.delete-btn').addEventListener('click', e => {
-        e.stopPropagation();
-        remove(todo.id);
-      });
-
-      ul.appendChild(li);
-    });
-
-    main.innerHTML = '';
-    main.appendChild(ul);
-  }
-
-  function escapeHtml(str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
-  // Actions
-  function addTodo(text) {
-    text = text.trim();
-    if (!text) return;
-    todos.unshift({ id: Date.now(), text, done: false, createdAt: Date.now() });
-    save();
-    render();
-    // Mark newest item
-    const first = document.querySelector('.todo-item');
-    if (first) first.classList.add('new');
-  }
-
-  function toggle(id) {
-    const todo = todos.find(t => t.id === id);
-    if (todo) { todo.done = !todo.done; save(); render(); }
-  }
-
-  function remove(id) {
-    todos = todos.filter(t => t.id !== id);
-    save();
-    render();
-  }
-
-  function clearDone() {
-    todos = todos.filter(t => !t.done);
-    save();
-    render();
-  }
-
-  // Event listeners
-  document.getElementById('add-btn').addEventListener('click', () => {
-    const input = document.getElementById('todo-input');
-    addTodo(input.value);
-    input.value = '';
-    input.focus();
+  // ── Boot ─────────────────────────────────────────────────
+  document.querySelectorAll('.plat-btn').forEach(btn => {
+    if (btn.dataset.p === platform) btn.classList.add('active');
+    else btn.classList.remove('active');
   });
+  syncAnalyzeBtn();
 
-  document.getElementById('todo-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      addTodo(e.target.value);
-      e.target.value = '';
-    }
-  });
-
-  document.getElementById('clear-btn').addEventListener('click', clearDone);
-
-  document.querySelectorAll('.filter-btn').forEach(btn => {
+  // ── Platform toggle ──────────────────────────────────────
+  document.querySelectorAll('.plat-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      filter = btn.dataset.filter;
-      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      platform = btn.dataset.p;
+      localStorage.setItem('captioniq-platform', platform);
+      document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      render();
+      syncAnalyzeBtn();
+      // Re-run if results visible
+      if (!document.getElementById('results').classList.contains('hidden')) {
+        analyze();
+      }
     });
   });
 
-  // Register service worker
+  function syncAnalyzeBtn() {
+    const btn = document.getElementById('analyze-btn');
+    btn.className = 'analyze-btn ' + (platform === 'tiktok' ? 'tt' : 'ig');
+  }
+
+  // ── Textarea ─────────────────────────────────────────────
+  const textarea  = document.getElementById('caption-input');
+  const charCount = document.getElementById('char-count');
+  const analyzeBtn = document.getElementById('analyze-btn');
+
+  textarea.addEventListener('input', () => {
+    const len = textarea.value.length;
+    charCount.textContent = `${len} / 2200`;
+    charCount.classList.toggle('over', len > 2200);
+    analyzeBtn.disabled = len === 0;
+  });
+
+  analyzeBtn.addEventListener('click', analyze);
+
+  // ── Analyze ───────────────────────────────────────────────
+  function analyze() {
+    const text = textarea.value;
+    if (!text.trim()) return;
+    const result = run(text, platform);
+    render(result);
+    const resultsEl = document.getElementById('results');
+    resultsEl.classList.remove('hidden');
+    // Trigger CSS re-animation
+    resultsEl.style.animation = 'none';
+    void resultsEl.offsetWidth;
+    resultsEl.style.animation = '';
+    setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  }
+
+  // ── Scoring engine ────────────────────────────────────────
+  function run(text, plat) {
+    const firstLine = text.split('\n')[0] || '';
+    const hook    = scoreHook(firstLine);
+    const length  = scoreLength(text.length, plat);
+    const cta     = scoreCTA(text);
+    const style   = checkStyle(text);
+    const tags    = suggestTags(text, plat);
+    const tips    = platformTips(text, plat, hook, length, cta);
+    const overall = Math.round((hook + length + cta + style.score) / 4);
+    return { overall, hook, length, cta, style, tags, tips, plat };
+  }
+
+  function scoreHook(firstLine) {
+    if (!firstLine.trim()) return 0;
+    let s = 22;
+    const fl = firstLine.toLowerCase();
+    if (firstLine.includes('?'))           s += 26;
+    if (/\d/.test(firstLine))             s += 18;
+    const power = ['secret','never','always','stop','truth','exposed','warning','mistake','hack','how i','why i','how to','pov','nobody tells you','unpopular opinion','hot take','controversial','honest','real talk','hear me out','okay but','wait','plot twist'];
+    if (power.some(w => fl.includes(w)))  s += 20;
+    const emo = ['love','hate','obsessed','shocked',"can't believe",'finally','never going back','life-changing','game changer','mind blown','crying','screaming'];
+    if (emo.some(w => fl.includes(w)))    s += 15;
+    const wc = firstLine.trim().split(/\s+/).length;
+    if (wc <= 6)       s += 10;
+    else if (wc <= 10) s += 5;
+    if (/[…]$|\.{3}$/.test(firstLine.trim())) s += 7;
+    return Math.min(100, s);
+  }
+
+  function scoreLength(chars, plat) {
+    if (plat === 'instagram') {
+      if (chars >= 138 && chars <= 300) return 100;
+      if (chars > 300  && chars <= 500) return 84;
+      if (chars >= 60  && chars < 138)  return 70;
+      if (chars > 500  && chars <= 2200)return 58;
+      if (chars > 0    && chars < 60)   return 28;
+      return chars > 2200 ? 10 : 0;
+    } else {
+      if (chars >= 50  && chars <= 150) return 100;
+      if (chars > 150  && chars <= 300) return 76;
+      if (chars > 0    && chars < 50)   return 52;
+      if (chars > 300  && chars <= 500) return 54;
+      if (chars > 500)                  return 32;
+      return 0;
+    }
+  }
+
+  function scoreCTA(text) {
+    const t = text.toLowerCase();
+    const rules = [
+      { re: /comment\s+(below|down|your|👇|what|if|above|and)/, pts: 30 },
+      { re: /follow\s+(for|me|us|along|to get)/,                pts: 24 },
+      { re: /save\s+(this|post|for later|it)/,                  pts: 28 },
+      { re: /share\s+(this|with|to|it)/,                        pts: 22 },
+      { re: /link\s+in\s+(my\s+)?bio/,                          pts: 20 },
+      { re: /swipe\s+(up|left|right|to)/,                       pts: 18 },
+      { re: /tag\s+(a|your|someone|a friend)/,                  pts: 24 },
+      { re: /dm\s+(me|us|for)/,                                  pts: 20 },
+      { re: /drop\s+(a|your|an?\s+\w+)/,                        pts: 22 },
+      { re: /let me know/,                                       pts: 17 },
+      { re: /what do you think/,                                 pts: 15 },
+      { re: /tell me/,                                           pts: 14 },
+      { re: /click\s+(the\s+)?link/,                            pts: 18 },
+    ];
+    const found = rules.filter(r => r.re.test(t));
+    if (!found.length) return 8;
+    let s = found.reduce((a, r) => a + r.pts, 0);
+    const tail = t.slice(-130);
+    if (rules.some(r => r.re.test(tail))) s += 15;
+    if (found.length > 2) s -= 14;
+    return Math.min(100, Math.max(0, s));
+  }
+
+  function checkStyle(text) {
+    const issues = [];
+    let s = 100;
+
+    if (/  /.test(text)) {
+      issues.push({ ok: false, msg: 'Double spaces detected — clean them up' });
+      s -= 5;
+    }
+
+    const excl = (text.match(/!/g) || []).length;
+    if (excl > 3) {
+      issues.push({ ok: false, msg: `${excl} exclamation marks — 1–2 land harder` });
+      s -= 12;
+    }
+
+    const caps = text.split(/\s+/).filter(w =>
+      !w.startsWith('#') && !w.startsWith('@') &&
+      w.length > 2 && w === w.toUpperCase() && /[A-Z]/.test(w)
+    );
+    if (caps.length > 2) {
+      issues.push({ ok: false, msg: 'Excessive ALL CAPS — use emojis or line breaks for emphasis' });
+      s -= 10;
+    }
+
+    const emojis = (text.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu) || []);
+    if (emojis.length > 10) {
+      issues.push({ ok: false, msg: `${emojis.length} emojis is a lot — aim for 3–6 for clarity` });
+      s -= 8;
+    } else if (emojis.length === 0) {
+      issues.push({ ok: false, msg: 'No emojis — 1–3 relevant ones boost engagement on both platforms' });
+      s -= 15;
+    }
+
+    if (text.length > 220 && !text.includes('\n')) {
+      issues.push({ ok: false, msg: 'Wall of text — add line breaks for mobile readers' });
+      s -= 12;
+    }
+
+    const hashCount = (text.match(/#\w+/g) || []).length;
+    if (hashCount > 25) {
+      issues.push({ ok: false, msg: `${hashCount} hashtags looks spammy — use 8–15 targeted ones` });
+      s -= 10;
+    }
+
+    if (!issues.length) {
+      issues.push({ ok: true, msg: 'Great style! Clean, readable, and social-media ready.' });
+    }
+
+    return { score: Math.max(0, s), issues };
+  }
+
+  function suggestTags(text, plat) {
+    const t = text.toLowerCase();
+
+    const general = plat === 'tiktok'
+      ? [
+          { tag: '#fyp',        size: 'broad' },
+          { tag: '#foryou',     size: 'broad' },
+          { tag: '#foryoupage', size: 'broad' },
+          { tag: '#viral',      size: 'broad' },
+          { tag: '#trending',   size: 'medium' },
+        ]
+      : [
+          { tag: '#explorepage', size: 'broad' },
+          { tag: '#reels',       size: 'broad' },
+          { tag: '#instagood',   size: 'broad' },
+          { tag: '#instadaily',  size: 'medium' },
+        ];
+
+    const cats = [
+      {
+        kw: ['food','eat','recipe','cook','meal','delicious','tasty','restaurant','dinner','lunch','breakfast','bake','chef','cuisine'],
+        tags: [
+          { tag: '#foodie',          size: 'broad'  },
+          { tag: '#foodphotography', size: 'broad'  },
+          { tag: '#homecooking',     size: 'medium' },
+          { tag: '#recipeoftheday',  size: 'medium' },
+          { tag: '#easyrecipes',     size: 'medium' },
+          { tag: '#mealprep',        size: 'medium' },
+          { tag: '#whatsfordinner',  size: 'niche'  },
+          { tag: '#cookingvideo',    size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['fitness','workout','gym','exercise','train','lift','run','cardio','muscle','gains','health','squat','deadlift','crossfit'],
+        tags: [
+          { tag: '#fitness',           size: 'broad'  },
+          { tag: '#workout',           size: 'broad'  },
+          { tag: '#gymlife',           size: 'medium' },
+          { tag: '#fitnessmotivation', size: 'medium' },
+          { tag: '#homeworkout',       size: 'medium' },
+          { tag: '#strengthtraining',  size: 'niche'  },
+          { tag: '#workoutroutine',    size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['travel','trip','adventur','explor','wanderlust','vacation','holiday','destination','hotel','flight','passport','backpack'],
+        tags: [
+          { tag: '#travel',            size: 'broad'  },
+          { tag: '#travelgram',        size: 'broad'  },
+          { tag: '#wanderlust',        size: 'medium' },
+          { tag: '#travelphotography', size: 'medium' },
+          { tag: '#travellife',        size: 'niche'  },
+          { tag: '#exploremore',       size: 'niche'  },
+          { tag: '#travelblogger',     size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['fashion','style','outfit','ootd','wear','dress','clothes','brand','trend','closet','wardrobe','accessory'],
+        tags: [
+          { tag: '#fashion',         size: 'broad'  },
+          { tag: '#ootd',            size: 'broad'  },
+          { tag: '#style',           size: 'broad'  },
+          { tag: '#outfitoftheday',  size: 'medium' },
+          { tag: '#fashionista',     size: 'medium' },
+          { tag: '#streetstyle',     size: 'medium' },
+          { tag: '#fashionblogger',  size: 'niche'  },
+          { tag: '#whatiwore',       size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['beauty','makeup','skincare','skin','glow','lipstick','foundation','eyeshadow','routine','moisturizer','serum','concealer','blush'],
+        tags: [
+          { tag: '#beauty',          size: 'broad'  },
+          { tag: '#makeup',          size: 'broad'  },
+          { tag: '#skincare',        size: 'broad'  },
+          { tag: '#makeuptutorial',  size: 'medium' },
+          { tag: '#skincareRoutine', size: 'medium' },
+          { tag: '#glowup',          size: 'medium' },
+          { tag: '#grwm',            size: 'medium' },
+          { tag: '#beautytips',      size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['business','entrepreneur','money','income','side hustle','startup','marketing','success','invest','passive income','online business','brand'],
+        tags: [
+          { tag: '#entrepreneur',     size: 'broad'  },
+          { tag: '#business',         size: 'broad'  },
+          { tag: '#sidehustle',       size: 'medium' },
+          { tag: '#smallbusiness',    size: 'medium' },
+          { tag: '#businesstips',     size: 'niche'  },
+          { tag: '#makemoneyonline',  size: 'niche'  },
+          { tag: '#passiveincome',    size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['motivat','inspir','mindset','quote','positive','growth','self','discipline','consistency','better yourself'],
+        tags: [
+          { tag: '#motivation',      size: 'broad'  },
+          { tag: '#inspiration',     size: 'broad'  },
+          { tag: '#mindset',         size: 'medium' },
+          { tag: '#selfimprovement', size: 'medium' },
+          { tag: '#growthmindset',   size: 'niche'  },
+          { tag: '#dailymotivation', size: 'niche'  },
+          { tag: '#quoteoftheday',   size: 'medium' },
+        ],
+      },
+      {
+        kw: ['pet','dog','cat','puppy','kitten','animal','pup','fur baby','furball','adopt'],
+        tags: [
+          { tag: '#dogsofinstagram', size: 'broad'  },
+          { tag: '#catsofinstagram', size: 'broad'  },
+          { tag: '#petstagram',      size: 'medium' },
+          { tag: '#doglife',         size: 'medium' },
+          { tag: '#catlife',         size: 'niche'  },
+          { tag: '#furbaby',         size: 'niche'  },
+          { tag: '#adoptdontshop',   size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['tech','technology','software','app','coding','developer','ai','gadget','phone','computer','iphone','android','review'],
+        tags: [
+          { tag: '#tech',        size: 'broad'  },
+          { tag: '#technology',  size: 'broad'  },
+          { tag: '#coding',      size: 'medium' },
+          { tag: '#gadgets',     size: 'medium' },
+          { tag: '#ai',          size: 'medium' },
+          { tag: '#techreview',  size: 'niche'  },
+          { tag: '#techtips',    size: 'niche'  },
+        ],
+      },
+      {
+        kw: ['parent','mom','dad','baby','kid','toddler','family','children','pregnan','newborn'],
+        tags: [
+          { tag: '#parenting',          size: 'broad'  },
+          { tag: '#momlife',            size: 'broad'  },
+          { tag: '#family',             size: 'broad'  },
+          { tag: '#dadlife',            size: 'medium' },
+          { tag: '#babiesofinstagram',  size: 'medium' },
+          { tag: '#toddlerlife',        size: 'niche'  },
+          { tag: '#newmom',             size: 'niche'  },
+        ],
+      },
+    ];
+
+    const matched = cats.flatMap(c => c.kw.some(k => t.includes(k)) ? c.tags : []);
+    const all = [...general, ...matched];
+    const seen = new Set();
+    return all.filter(h => { if (seen.has(h.tag)) return false; seen.add(h.tag); return true; }).slice(0, 20);
+  }
+
+  function platformTips(text, plat, hook, length, cta) {
+    const t = text.toLowerCase();
+    const tips = [];
+
+    if (plat === 'tiktok') {
+      if (!/(comment|duet|stitch|reply)/.test(t))
+        tips.push({ icon: '💬', text: 'Ask a divisive question — TikTok\'s algorithm rewards comment volume above all else' });
+      if (text.length > 150)
+        tips.push({ icon: '✂️', text: 'Keep the first line under 150 chars — longer text hides behind "see more" on mobile' });
+      if (hook < 60)
+        tips.push({ icon: '🔥', text: 'Rewrite your first line as a bold statement or pattern interrupt — you have 1–2 seconds before the scroll' });
+      if (!/(trending|sound|audio|song|music)/.test(t))
+        tips.push({ icon: '🎵', text: 'Mention the trending sound if relevant — audio tags add discoverability in TikTok search' });
+      tips.push({ icon: '📊', text: 'Best TikTok posting times: 7–9am, 12–3pm, 7–11pm in your audience\'s timezone' });
+    } else {
+      if (!/(save|bookmark)/.test(t))
+        tips.push({ icon: '🔖', text: '"Save this post" is the highest-value IG CTA — saves signal quality to the algorithm stronger than likes' });
+      if (text.length < 138)
+        tips.push({ icon: '📝', text: 'Instagram rewards captions over 125 chars — add a short story or extra context to push past that' });
+      if (hook < 60)
+        tips.push({ icon: '📸', text: 'On IG, the first visible line must earn the "more" tap — open with a question or bold claim' });
+      const hc = (text.match(/#\w+/g) || []).length;
+      if (hc === 0)
+        tips.push({ icon: '#️⃣', text: 'Add 8–12 targeted hashtags — quality over quantity; mix niche and medium-volume tags' });
+      else if (hc > 20)
+        tips.push({ icon: '#️⃣', text: `${hc} hashtags can look spammy — trim to your best 10–12` });
+      tips.push({ icon: '⏰', text: 'Best IG posting windows: Tue–Fri, 9am–1pm in your audience\'s local time' });
+    }
+
+    return tips.slice(0, 4);
+  }
+
+  // ── Rendering ─────────────────────────────────────────────
+  function col(s) { return s >= 75 ? 'green' : s >= 48 ? 'yellow' : 'red'; }
+  function grade(s) { return s >= 82 ? 'Strong' : s >= 65 ? 'Good' : s >= 45 ? 'Fair' : 'Weak'; }
+
+  function render(r) {
+    const { overall, hook, length, cta, style, tags, tips, plat } = r;
+
+    // Ring
+    const ring = document.getElementById('ring-fill');
+    const ringColor = overall >= 75 ? '#22c55e' : overall >= 48 ? '#f59e0b' : '#ef4444';
+    ring.style.transition = 'none';
+    ring.style.strokeDashoffset = CIRC;
+    ring.style.stroke = ringColor;
+    void ring.getBoundingClientRect();
+    ring.style.transition = `stroke-dashoffset 0.9s cubic-bezier(0.4,0,0.2,1), stroke 0.3s ease`;
+    ring.style.strokeDashoffset = CIRC * (1 - overall / 100);
+
+    document.getElementById('hero-num').textContent = overall;
+    document.getElementById('hero-num').className = `hero-num c-${col(overall)}`;
+    document.getElementById('hero-grade').textContent = grade(overall) + ' Caption';
+    document.getElementById('hero-grade').className = `hero-grade c-${col(overall)}`;
+    document.getElementById('hero-platform').textContent = plat === 'tiktok' ? 'TikTok Score' : 'Instagram Score';
+
+    const descs = {
+      green:  'This caption looks strong across the key metrics. Small tweaks could make it perfect.',
+      yellow: 'Decent foundation — there\'s clear room to improve the hook, CTA, or length.',
+      red:    'Several areas need attention before this is ready to post.',
+    };
+    document.getElementById('hero-desc').textContent = descs[col(overall)];
+
+    // Metric cards
+    const metrics = [
+      {
+        name: 'Hook', score: hook,
+        tip: hook >= 75 ? 'Great opening line — scroll-stopping!' :
+             hook >= 50 ? 'Could be punchier. Try a question or bold claim.' :
+                          'Weak hook. Rewrite the first line completely.',
+      },
+      {
+        name: 'Length', score: length,
+        tip: plat === 'instagram'
+          ? (length >= 80 ? 'Good length for Instagram.' : 'Aim for 138–300 chars for best IG engagement.')
+          : (length >= 80 ? 'Good length for TikTok.' : 'TikTok captions work best at 50–150 chars.'),
+      },
+      {
+        name: 'CTA', score: cta,
+        tip: cta >= 75 ? 'Strong call-to-action!' :
+             cta >= 40 ? 'CTA present but could be more specific or prominent.' :
+                         'Missing CTA. Tell your audience exactly what to do next.',
+      },
+      {
+        name: 'Style', score: style.score,
+        tip: style.score >= 85 ? 'Clean and readable. Great work!' : 'See style notes below for fixes.',
+      },
+    ];
+
+    document.getElementById('metrics-grid').innerHTML = metrics.map(m => `
+      <div class="metric-card">
+        <div class="mc-head">
+          <span class="mc-name">${m.name}</span>
+          <span class="mc-score c-${col(m.score)}">${m.score}</span>
+        </div>
+        <div class="mc-bar-track">
+          <div class="mc-bar bg-${col(m.score)}" style="width:${m.score}%"></div>
+        </div>
+        <div class="mc-tip">${m.tip}</div>
+      </div>
+    `).join('');
+
+    // Style issues
+    document.getElementById('style-issues').innerHTML = style.issues.map(i => `
+      <div class="issue-row">
+        <span class="issue-icon">${i.ok ? '✅' : '⚠️'}</span>
+        <span>${i.msg}</span>
+      </div>
+    `).join('');
+
+    // Platform tips
+    document.getElementById('tips-title').textContent = plat === 'tiktok' ? 'TikTok Tips' : 'Instagram Tips';
+    document.getElementById('tips-list').innerHTML = tips.map(t => `
+      <div class="tip-row">
+        <span class="tip-icon">${t.icon}</span>
+        <span class="tip-text">${t.text}</span>
+      </div>
+    `).join('');
+
+    // Hashtags
+    const grid = document.getElementById('hashtag-grid');
+    grid.innerHTML = tags.map(h => `
+      <button class="h-chip ${h.size}" data-tag="${h.tag}">${h.tag}</button>
+    `).join('');
+
+    grid.querySelectorAll('.h-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        copyText(chip.dataset.tag);
+        showToast('Copied ' + chip.dataset.tag);
+      });
+    });
+
+    document.getElementById('copy-all-btn').onclick = () => {
+      const all = tags.map(h => h.tag).join(' ');
+      copyText(all);
+      showToast('Copied all ' + tags.length + ' hashtags');
+    };
+  }
+
+  // ── Utilities ─────────────────────────────────────────────
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.classList.remove('show'), 1900);
+  }
+
+  function copyText(str) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(str).catch(() => fallback(str));
+    } else {
+      fallback(str);
+    }
+  }
+
+  function fallback(str) {
+    const ta = Object.assign(document.createElement('textarea'), {
+      value: str, style: 'position:fixed;opacity:0'
+    });
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    try { document.execCommand('copy'); } catch (_) {}
+    document.body.removeChild(ta);
+  }
+
+  // ── Service worker ────────────────────────────────────────
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
-
-  // Initial render
-  render();
+})();
 </script>
 </body>
 </html>
