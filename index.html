@@ -168,6 +168,16 @@
       font-variant-numeric: tabular-nums;
     }
     .char-count.over { color: var(--red); }
+    .live-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #22c55e;
+      opacity: 0;
+      transition: opacity 0.4s;
+      animation: livePulse 2s ease-in-out infinite;
+    }
+    .live-badge.visible { opacity: 1; }
+    @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
     .analyze-btn {
       padding: 10px 22px;
@@ -655,6 +665,7 @@
       ></textarea>
       <div class="input-meta">
         <span class="char-count" id="char-count">0 / 2200</span>
+        <span class="live-badge" id="live-badge">● Live</span>
         <button class="analyze-btn ig" id="analyze-btn" disabled>Analyze</button>
       </div>
     </div>
@@ -883,11 +894,23 @@
     analyzeBtn.disabled = textarea.value.trim().length === 0 && imageData === null;
   }
 
+  let _debounce = null;
+  const liveBadge = document.getElementById('live-badge');
+
   textarea.addEventListener('input', () => {
     const len = textarea.value.length;
     charCount.textContent = `${len} / 2200`;
     charCount.classList.toggle('over', len > 2200);
     updateAnalyzeBtnState();
+    clearTimeout(_debounce);
+    if (textarea.value.trim()) {
+      _debounce = setTimeout(() => {
+        analyze();
+        liveBadge.classList.add('visible');
+      }, 700);
+    } else {
+      liveBadge.classList.remove('visible');
+    }
   });
 
   analyzeBtn.addEventListener('click', analyze);
