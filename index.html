@@ -251,6 +251,22 @@
       margin-top: 2px;
     }
 
+    .hero-sub {
+      font-size: 12px;
+      color: var(--subtext);
+      margin-top: 6px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hero-sub-item {
+      background: var(--bg);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
     .hero-desc {
       font-size: 13px;
       color: var(--subtext);
@@ -614,6 +630,7 @@
           <div class="hero-num"      id="hero-num">–</div>
           <div class="hero-grade"    id="hero-grade"></div>
           <div class="hero-platform" id="hero-platform"></div>
+          <div class="hero-sub"      id="hero-sub"></div>
           <div class="hero-desc"     id="hero-desc"></div>
         </div>
       </div>
@@ -824,36 +841,59 @@
     const tips    = platformTips(text, plat, hook || 0, length || 0, cta || 0, img);
     const image   = img ? scoreImage(img, plat) : null;
 
-    const scores = [hook, length, cta, style ? style.score : null, image ? image.score : null]
-      .filter(s => s !== null);
-    const overall = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    let textScore = null;
+    let overall = 0;
+    if (hasText && image) {
+      const ts = [hook, length, cta, style ? style.score : null].filter(s => s !== null);
+      textScore = ts.length ? Math.round(ts.reduce((a, b) => a + b, 0) / ts.length) : 0;
+      overall = Math.round(textScore * 0.70 + image.score * 0.30);
+    } else if (hasText) {
+      const ts = [hook, length, cta, style ? style.score : null].filter(s => s !== null);
+      overall = ts.length ? Math.round(ts.reduce((a, b) => a + b, 0) / ts.length) : 0;
+    } else if (image) {
+      overall = image.score;
+    }
 
-    return { overall, hook, length, cta, style, tags, tips, image, plat };
+    return { overall, textScore, hook, length, cta, style, tags, tips, image, plat };
   }
 
   function scoreImage(img, plat) {
     const r = img.ratio;
     let score, label, tip;
 
+    const isScreenshot = r < 0.48 || r > 2.3;
+
     if (plat === 'instagram') {
-      if (Math.abs(r - 0.8) < 0.08) {
+      if (r < 0.48) {
+        score = 55; label = 'Screenshot / Ultra-tall';
+        tip = 'This very tall format gets letterboxed or cropped in the Instagram feed. For screenshots, place them on a 4:5 branded graphic. For video, use Reels with a 9:16 crop.';
+      } else if (Math.abs(r - 0.5625) < 0.07) {
+        score = 72; label = '9:16 — Great for Reels/Stories';
+        tip = '9:16 fills Instagram Reels and Stories perfectly. For a feed post it will be letterboxed — crop to 4:5 to maximise feed visibility.';
+      } else if (Math.abs(r - 0.8) < 0.08) {
         score = 100; label = '4:5 Portrait — Perfect for IG';
         tip = 'Ideal ratio for the Instagram feed. Takes up maximum vertical real estate, keeping viewers focused on your content.';
       } else if (Math.abs(r - 1) < 0.06) {
         score = 86; label = '1:1 Square — Great';
         tip = 'Classic Instagram square. Works well across feed, profile grid, and older integrations.';
-      } else if (r > 1.7 && r < 2.1) {
-        score = 68; label = 'Landscape — Reduced visibility';
+      } else if (r > 1.7 && r < 2.3) {
+        score = 65; label = 'Landscape — Reduced visibility';
         tip = 'Landscape takes up less vertical space in the feed. Consider cropping to 4:5 portrait for more impact.';
+      } else if (r >= 2.3) {
+        score = 48; label = 'Ultra-wide — Heavily cropped';
+        tip = 'Very wide images get severely cropped on Instagram. Reframe to 4:5 or 1:1 for the feed.';
       } else if (r < 0.65) {
-        score = 78; label = 'Tall Portrait — Story-ready';
-        tip = '9:16 is perfect for Instagram Stories/Reels but gets letterboxed in the main feed. Prepare a 4:5 crop for feed posts.';
+        score = 74; label = 'Tall Portrait — Close to 9:16';
+        tip = 'Almost there! Crop to exactly 9:16 for Reels/Stories, or to 4:5 for the main feed to get maximum screen space.';
       } else {
-        score = 55; label = 'Non-standard ratio';
+        score = 58; label = 'Non-standard ratio';
         tip = 'Unusual ratio may get cropped unexpectedly by Instagram. Aim for 4:5 (portrait) or 1:1 (square) for best results.';
       }
     } else {
-      if (Math.abs(r - 0.5625) < 0.07) {
+      if (r < 0.48) {
+        score = 52; label = 'Screenshot / Ultra-tall';
+        tip = 'Screenshots need adaptation for TikTok. Place them on a 9:16 black or branded background using a template, or use TikTok\'s built-in green-screen / text features for full-screen impact.';
+      } else if (Math.abs(r - 0.5625) < 0.07) {
         score = 100; label = '9:16 Vertical — Perfect for TikTok';
         tip = 'Full-screen vertical is the gold standard on TikTok. This format maximises viewer immersion and engagement.';
       } else if (Math.abs(r - 0.8) < 0.08) {
@@ -866,8 +906,8 @@
         score = 34; label = 'Landscape — Poor fit for TikTok';
         tip = 'Landscape gets heavy black bars and is scroll-unfriendly on TikTok. Strongly recommend reframing to 9:16 vertical.';
       } else {
-        score = 65; label = 'Portrait — Decent';
-        tip = 'Portrait is in the right direction for TikTok. A 9:16 crop would fill the screen and improve performance.';
+        score = 65; label = 'Portrait — Close to 9:16';
+        tip = 'Portrait is heading in the right direction for TikTok. A 9:16 crop would fill the screen and improve performance.';
       }
     }
 
@@ -878,7 +918,7 @@
       score = Math.max(0, score - 8);
     }
 
-    return { score, label, tip };
+    return { score, label, tip, isScreenshot };
   }
 
   function scoreHook(firstLine) {
@@ -1191,7 +1231,8 @@
   function grade(s) { return s >= 82 ? 'Strong' : s >= 65 ? 'Good' : s >= 45 ? 'Fair' : 'Weak'; }
 
   function render(r) {
-    const { overall, hook, length, cta, style, tags, tips, image, plat } = r;
+    const { overall, textScore, hook, length, cta, style, tags, tips, image, plat } = r;
+    const hasText = hook !== null;
 
     // Ring
     const ring = document.getElementById('ring-fill');
@@ -1205,16 +1246,28 @@
 
     document.getElementById('hero-num').textContent = overall;
     document.getElementById('hero-num').className = `hero-num c-${col(overall)}`;
-    document.getElementById('hero-grade').textContent = grade(overall) + ' Caption';
+    document.getElementById('hero-grade').textContent = grade(overall) + (hasText ? ' Caption' : ' Visual');
     document.getElementById('hero-grade').className = `hero-grade c-${col(overall)}`;
     document.getElementById('hero-platform').textContent = plat === 'tiktok' ? 'TikTok Score' : 'Instagram Score';
+
+    // Sub-score breakdown
+    const heroSub = document.getElementById('hero-sub');
+    if (hasText && image) {
+      heroSub.innerHTML =
+        `<span class="hero-sub-item">Caption <strong class="c-${col(textScore)}">${textScore}</strong></span>` +
+        `<span class="hero-sub-item">Visual Fit <strong class="c-${col(image.score)}">${image.score}</strong></span>`;
+    } else if (!hasText && image) {
+      heroSub.innerHTML = `<span class="hero-sub-item" style="font-style:italic">Add a caption for a full score</span>`;
+    } else {
+      heroSub.innerHTML = '';
+    }
 
     const descs = {
       green:  'This caption looks strong across the key metrics. Small tweaks could make it perfect.',
       yellow: 'Decent foundation — there\'s clear room to improve the hook, CTA, or length.',
       red:    'Several areas need attention before this is ready to post.',
     };
-    document.getElementById('hero-desc').textContent = descs[col(overall)];
+    document.getElementById('hero-desc').textContent = hasText ? descs[col(overall)] : '';
 
     // Metric cards (only show text metrics when text is present)
     const metrics = [];
@@ -1259,7 +1312,8 @@
     if (image) {
       document.getElementById('img-score-num').textContent  = image.score;
       document.getElementById('img-score-num').className    = `img-score-num c-${col(image.score)}`;
-      document.getElementById('img-fit-title').textContent  = image.label;
+      const screenshotBadge = image.isScreenshot ? ' <span style="font-size:11px;font-weight:600;background:#f59e0b22;color:#b45309;padding:2px 7px;border-radius:99px;">Screenshot detected</span>' : '';
+      document.getElementById('img-fit-title').innerHTML   = image.label + screenshotBadge;
       document.getElementById('img-fit-title').className    = `img-fit-title c-${col(image.score)}`;
       document.getElementById('img-fit-tip').textContent    = image.tip;
       imgFitCard.classList.remove('hidden');
