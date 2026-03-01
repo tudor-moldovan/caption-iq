@@ -1268,6 +1268,51 @@
       s -= 10;
     }
 
+    // ── Grammar checks ──────────────────────────────────────
+    // Strip hashtags/mentions so we don't false-positive on #iPhone etc.
+    const prose = text.replace(/#\w+/g, '').replace(/@\w+/g, '');
+
+    // Repeated consecutive words ("the the", "I I")
+    const repeated = prose.match(/\b(\w+)\s+\1\b/gi);
+    if (repeated) {
+      const ex = repeated[0].split(/\s+/)[0];
+      issues.push({ ok: false, msg: `Repeated word: "${ex} ${ex}" — looks like a typo` });
+      s -= 10;
+    }
+
+    // Standalone lowercase "i" (should be "I")
+    if (/(?:^|\s)i(?:\s|$|[',])/.test(prose)) {
+      issues.push({ ok: false, msg: 'Lowercase "i" found — should be capitalised ("I")' });
+      s -= 8;
+    }
+
+    // Missing space after comma or full stop (ignores decimals & URLs)
+    if (/[a-z],[a-zA-Z]/.test(prose) || /[a-z]\.[a-zA-Z]{3,}/.test(prose.replace(/https?:\/\/\S+/g, ''))) {
+      issues.push({ ok: false, msg: 'Missing space after punctuation — check commas and full stops' });
+      s -= 8;
+    }
+
+    // Common confusable pairs (your/you're, their/there/they're, its/it's)
+    const confusables = [
+      [/\byour\s+(going|doing|coming|trying|making|getting|being|amazing|awesome|great|wonderful)\b/i, '"your" → should be "you\'re" here'],
+      [/\bthier\b/i, 'Spelling: "thier" → "their"'],
+      [/\brecieve\b/i, 'Spelling: "recieve" → "receive"'],
+      [/\bseperate\b/i, 'Spelling: "seperate" → "separate"'],
+      [/\bdefenitely\b/i, 'Spelling: "defenitely" → "definitely"'],
+      [/\boccured\b/i, 'Spelling: "occured" → "occurred"'],
+      [/\buntill\b/i, 'Spelling: "untill" → "until"'],
+      [/\bwich\b/i, 'Spelling: "wich" → "which"'],
+      [/\bwoud\b/i, 'Spelling: "woud" → "would"'],
+      [/\balot\b/i, '"alot" → should be two words: "a lot"'],
+    ];
+    for (const [re, msg] of confusables) {
+      if (re.test(prose)) {
+        issues.push({ ok: false, msg });
+        s -= 10;
+        break; // one grammar issue at a time to avoid overwhelming
+      }
+    }
+
     if (!issues.length) {
       issues.push({ ok: true, msg: 'Great style! Clean, readable, and social-media ready.' });
     }
