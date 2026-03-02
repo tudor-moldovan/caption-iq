@@ -767,9 +767,9 @@
     <div class="input-card">
       <!-- Image upload -->
       <div class="upload-zone" id="upload-zone">
-        <input type="file" id="img-input" accept="image/*" />
-        <div class="upload-icon">🖼️</div>
-        <div class="upload-label"><strong>Add your photo or story</strong><br>Tap to upload · drag &amp; drop</div>
+        <input type="file" id="img-input" accept="image/*,video/*" />
+        <div class="upload-icon" id="upload-icon">🖼️</div>
+        <div class="upload-label"><strong>Add your photo or video</strong><br>Tap to upload · drag &amp; drop</div>
       </div>
       <div class="img-preview-wrap hidden" id="img-preview-wrap">
         <img class="img-preview" id="img-preview" src="" alt="Preview" />
@@ -947,7 +947,9 @@
 
   imgInput.addEventListener('change', e => {
     const file = e.target.files[0];
-    if (file) loadImage(file);
+    if (!file) return;
+    if (file.type.startsWith('video/')) loadVideo(file);
+    else loadImage(file);
   });
 
   uploadZone.addEventListener('dragover', e => {
@@ -959,7 +961,9 @@
     e.preventDefault();
     uploadZone.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImage(file);
+    if (!file) return;
+    if (file.type.startsWith('video/')) loadVideo(file);
+    else if (file.type.startsWith('image/')) loadImage(file);
   });
 
   imgRemoveBtn.addEventListener('click', () => {
@@ -969,6 +973,72 @@
     uploadZone.classList.remove('hidden');
     updateAnalyzeBtnState();
   });
+
+  function loadVideo(file) {
+    if (file.size > 200 * 1024 * 1024) {
+      showToast('Video too large (max 200 MB) — try a shorter clip');
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.muted = true;
+    video.preload = 'metadata';
+    video.crossOrigin = 'anonymous';
+    video.src = url;
+
+    video.onloadedmetadata = () => {
+      video.currentTime = Math.min(1, video.duration * 0.1);
+    };
+
+    video.onseeked = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const frameUrl = canvas.toDataURL('image/jpeg', 0.85);
+      URL.revokeObjectURL(url);
+
+      imageData = {
+        url:      frameUrl,
+        width:    video.videoWidth,
+        height:   video.videoHeight,
+        ratio:    video.videoWidth / video.videoHeight,
+        fileSize: file.size,
+        fileType: file.type,
+        isVideo:  true,
+        duration: video.duration,
+      };
+
+      imgPreviewEl.src = frameUrl;
+      const sizeKB  = file.size / 1024;
+      const sizeStr = sizeKB >= 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : Math.round(sizeKB) + ' KB';
+      const dur     = video.duration;
+      const durStr  = dur >= 60 ? Math.floor(dur / 60) + 'm ' + Math.round(dur % 60) + 's' : Math.round(dur) + 's';
+      imgMetaEl.innerHTML =
+        `<span class="img-meta-badge">📹 Video</span>` +
+        `<span class="img-meta-badge">${video.videoWidth}×${video.videoHeight}</span>` +
+        `<span class="img-meta-badge">${getRatioLabel(imageData.ratio)}</span>` +
+        `<span class="img-meta-badge">⏱ ${durStr}</span>` +
+        `<span class="img-meta-badge">${sizeStr}</span>`;
+      imgPreviewWrap.classList.remove('hidden');
+      uploadZone.classList.add('hidden');
+      updateAnalyzeBtnState();
+
+      analyzeCanvas(frameUrl, cv => {
+        imageData.brightness = cv.brightness;
+        imageData.hasFace    = cv.hasFace;
+        const brightLabel = cv.brightness < 55 ? '🌑 Dark frame' : cv.brightness > 215 ? '☀️ Bright frame' : '💡 Well-lit';
+        imgMetaEl.innerHTML += `<span class="img-meta-badge">${brightLabel}</span>`;
+        if (cv.hasFace) imgMetaEl.innerHTML += `<span class="img-meta-badge">👤 Face</span>`;
+        if (!document.getElementById('results').classList.contains('hidden')) analyze();
+      });
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      showToast('Could not read video — MP4 works best');
+    };
+  }
 
   function loadImage(file) {
     const reader = new FileReader();
@@ -1272,6 +1342,37 @@
     }
 
     if (notes.length) tip += ' ' + notes.join(' ');
+
+    // Video-specific duration tips
+    if (img.isVideo && img.duration !== undefined) {
+      const dur = img.duration;
+      if (plat === 'tiktok') {
+        if (dur < 5) {
+          tip += ' Very short clip — TikTok auto-loops videos under 5s, which works brilliantly for satisfying loops.';
+        } else if (dur >= 7 && dur <= 15) {
+          tip += ' Duration is in the TikTok sweet spot (7–15s) for high replay rate.';
+        } else if (dur > 15 && dur <= 60) {
+          tip += ' Good length for story-driven TikToks. Hook viewers in the first 2s.';
+        } else if (dur > 60 && dur <= 180) {
+          tip += ' Longer TikToks (1–3 min) perform well for educational content — keep pacing tight.';
+        } else if (dur > 180) {
+          tip += ' Videos over 3 min see significant drop-off on TikTok — trim or split into a series.';
+          score = Math.max(0, score - 6);
+        }
+      } else {
+        if (dur < 5) {
+          tip += ' Very short Reel — aim for 7–30s for the Instagram algorithm sweet spot.';
+        } else if (dur >= 7 && dur <= 30) {
+          tip += ' Duration is ideal for Instagram Reels reach — the algorithm favours 7–30s.';
+        } else if (dur > 30 && dur <= 90) {
+          tip += ' Good length. Reels up to 90s can perform well if every second earns attention.';
+        } else if (dur > 90) {
+          tip += ' Reels over 90s see higher drop-off — trim to under 90s for better completion rate.';
+          score = Math.max(0, score - 6);
+        }
+      }
+      tip += ' Ensure your first 3 seconds hook viewers before they scroll.';
+    }
 
     return { score, label, tip, isScreenshot };
   }
@@ -1845,6 +1946,7 @@
     if (image) {
       document.getElementById('img-score-num').textContent  = image.score;
       document.getElementById('img-score-num').className    = `img-score-num c-${col(image.score)}`;
+      document.querySelector('.img-score-label').textContent = imageData?.isVideo ? 'Video Fit' : 'Image Fit';
       const screenshotBadge = image.isScreenshot ? ' <span style="font-size:11px;font-weight:600;background:#f59e0b22;color:#b45309;padding:2px 7px;border-radius:99px;">Screenshot detected</span>' : '';
       document.getElementById('img-fit-title').innerHTML   = image.label + screenshotBadge;
       document.getElementById('img-fit-title').className    = `img-fit-title c-${col(image.score)}`;
