@@ -618,6 +618,65 @@
       overflow-y: auto;
     }
 
+    /* AI Rewrite button & state */
+    .ai-rewrite-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      gap: 10px;
+    }
+    .ai-rewrite-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .ai-rewrite-btn:active { transform: scale(0.97); }
+    .ai-rewrite-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .ai-rewrite-btn .btn-spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .ai-rewrite-btn.loading .btn-spinner { display: block; }
+    .ai-rewrite-btn.loading .btn-label { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-uses-left {
+      font-size: 11px;
+      color: var(--subtext);
+      flex: 1;
+      text-align: right;
+    }
+    /* AI variant — distinct purple glow border */
+    .rewrite-variant.ai-variant {
+      border-color: #9333ea;
+      box-shadow: 0 0 0 1px rgba(147,51,234,0.18);
+    }
+    .rv-ai-badge {
+      font-size: 10px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+      border-radius: 8px;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
     /* ── Niche row ── */
     .niche-row {
       display: flex;
@@ -793,6 +852,13 @@
       <div class="info-card hidden" id="rewrite-card">
         <div class="section-title">Optimised Versions</div>
         <div id="rewrite-list"></div>
+        <div class="ai-rewrite-row">
+          <button class="ai-rewrite-btn" id="ai-rewrite-btn">
+            <span class="btn-spinner"></span>
+            <span class="btn-label">✨ AI Rewrite</span>
+          </button>
+          <span class="ai-uses-left" id="ai-uses-left"></span>
+        </div>
       </div>
 
       <!-- Hashtags -->
@@ -1837,6 +1903,95 @@
       });
     } else {
       rewriteCard.classList.add('hidden');
+    }
+
+    // AI Rewrite button
+    const aiBtn = document.getElementById('ai-rewrite-btn');
+    const aiUsesEl = document.getElementById('ai-uses-left');
+    const AI_LIMIT = 3;
+    const AI_KEY = 'captioniq-ai-uses';
+
+    function getAiUses() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(AI_KEY) || '{}');
+        const today = new Date().toDateString();
+        if (stored.date !== today) return 0;
+        return stored.count || 0;
+      } catch { return 0; }
+    }
+
+    function incrementAiUses() {
+      try {
+        const today = new Date().toDateString();
+        const stored = JSON.parse(localStorage.getItem(AI_KEY) || '{}');
+        const count = (stored.date === today ? stored.count : 0) + 1;
+        localStorage.setItem(AI_KEY, JSON.stringify({ date: today, count }));
+        return count;
+      } catch { return 1; }
+    }
+
+    function updateAiUsesDisplay() {
+      const used = getAiUses();
+      const left = AI_LIMIT - used;
+      aiUsesEl.textContent = left > 0 ? `${left} free AI rewrites left today` : 'Daily limit reached';
+      aiBtn.disabled = left <= 0;
+    }
+
+    if (rewrites && rewrites.length && hasText) {
+      updateAiUsesDisplay();
+      aiBtn.onclick = async () => {
+        const caption = document.getElementById('cap').value.trim();
+        if (!caption) return;
+        if (getAiUses() >= AI_LIMIT) {
+          showToast('Daily AI limit reached — come back tomorrow');
+          return;
+        }
+        aiBtn.classList.add('loading');
+        aiBtn.disabled = true;
+        aiUsesEl.textContent = 'Generating…';
+        try {
+          const res = await fetch('/api/rewrite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ caption, platform: plat, niche }),
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            showToast(data.error || 'AI rewrite failed. Try again.');
+            return;
+          }
+          incrementAiUses();
+          const list = document.getElementById('rewrite-list');
+          // Remove existing AI variant if present
+          list.querySelector('.ai-variant')?.remove();
+          const aiIdx = 'ai';
+          const div = document.createElement('div');
+          div.className = 'rewrite-variant ai-variant';
+          div.innerHTML = `
+            <div class="rv-head">
+              <span class="rv-icon">✨</span>
+              <div class="rv-meta">
+                <span class="rv-label">AI Rewrite <span class="rv-ai-badge">AI</span></span>
+                <span class="rv-desc">Generated by Llama 3.1 — tailored for ${plat === 'tiktok' ? 'TikTok' : 'Instagram'} ${niche}</span>
+              </div>
+              <button class="rv-copy-btn" data-idx="${aiIdx}">Copy</button>
+            </div>
+            <div class="rv-body">${data.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          `;
+          div.querySelector('.rv-copy-btn').addEventListener('click', () => {
+            copyText(data.text);
+            showToast('Copied AI rewrite');
+          });
+          list.appendChild(div);
+          updateAiUsesDisplay();
+          showToast('AI rewrite generated ✨');
+        } catch {
+          showToast('Network error — check your connection');
+        } finally {
+          aiBtn.classList.remove('loading');
+          updateAiUsesDisplay();
+        }
+      };
     }
 
     // Hashtags
