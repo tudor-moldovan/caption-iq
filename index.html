@@ -618,6 +618,62 @@
       overflow-y: auto;
     }
 
+    /* ── Niche row ── */
+    .niche-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+      margin-top: 10px;
+    }
+    .niche-row::-webkit-scrollbar { display: none; }
+    .niche-btn {
+      flex-shrink: 0;
+      padding: 5px 13px;
+      border-radius: 20px;
+      border: 1.5px solid var(--sep);
+      background: transparent;
+      color: var(--subtext);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .niche-btn.active {
+      border-color: var(--accent);
+      background: #9333ea18;
+      color: var(--accent);
+    }
+
+    /* ── Coach card ── */
+    .coach-card {
+      background: linear-gradient(135deg, #9333ea0f, #ec489908);
+      border: 1.5px solid #9333ea28;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .coach-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .coach-icon { font-size: 18px; }
+    .coach-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid #9333ea18;
+      font-size: 13.5px;
+      line-height: 1.5;
+    }
+    .coach-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .coach-item-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .coach-item-msg { color: var(--text); }
+
     /* Footer */
     .app-footer {
       padding: 10px 20px calc(var(--safe-bottom) + 14px);
@@ -637,6 +693,14 @@
     <div class="platform-toggle">
       <button class="plat-btn active" data-p="instagram">📸 Instagram</button>
       <button class="plat-btn"        data-p="tiktok"   >🎵 TikTok</button>
+    </div>
+    <div class="niche-row">
+      <button class="niche-btn" data-n="lifestyle">✨ Lifestyle</button>
+      <button class="niche-btn" data-n="fashion"  >👗 Fashion</button>
+      <button class="niche-btn" data-n="food"     >🍽️ Food</button>
+      <button class="niche-btn" data-n="travel"   >✈️ Travel</button>
+      <button class="niche-btn" data-n="beauty"   >💄 Beauty</button>
+      <button class="niche-btn" data-n="business" >💼 Business</button>
     </div>
   </header>
 
@@ -687,6 +751,15 @@
           <div class="hero-sub"      id="hero-sub"></div>
           <div class="hero-desc"     id="hero-desc"></div>
         </div>
+      </div>
+
+      <!-- Coach card -->
+      <div class="coach-card hidden" id="coach-card">
+        <div class="coach-header">
+          <span class="coach-icon">🎯</span>
+          <div class="section-title" style="margin:0">Your Coach Says</div>
+        </div>
+        <div id="coach-list"></div>
       </div>
 
       <!-- 4 metric cards -->
@@ -752,12 +825,17 @@
 
   // ── State ────────────────────────────────────────────────
   let platform = localStorage.getItem('captioniq-platform') || 'instagram';
+  let niche    = localStorage.getItem('captioniq-niche')    || 'lifestyle';
   let imageData = null;
   const CIRC = 226.2; // 2π × 36
 
   // ── Boot ─────────────────────────────────────────────────
   document.querySelectorAll('.plat-btn').forEach(btn => {
     if (btn.dataset.p === platform) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  document.querySelectorAll('.niche-btn').forEach(btn => {
+    if (btn.dataset.n === niche) btn.classList.add('active');
     else btn.classList.remove('active');
   });
   syncAnalyzeBtn();
@@ -774,6 +852,17 @@
       if (!document.getElementById('results').classList.contains('hidden')) {
         analyze();
       }
+    });
+  });
+
+  // ── Niche toggle ─────────────────────────────────────────
+  document.querySelectorAll('.niche-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      niche = btn.dataset.n;
+      localStorage.setItem('captioniq-niche', niche);
+      document.querySelectorAll('.niche-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (!document.getElementById('results').classList.contains('hidden')) analyze();
     });
   });
 
@@ -866,14 +955,23 @@
     tmp.onload = () => {
       ctx.drawImage(tmp, 0, 0, SIZE, SIZE);
       const d = ctx.getImageData(0, 0, SIZE, SIZE).data;
-      let lum = 0, skin = 0;
+      let lumSum = 0, skin = 0, satSum = 0;
+      const lumVals = [];
       const n = SIZE * SIZE;
       for (let i = 0; i < d.length; i += 4) {
         const r = d[i], g = d[i+1], b = d[i+2];
-        lum += 0.299 * r + 0.587 * g + 0.114 * b;
+        const pixLum = 0.299 * r + 0.587 * g + 0.114 * b;
+        lumSum += pixLum;
+        lumVals.push(pixLum);
         if (r > 60 && g > 40 && b > 20 && r > b && r > g && r < 250 && Math.abs(r - g) > 10) skin++;
+        const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+        satSum += mx === 0 ? 0 : (mx - mn) / mx;
       }
-      callback({ brightness: Math.round(lum / n), hasFace: skin / n > 0.07 });
+      const brightness  = Math.round(lumSum / n);
+      const saturation  = Math.round(satSum / n * 100);
+      const mean        = lumSum / n;
+      const contrast    = Math.round(Math.sqrt(lumVals.reduce((s, v) => s + (v - mean) ** 2, 0) / n));
+      callback({ brightness, saturation, contrast, hasFace: skin / n > 0.07 });
     };
     tmp.src = url;
   }
@@ -933,6 +1031,59 @@
   }
 
   // ── Scoring engine ────────────────────────────────────────
+  function generateCoach(hook, cta, style, image, plat, nich) {
+    const items = [];
+
+    // Image issues first (most visual, most obvious)
+    if (image) {
+      if (image.score < 65) {
+        const short = image.tip.split('.')[0].replace(/^[A-Z]/, c => c.toLowerCase());
+        items.push({ icon: '📐', msg: `Image format issue: ${short}.` });
+      }
+      if (image.brightness !== undefined && image.brightness < 55) {
+        items.push({ icon: '💡', msg: 'The photo is too dark. Bright, well-lit images get ~20% more engagement — try editing brightness +30 in your photos app.' });
+      }
+      if (image.saturation !== undefined && image.saturation < 18) {
+        const nicheTip = nich === 'food'   ? 'Food photos need vibrant colour — warm tones and high saturation make dishes look irresistible.' :
+                         nich === 'fashion'? 'Fashion content pops with clear, vivid colours. Try a preset that lifts saturation without oversaturating skin tones.' :
+                         nich === 'travel' ? 'Travel photos need punchy skies and rich tones — bump saturation and add a slight warm shift.' :
+                         'Add a warm or vibrant filter — even +15 saturation makes a big difference in the feed.';
+        items.push({ icon: '🎨', msg: `Colours look flat. ${nicheTip}` });
+      }
+      if (image.contrast !== undefined && image.contrast < 18) {
+        items.push({ icon: '🌓', msg: 'Image looks washed out (low contrast). Pull shadows down and lift highlights in Lightroom, VSCO, or your phone editor.' });
+      }
+    }
+
+    // Hook
+    if (hook !== null && hook < 55) {
+      const hookTip = nich === 'fashion'  ? 'Lead with a styling tip or bold statement about the look — e.g. "This colour combo works for every skin tone."' :
+                      nich === 'food'     ? 'Open with what makes this dish unmissable — the smell, texture, or a craving — e.g. "Crispy edges. Melty centre."' :
+                      nich === 'travel'   ? 'Lead with what surprised or moved you — e.g. "No one told me this beach existed."' :
+                      nich === 'beauty'   ? 'Open with the problem this solved — e.g. "I stopped breaking out the week I switched to this."' :
+                      nich === 'business' ? 'Lead with the result or the counterintuitive truth — e.g. "I worked fewer hours and made more money. Here\'s how."' :
+                      'Try a question, a bold claim, or a surprising stat in your first line to stop the scroll.';
+      items.push({ icon: '✍️', msg: `Opening line needs more pull. ${hookTip}` });
+    }
+
+    // CTA
+    if (cta !== null && cta < 40) {
+      const ctaTip = plat === 'tiktok'
+        ? 'End with "Comment [word] for more" or "Follow for daily ' + nich + ' content" — TikTok rewards comment velocity.'
+        : 'End with a question or "Save this for later" — saves are Instagram\'s strongest ranking signal.';
+      items.push({ icon: '👉', msg: `No call to action — you\'re leaving engagement on the table. ${ctaTip}` });
+    }
+
+    // Style issues (only top one, to avoid overwhelming)
+    if (style) {
+      const bad = style.issues.filter(i => !i.ok);
+      if (bad.length && items.length < 4) items.push({ icon: '📝', msg: bad[0].msg });
+    }
+
+    if (!items.length) items.push({ icon: '🌟', msg: 'Looking great! Strong hook, clear CTA, and good visuals. Time to post!' });
+    return items;
+  }
+
   function run(text, plat, img) {
     const hasText = text.trim().length > 0;
     const firstLine = text.split('\n')[0] || '';
@@ -943,6 +1094,7 @@
     const tags    = hasText ? suggestTags(text, plat)   : [];
     const tips    = platformTips(text, plat, hook || 0, length || 0, cta || 0, img);
     const image   = img ? scoreImage(img, plat) : null;
+    const coach   = generateCoach(hook, cta, style, image, plat, niche);
 
     let textScore = null;
     let overall = 0;
@@ -958,7 +1110,7 @@
     }
 
     const rewrites = hasText ? rewriteCaption(text, plat, hook || 0, cta || 0) : [];
-    return { overall, textScore, hook, length, cta, style, tags, tips, image, plat, rewrites };
+    return { overall, textScore, hook, length, cta, style, tags, tips, image, plat, rewrites, coach };
   }
 
   function scoreImage(img, plat) {
@@ -1022,66 +1174,155 @@
       score = Math.max(0, score - 8);
     }
 
-    // Brightness signal (added async by analyzeCanvas — may be undefined on first render)
-    let brightnessNote = '';
+    // Visual quality signals (added async by analyzeCanvas — may be undefined on first render)
+    const notes = [];
     if (img.brightness !== undefined) {
       if (img.brightness < 55) {
-        brightnessNote = ' Image looks dark — well-lit photos get ~20% more engagement (HubSpot).';
+        notes.push('Image looks dark — well-lit photos get ~20% more engagement.');
         score = Math.max(0, score - 8);
       } else if (img.brightness > 215) {
-        brightnessNote = ' Overexposed highlights can look washed out on mobile — check your exposure.';
+        notes.push('Overexposed — highlights look washed out on mobile. Reduce exposure slightly.');
         score = Math.max(0, score - 4);
       }
     }
+    if (img.saturation !== undefined) {
+      if (img.saturation < 18) {
+        notes.push('Colours look flat or grey — bump saturation in editing for more visual pop.');
+        score = Math.max(0, score - 8);
+      } else if (img.saturation > 88) {
+        notes.push('Very high saturation — may look over-filtered on mobile. Try toning it back slightly.');
+        score = Math.max(0, score - 4);
+      }
+    }
+    if (img.contrast !== undefined && img.contrast < 18) {
+      notes.push('Low contrast — image looks flat. Increase shadows/highlights in your editing app.');
+      score = Math.max(0, score - 6);
+    }
 
     // Face presence boost
-    let faceNote = '';
     if (img.hasFace) {
-      faceNote = ' Face detected — content with a human face averages 38% higher engagement (Nielsen).';
+      notes.push('Face detected — content with a human face averages 38% higher engagement (Nielsen).');
       score = Math.min(100, score + 6);
     }
 
-    if (brightnessNote || faceNote) tip += brightnessNote + faceNote;
+    if (notes.length) tip += ' ' + notes.join(' ');
 
     return { score, label, tip, isScreenshot };
   }
 
   function rewriteCaption(text, plat, hookScore, ctaScore) {
     const hashtags = (text.match(/#\w+/g) || []).join(' ');
-    const body = text.replace(/#\w+/g, '').trim();
-    const hasCTA = ctaScore >= 40;
-    const hLine = hashtags ? '\n.\n.\n.\n' + hashtags : '';
-    // Deterministic opener selection based on text length
-    const idx = text.length % 4;
-    const openers = plat === 'tiktok' ? [
-      'Wait — hear me out on this... 👀',
-      'POV: you just discovered this.',
-      'Real talk — most people get this wrong:',
-      'The part nobody tells you about this...',
-    ] : [
-      'Here\'s something I wish I knew sooner: 👇',
-      'Nobody talks about this, but it matters.',
-      'If this resonates, save it for later 👇',
-      'Real talk: this changed how I approach everything.',
+    const body     = text.replace(/#\w+/g, '').trim();
+    const hasCTA   = ctaScore >= 40;
+    const hLine    = hashtags ? '\n.\n.\n.\n' + hashtags : '';
+    const t        = text.toLowerCase();
+    const kwRe     = kw => new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(t);
+
+    const topics = [
+      {
+        id: 'food',
+        kw: ['food','eat','recipe','cook','meal','restaurant','dinner','lunch','breakfast','bake','chef','cuisine','delicious','tasty'],
+        hooks: ['This recipe is the reason I stopped eating out:', 'Honestly? Best thing I\'ve made in months.', 'I\'ve cooked this 4 times this week — no notes. 🍳'],
+        qHook: { ig: 'What\'s the one meal you could eat every single day? 👇', tt: 'Am I the only one who does this in the kitchen? 👀' },
+        cta: { ig: '\n\nSave this recipe before you scroll past 🔖\nTag someone who needs to try this 👇', tt: '\n\nComment "RECIPE" for the full version 🍳\nFollow so you don\'t miss the next one 🎯' },
+      },
+      {
+        id: 'fitness',
+        kw: ['fitness','workout','gym','exercise','train','lift','run','cardio','muscle','gains','squat','deadlift','crossfit'],
+        hooks: ['The one training change that actually moved the needle:', 'Most gym advice is noise. Here\'s what actually works:', 'I stopped doing this and my results completely changed 👇'],
+        qHook: { ig: 'What\'s the fitness habit you wish you started sooner? 💭', tt: 'Be honest — are you training hard or just staying comfortable? 👀' },
+        cta: { ig: '\n\nSave this for your next session 🔖\nDrop your current split in the comments 👇', tt: '\n\nComment your PR 💪 let\'s see those numbers!\nFollow for weekly programming 🎯' },
+      },
+      {
+        id: 'travel',
+        kw: ['travel','trip','adventur','explor','wanderlust','vacation','holiday','destination','hotel','flight','passport','backpack'],
+        hooks: ['This place genuinely stopped me mid-trip:', 'The travel tip I wish I had before I left:', 'Hidden gem alert — not sharing the exact location though. 😅'],
+        qHook: { ig: 'What destination is on your non-negotiable bucket list? 🌍', tt: 'Would you book a trip somewhere you know nothing about? 👀' },
+        cta: { ig: '\n\nSave this for your next trip 🗺️\nWhere should I go next? Drop it below 👇', tt: '\n\nComment your dream destination 🌍\nFollow for honest travel content 🎯' },
+      },
+      {
+        id: 'fashion',
+        kw: ['fashion','style','outfit','ootd','wear','dress','clothes','brand','trend','closet','wardrobe','accessory'],
+        hooks: ['The outfit formula I keep coming back to (it never fails):', 'This one piece made everything in my wardrobe click:', 'I used to overcomplicate getting dressed. Then I found this:'],
+        qHook: { ig: 'What\'s the one item that elevated your entire wardrobe? 👇', tt: 'Be honest — how long does getting dressed actually take you? 😅' },
+        cta: { ig: '\n\nSave this look for outfit inspo 🔖\nDrop a 🔥 if you\'d wear this 👇', tt: '\n\nComment your vibe: classic, streetwear, or maximalist? 💅\nFollow for daily looks 🎯' },
+      },
+      {
+        id: 'beauty',
+        kw: ['beauty','makeup','skincare','skin','glow','lipstick','foundation','eyeshadow','routine','moisturizer','serum','concealer','blush'],
+        hooks: ['The skincare step everyone skips (and why it matters most):', 'This one product quietly fixed 80% of my skin issues:', 'I\'ve tried everything. Here\'s what actually works:'],
+        qHook: { ig: 'What\'s your non-negotiable skincare step? Drop it below 👇', tt: 'Be honest — how many half-empty products do you have? 😅' },
+        cta: { ig: '\n\nSave this routine — your future skin will thank you 🔖\nWhat\'s your holy grail product? 👇', tt: '\n\nComment your skin type 🧖 I\'ll give you a rec!\nFollow for honest beauty reviews 🎯' },
+      },
+      {
+        id: 'business',
+        kw: ['business','entrepreneur','money','income','side hustle','startup','marketing','success','invest','passive income','brand'],
+        hooks: ['The business lesson that cost me the most to learn — for free:', 'Everyone\'s talking about passive income. Here\'s the real math:', 'I almost quit before this happened. Here\'s what changed:'],
+        qHook: { ig: 'What\'s the hardest business lesson you\'ve had to learn? 💭', tt: 'Are you building a business or just creating a job for yourself? 👀' },
+        cta: { ig: '\n\nSave this — worth revisiting as you grow 🔖\nBiggest business challenge right now? Drop it below 👇', tt: '\n\nComment your revenue goal this year 💰\nFollow for real business talk, no fluff 🎯' },
+      },
+      {
+        id: 'motivation',
+        kw: ['motivat','inspir','mindset','quote','positive','growth','self','discipline','consistency'],
+        hooks: ['The mindset shift that changed how I approach everything:', 'Nobody talks about the quiet, unglamorous part of real growth:', 'This is the reminder I come back to every time I want to quit:'],
+        qHook: { ig: 'What\'s the one thing you\'d tell your past self today? 💭', tt: 'What would you attempt if you knew you couldn\'t fail? 👀' },
+        cta: { ig: '\n\nSave this for when you need it most 🔖\nTag someone who needs to hear this 💜', tt: '\n\nComment "YES" if this hit different 🙌\nFollow for daily mindset content 🎯' },
+      },
+      {
+        id: 'pet',
+        kw: ['pet','dog','cat','puppy','kitten','animal','pup','fur baby','furball','adopt'],
+        hooks: ['My pet did this and I\'ve been thinking about it ever since:', 'The moment I realised my pet understands me better than most people:', 'Nobody warned me about this part of pet ownership. 😅'],
+        qHook: { ig: 'What\'s the most unhinged thing your pet has ever done? 🐾', tt: 'Does your pet do this too or is it just mine? 👀' },
+        cta: { ig: '\n\nSave this — instant mood boost 🔖\nDrop a 🐾 if your pet does this too 👇', tt: '\n\nComment your pet\'s name below 🐶\nFollow for the best pet content on here 🎯' },
+      },
+      {
+        id: 'tech',
+        kw: ['tech','technology','software','app','coding','developer','ai','gadget','phone','computer','iphone','android','review'],
+        hooks: ['This tool changed how I work — I can\'t go back now:', 'The tech mistake costing most people hours every week:', 'I tested this so you don\'t have to. Here\'s my honest take:'],
+        qHook: { ig: 'What\'s the best tool or app you\'ve discovered recently? 👇', tt: 'How much time does bad tech actually cost you per week? ⏱️' },
+        cta: { ig: '\n\nSave this for your next setup upgrade 🔖\nBest tech purchase this year? Drop it below 👇', tt: '\n\nComment "LINK" for where to get it 🔗\nFollow for weekly tech finds 🎯' },
+      },
+      {
+        id: 'parenting',
+        kw: ['parent','mom','dad','baby','kid','toddler','family','children','pregnan','newborn'],
+        hooks: ['The parenting moment nobody prepares you for:', 'My kid said something that completely stopped me in my tracks:', 'The part of parenting they leave out of all the books:'],
+        qHook: { ig: 'What\'s the one thing you wish you knew before becoming a parent? 💭', tt: 'Is it just me or does parenting get harder the older they get? 👀' },
+        cta: { ig: '\n\nSave this for the hard days 🔖\nTag a parent who needs this reminder 💜', tt: '\n\nComment your kid\'s age 👶 you\'re not alone!\nFollow for real parenting content 🎯' },
+      },
     ];
-    const opener = openers[idx];
-    const ctaA = plat === 'tiktok'
-      ? '\n\nWhat\'s your take? Drop it in the comments 👇\nFollow for more like this 🎯'
-      : '\n\nSave this — you\'ll want to come back to it 🔖\nFollow for more tips like this 💜';
-    const ctaB = plat === 'tiktok'
-      ? '\n\nComment "YES" if this hit different 🙌\nFollow so you never miss one 🎯'
-      : '\n\nDrop your thoughts below 👇 I read every comment.\nSave this post so you can find it again 🔖';
-    const v1 = (opener + '\n\n' + body + (hasCTA ? '' : ctaA) + hLine).trim();
-    const v2 = (body + ctaB + hLine).trim();
+
+    const matched = topics.find(tp => tp.kw.some(kwRe));
+    const idx     = text.length % 3;
+
+    const topicHook = matched ? matched.hooks[idx]
+      : (plat === 'tiktok'
+          ? ['The part nobody talks about 👀', 'Okay but why didn\'t anyone tell me this sooner:', 'POV: this actually works.'][idx]
+          : ['Here\'s something I wish I knew sooner 👇', 'The thing most people get completely wrong:', 'Saving this for myself — and for you. 💜'][idx]);
+
+    const qHook = matched
+      ? (plat === 'instagram' ? matched.qHook.ig : matched.qHook.tt)
+      : (plat === 'tiktok' ? 'Does this actually work or is it just me? 👀' : 'Is this just me, or does everyone feel this way? 👇');
+
+    const ctaText = matched
+      ? (plat === 'instagram' ? matched.cta.ig : matched.cta.tt)
+      : (plat === 'tiktok'
+          ? '\n\nComment your thoughts below 💬\nFollow so you never miss one 🎯'
+          : '\n\nSave this — you\'ll want to come back to it 🔖\nFollow for more like this 💜');
+
+    // Variant 1: Hook-first — replace a weak opener with the topic-matched hook
+    const sentences = body.split(/(?<=[.!?…])\s+/);
+    const v1Body    = hookScore < 55 && sentences.length > 1 ? sentences.slice(1).join(' ') : body;
+    const v1        = (topicHook + '\n\n' + v1Body + (hasCTA ? '' : ctaText) + hLine).trim();
+
+    // Variant 2: Question-driven — curiosity-gap opener that drives comments
+    const v2 = (qHook + '\n\n' + body + (hasCTA ? '' : ctaText) + hLine).trim();
+
     return [
       { label: 'Hook-first', icon: '🔥',
-        desc: 'Pattern-interrupt opener to stop the scroll',
+        desc: matched ? `Topic-matched opener for ${matched.id} content` : 'Pattern-interrupt opener to stop the scroll',
         text: v1 },
-      { label: plat === 'instagram' ? 'Save-driven' : 'Comment-driven',
-        icon: plat === 'instagram' ? '🔖' : '💬',
-        desc: plat === 'instagram'
-          ? 'Optimised for saves — the highest IG ranking signal (Later, 2024)'
-          : 'Optimised for comments — TikTok\'s #1 distribution signal',
+      { label: 'Question-driven', icon: '💭',
+        desc: 'Curiosity-gap question — drives comments and algorithm reach',
         text: v2 },
     ];
   }
@@ -1189,6 +1430,51 @@
     if (hashCount > 25) {
       issues.push({ ok: false, msg: `${hashCount} hashtags looks spammy — use 8–15 targeted ones` });
       s -= 10;
+    }
+
+    // ── Grammar checks ──────────────────────────────────────
+    // Strip hashtags/mentions so we don't false-positive on #iPhone etc.
+    const prose = text.replace(/#\w+/g, '').replace(/@\w+/g, '');
+
+    // Repeated consecutive words ("the the", "I I")
+    const repeated = prose.match(/\b(\w+)\s+\1\b/gi);
+    if (repeated) {
+      const ex = repeated[0].split(/\s+/)[0];
+      issues.push({ ok: false, msg: `Repeated word: "${ex} ${ex}" — looks like a typo` });
+      s -= 10;
+    }
+
+    // Standalone lowercase "i" (should be "I")
+    if (/(?:^|\s)i(?:\s|$|[',])/.test(prose)) {
+      issues.push({ ok: false, msg: 'Lowercase "i" found — should be capitalised ("I")' });
+      s -= 8;
+    }
+
+    // Missing space after comma or full stop (ignores decimals & URLs)
+    if (/[a-z],[a-zA-Z]/.test(prose) || /[a-z]\.[a-zA-Z]{3,}/.test(prose.replace(/https?:\/\/\S+/g, ''))) {
+      issues.push({ ok: false, msg: 'Missing space after punctuation — check commas and full stops' });
+      s -= 8;
+    }
+
+    // Common confusable pairs (your/you're, their/there/they're, its/it's)
+    const confusables = [
+      [/\byour\s+(going|doing|coming|trying|making|getting|being|amazing|awesome|great|wonderful)\b/i, '"your" → should be "you\'re" here'],
+      [/\bthier\b/i, 'Spelling: "thier" → "their"'],
+      [/\brecieve\b/i, 'Spelling: "recieve" → "receive"'],
+      [/\bseperate\b/i, 'Spelling: "seperate" → "separate"'],
+      [/\bdefenitely\b/i, 'Spelling: "defenitely" → "definitely"'],
+      [/\boccured\b/i, 'Spelling: "occured" → "occurred"'],
+      [/\buntill\b/i, 'Spelling: "untill" → "until"'],
+      [/\bwich\b/i, 'Spelling: "wich" → "which"'],
+      [/\bwoud\b/i, 'Spelling: "woud" → "would"'],
+      [/\balot\b/i, '"alot" → should be two words: "a lot"'],
+    ];
+    for (const [re, msg] of confusables) {
+      if (re.test(prose)) {
+        issues.push({ ok: false, msg });
+        s -= 10;
+        break; // one grammar issue at a time to avoid overwhelming
+      }
     }
 
     if (!issues.length) {
@@ -1398,7 +1684,7 @@
   function grade(s) { return s >= 82 ? 'Strong' : s >= 65 ? 'Good' : s >= 45 ? 'Fair' : 'Weak'; }
 
   function render(r) {
-    const { overall, textScore, hook, length, cta, style, tags, tips, image, plat, rewrites } = r;
+    const { overall, textScore, hook, length, cta, style, tags, tips, image, plat, rewrites, coach } = r;
     const hasText = hook !== null;
 
     // Ring
@@ -1460,6 +1746,20 @@
       name: 'Style', score: style.score,
       tip: style.score >= 85 ? 'Clean and readable. Great work!' : 'See style notes below for fixes.',
     });
+
+    // Coach card
+    const coachCard = document.getElementById('coach-card');
+    if (coach && coach.length) {
+      coachCard.classList.remove('hidden');
+      document.getElementById('coach-list').innerHTML = coach.map(c => `
+        <div class="coach-item">
+          <span class="coach-item-icon">${c.icon}</span>
+          <span class="coach-item-msg">${c.msg}</span>
+        </div>
+      `).join('');
+    } else {
+      coachCard.classList.add('hidden');
+    }
 
     document.getElementById('metrics-grid').innerHTML = metrics.map(m => `
       <div class="metric-card">
