@@ -323,8 +323,9 @@
       height: 5px;
       background: var(--sep);
       border-radius: 3px;
-      overflow: hidden;
+      overflow: visible;
       margin-bottom: 9px;
+      position: relative;
     }
 
     .mc-bar {
@@ -334,11 +335,30 @@
       transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    .mc-bar-avg-tick {
+      position: absolute;
+      top: -3px;
+      width: 2px;
+      height: 11px;
+      background: var(--subtext);
+      border-radius: 1px;
+      opacity: 0.35;
+    }
+
     .mc-tip {
       font-size: 12px;
       color: var(--subtext);
       line-height: 1.4;
     }
+
+    .mc-bench {
+      font-size: 10px;
+      color: var(--subtext);
+      margin-top: 5px;
+      opacity: 0.75;
+    }
+    .mc-bench .b-ahead  { color: var(--green); font-weight: 700; }
+    .mc-bench .b-behind { color: var(--yellow); font-weight: 700; }
 
     /* Shared card */
     .info-card {
@@ -618,6 +638,65 @@
       overflow-y: auto;
     }
 
+    /* AI Rewrite button & state */
+    .ai-rewrite-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      gap: 10px;
+    }
+    .ai-rewrite-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .ai-rewrite-btn:active { transform: scale(0.97); }
+    .ai-rewrite-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .ai-rewrite-btn .btn-spinner {
+      width: 13px;
+      height: 13px;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .ai-rewrite-btn.loading .btn-spinner { display: block; }
+    .ai-rewrite-btn.loading .btn-label { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-uses-left {
+      font-size: 11px;
+      color: var(--subtext);
+      flex: 1;
+      text-align: right;
+    }
+    /* AI variant — distinct purple glow border */
+    .rewrite-variant.ai-variant {
+      border-color: #9333ea;
+      box-shadow: 0 0 0 1px rgba(147,51,234,0.18);
+    }
+    .rv-ai-badge {
+      font-size: 10px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+      border-radius: 8px;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
     /* ── Niche row ── */
     .niche-row {
       display: flex;
@@ -674,6 +753,139 @@
     .coach-item-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
     .coach-item-msg { color: var(--text); }
 
+    /* ── Pro / Paywall ── */
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .upgrade-btn {
+      font-size: 11px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      padding: 5px 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .pro-badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #9333ea22, #ec489922);
+      color: #9333ea;
+      border: 1.5px solid #9333ea44;
+      border-radius: 20px;
+      padding: 4px 11px;
+      flex-shrink: 0;
+    }
+    .paywall-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 999;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: var(--safe-bottom);
+      animation: fade-in 0.2s ease;
+    }
+    .paywall-overlay.hidden { display: none; }
+    @keyframes fade-in { from { opacity: 0; } }
+    .paywall-modal {
+      background: var(--card);
+      border-radius: 20px 20px 0 0;
+      padding: 24px 22px 28px;
+      width: 100%;
+      max-width: 480px;
+      animation: slide-up 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+    }
+    @keyframes slide-up { from { transform: translateY(60px); opacity: 0; } }
+    .paywall-close {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: var(--subtext);
+      cursor: pointer;
+      line-height: 1;
+      margin-top: -2px;
+    }
+    .paywall-title {
+      font-size: 20px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .paywall-sub {
+      font-size: 13px;
+      color: var(--subtext);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .paywall-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px;
+    }
+    .paywall-features li {
+      font-size: 13.5px;
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .paywall-features li::before {
+      content: '✓';
+      color: #9333ea;
+      font-weight: 900;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .paywall-price {
+      font-size: 28px;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+    .paywall-price span {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--subtext);
+    }
+    .paywall-cta-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #9333ea, #ec4899);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .paywall-restore-btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: 1.5px solid var(--sep);
+      border-radius: 14px;
+      font-size: 13px;
+      color: var(--subtext);
+      cursor: pointer;
+      text-align: center;
+    }
+    .paywall-note {
+      font-size: 11px;
+      color: var(--subtext);
+      text-align: center;
+      margin-top: 10px;
+    }
+
     /* Footer */
     .app-footer {
       padding: 10px 20px calc(var(--safe-bottom) + 14px);
@@ -687,8 +899,12 @@
 
   <header class="app-header">
     <div class="header-row">
-      <span class="brand">CaptionIQ</span>
-      <span class="brand-sub">Social Content Optimizer</span>
+      <div>
+        <span class="brand">CaptionIQ</span>
+        <span class="brand-sub">Social Content Optimizer</span>
+      </div>
+      <button class="upgrade-btn" id="upgrade-btn">Go Pro</button>
+      <div class="pro-badge hidden" id="pro-badge">Pro ✨</div>
     </div>
     <div class="platform-toggle">
       <button class="plat-btn active" data-p="instagram">📸 Instagram</button>
@@ -708,9 +924,9 @@
     <div class="input-card">
       <!-- Image upload -->
       <div class="upload-zone" id="upload-zone">
-        <input type="file" id="img-input" accept="image/*" />
-        <div class="upload-icon">🖼️</div>
-        <div class="upload-label"><strong>Add your photo or story</strong><br>Tap to upload · drag &amp; drop</div>
+        <input type="file" id="img-input" accept="image/*,video/*" />
+        <div class="upload-icon" id="upload-icon">🖼️</div>
+        <div class="upload-label"><strong>Add your photo or video</strong><br>Tap to upload · drag &amp; drop</div>
       </div>
       <div class="img-preview-wrap hidden" id="img-preview-wrap">
         <img class="img-preview" id="img-preview" src="" alt="Preview" />
@@ -793,6 +1009,13 @@
       <div class="info-card hidden" id="rewrite-card">
         <div class="section-title">Optimised Versions</div>
         <div id="rewrite-list"></div>
+        <div class="ai-rewrite-row">
+          <button class="ai-rewrite-btn" id="ai-rewrite-btn">
+            <span class="btn-spinner"></span>
+            <span class="btn-label">✨ AI Rewrite</span>
+          </button>
+          <span class="ai-uses-left" id="ai-uses-left"></span>
+        </div>
       </div>
 
       <!-- Hashtags -->
@@ -817,11 +1040,66 @@
   </footer>
 </div>
 
+<div class="paywall-overlay hidden" id="paywall-overlay">
+  <div class="paywall-modal">
+    <button class="paywall-close" id="paywall-close" aria-label="Close">×</button>
+    <div class="paywall-title">✨ CaptionIQ Pro</div>
+    <div class="paywall-sub">Unlimited AI rewrites + caption history, powered by real AI.</div>
+    <ul class="paywall-features">
+      <li>Unlimited AI rewrites (no daily limit)</li>
+      <li>Caption history — save &amp; compare versions</li>
+      <li>Niche-specific platform insights</li>
+      <li>Cancel anytime, no lock-in</li>
+    </ul>
+    <div class="paywall-price">$9 <span>/ month</span></div>
+    <button class="paywall-cta-btn" id="paywall-cta-btn">Start with Pro ✨</button>
+    <button class="paywall-restore-btn" id="paywall-restore-btn">Already a member? Restore access →</button>
+    <div class="paywall-note">Secure payment via Stripe · Apple Pay &amp; Google Pay accepted</div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 (function () {
   'use strict';
+
+  // ── Pro state ────────────────────────────────────────────
+  const PRO_KEY = 'captioniq-pro';
+
+  function getProState() {
+    try {
+      const s = JSON.parse(localStorage.getItem(PRO_KEY) || 'null');
+      if (!s || s.until < Date.now()) { localStorage.removeItem(PRO_KEY); return null; }
+      return s;
+    } catch { return null; }
+  }
+
+  function setProState(data) {
+    localStorage.setItem(PRO_KEY, JSON.stringify(data));
+  }
+
+  function isPro() { return !!getProState(); }
+
+  function updateProUI() {
+    const pro = isPro();
+    document.getElementById('upgrade-btn').classList.toggle('hidden', pro);
+    document.getElementById('pro-badge').classList.toggle('hidden', !pro);
+    // If currently showing the AI button, re-evaluate its state
+    const aiBtn = document.getElementById('ai-rewrite-btn');
+    if (aiBtn && pro) {
+      aiBtn.disabled = false;
+      document.getElementById('ai-uses-left').textContent = 'Unlimited with Pro ✨';
+    }
+  }
+
+  function openPaywall() {
+    document.getElementById('paywall-overlay').classList.remove('hidden');
+  }
+
+  function closePaywall() {
+    document.getElementById('paywall-overlay').classList.add('hidden');
+  }
 
   // ── State ────────────────────────────────────────────────
   let platform = localStorage.getItem('captioniq-platform') || 'instagram';
@@ -830,6 +1108,82 @@
   const CIRC = 226.2; // 2π × 36
 
   // ── Boot ─────────────────────────────────────────────────
+
+  // Handle post-Stripe-payment redirect (?pro=success&session_id=xxx)
+  (function checkProReturn() {
+    const params = new URLSearchParams(location.search);
+    if (params.get('pro') === 'success') {
+      const sessionId = params.get('session_id');
+      history.replaceState({}, '', location.pathname);
+      if (sessionId) {
+        fetch('/api/verify-session?id=' + encodeURIComponent(sessionId))
+          .then(r => r.json())
+          .then(data => {
+            if (data.pro) {
+              setProState(data);
+              updateProUI();
+              showToast('Welcome to CaptionIQ Pro ✨');
+            } else {
+              showToast('Could not verify payment — contact support');
+            }
+          })
+          .catch(() => showToast('Verification failed — try again'));
+      }
+    }
+  })();
+
+  // Paywall open/close
+  document.getElementById('upgrade-btn').addEventListener('click', openPaywall);
+  document.getElementById('paywall-close').addEventListener('click', closePaywall);
+  document.getElementById('paywall-overlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('paywall-overlay')) closePaywall();
+  });
+
+  // Stripe checkout
+  document.getElementById('paywall-cta-btn').addEventListener('click', async () => {
+    const btn = document.getElementById('paywall-cta-btn');
+    btn.textContent = 'Redirecting…';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/create-checkout', { method: 'POST' });
+      const data = await res.json();
+      if (data.url) {
+        location.href = data.url;
+      } else {
+        showToast(data.error || 'Could not start checkout — try again');
+        btn.textContent = 'Start with Pro ✨';
+        btn.disabled = false;
+      }
+    } catch {
+      showToast('Network error — check your connection');
+      btn.textContent = 'Start with Pro ✨';
+      btn.disabled = false;
+    }
+  });
+
+  // Restore access — Stripe customer portal
+  document.getElementById('paywall-restore-btn').addEventListener('click', async () => {
+    const email = prompt('Enter the email you used when subscribing:');
+    if (!email || !email.includes('@')) return;
+    showToast('Looking up your account…');
+    try {
+      const res = await fetch('/api/restore-pro?email=' + encodeURIComponent(email));
+      const data = await res.json();
+      if (data.pro) {
+        setProState(data);
+        updateProUI();
+        closePaywall();
+        showToast('Pro access restored ✨');
+      } else {
+        showToast('No active subscription found for that email');
+      }
+    } catch {
+      showToast('Could not restore — try again');
+    }
+  });
+
+  updateProUI();
+
   document.querySelectorAll('.plat-btn').forEach(btn => {
     if (btn.dataset.p === platform) btn.classList.add('active');
     else btn.classList.remove('active');
@@ -881,7 +1235,9 @@
 
   imgInput.addEventListener('change', e => {
     const file = e.target.files[0];
-    if (file) loadImage(file);
+    if (!file) return;
+    if (file.type.startsWith('video/')) loadVideo(file);
+    else loadImage(file);
   });
 
   uploadZone.addEventListener('dragover', e => {
@@ -893,7 +1249,9 @@
     e.preventDefault();
     uploadZone.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImage(file);
+    if (!file) return;
+    if (file.type.startsWith('video/')) loadVideo(file);
+    else if (file.type.startsWith('image/')) loadImage(file);
   });
 
   imgRemoveBtn.addEventListener('click', () => {
@@ -903,6 +1261,72 @@
     uploadZone.classList.remove('hidden');
     updateAnalyzeBtnState();
   });
+
+  function loadVideo(file) {
+    if (file.size > 200 * 1024 * 1024) {
+      showToast('Video too large (max 200 MB) — try a shorter clip');
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.muted = true;
+    video.preload = 'metadata';
+    video.crossOrigin = 'anonymous';
+    video.src = url;
+
+    video.onloadedmetadata = () => {
+      video.currentTime = Math.min(1, video.duration * 0.1);
+    };
+
+    video.onseeked = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      const frameUrl = canvas.toDataURL('image/jpeg', 0.85);
+      URL.revokeObjectURL(url);
+
+      imageData = {
+        url:      frameUrl,
+        width:    video.videoWidth,
+        height:   video.videoHeight,
+        ratio:    video.videoWidth / video.videoHeight,
+        fileSize: file.size,
+        fileType: file.type,
+        isVideo:  true,
+        duration: video.duration,
+      };
+
+      imgPreviewEl.src = frameUrl;
+      const sizeKB  = file.size / 1024;
+      const sizeStr = sizeKB >= 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : Math.round(sizeKB) + ' KB';
+      const dur     = video.duration;
+      const durStr  = dur >= 60 ? Math.floor(dur / 60) + 'm ' + Math.round(dur % 60) + 's' : Math.round(dur) + 's';
+      imgMetaEl.innerHTML =
+        `<span class="img-meta-badge">📹 Video</span>` +
+        `<span class="img-meta-badge">${video.videoWidth}×${video.videoHeight}</span>` +
+        `<span class="img-meta-badge">${getRatioLabel(imageData.ratio)}</span>` +
+        `<span class="img-meta-badge">⏱ ${durStr}</span>` +
+        `<span class="img-meta-badge">${sizeStr}</span>`;
+      imgPreviewWrap.classList.remove('hidden');
+      uploadZone.classList.add('hidden');
+      updateAnalyzeBtnState();
+
+      analyzeCanvas(frameUrl, cv => {
+        imageData.brightness = cv.brightness;
+        imageData.hasFace    = cv.hasFace;
+        const brightLabel = cv.brightness < 55 ? '🌑 Dark frame' : cv.brightness > 215 ? '☀️ Bright frame' : '💡 Well-lit';
+        imgMetaEl.innerHTML += `<span class="img-meta-badge">${brightLabel}</span>`;
+        if (cv.hasFace) imgMetaEl.innerHTML += `<span class="img-meta-badge">👤 Face</span>`;
+        if (!document.getElementById('results').classList.contains('hidden')) analyze();
+      });
+    };
+
+    video.onerror = () => {
+      URL.revokeObjectURL(url);
+      showToast('Could not read video — MP4 works best');
+    };
+  }
 
   function loadImage(file) {
     const reader = new FileReader();
@@ -1206,6 +1630,37 @@
     }
 
     if (notes.length) tip += ' ' + notes.join(' ');
+
+    // Video-specific duration tips
+    if (img.isVideo && img.duration !== undefined) {
+      const dur = img.duration;
+      if (plat === 'tiktok') {
+        if (dur < 5) {
+          tip += ' Very short clip — TikTok auto-loops videos under 5s, which works brilliantly for satisfying loops.';
+        } else if (dur >= 7 && dur <= 15) {
+          tip += ' Duration is in the TikTok sweet spot (7–15s) for high replay rate.';
+        } else if (dur > 15 && dur <= 60) {
+          tip += ' Good length for story-driven TikToks. Hook viewers in the first 2s.';
+        } else if (dur > 60 && dur <= 180) {
+          tip += ' Longer TikToks (1–3 min) perform well for educational content — keep pacing tight.';
+        } else if (dur > 180) {
+          tip += ' Videos over 3 min see significant drop-off on TikTok — trim or split into a series.';
+          score = Math.max(0, score - 6);
+        }
+      } else {
+        if (dur < 5) {
+          tip += ' Very short Reel — aim for 7–30s for the Instagram algorithm sweet spot.';
+        } else if (dur >= 7 && dur <= 30) {
+          tip += ' Duration is ideal for Instagram Reels reach — the algorithm favours 7–30s.';
+        } else if (dur > 30 && dur <= 90) {
+          tip += ' Good length. Reels up to 90s can perform well if every second earns attention.';
+        } else if (dur > 90) {
+          tip += ' Reels over 90s see higher drop-off — trim to under 90s for better completion rate.';
+          score = Math.max(0, score - 6);
+        }
+      }
+      tip += ' Ensure your first 3 seconds hook viewers before they scroll.';
+    }
 
     return { score, label, tip, isScreenshot };
   }
@@ -1679,6 +2134,27 @@
     return tips.slice(0, 4);
   }
 
+  // ── Benchmarks (based on Later 2024, HubSpot 2024, Sprout Social 2024) ──
+  function getBenchmarks(plat, nic) {
+    const base = plat === 'tiktok'
+      ? { hook: 43, length: 62, cta: 34, style: 60 }
+      : { hook: 38, length: 58, cta: 31, style: 64 };
+    const adj = {
+      lifestyle: { hook:  0, cta:  0, style:  2 },
+      fashion:   { hook:  2, cta: -2, style:  5 },
+      food:      { hook:  4, cta:  3, style:  2 },
+      travel:    { hook:  3, cta:  2, style:  1 },
+      beauty:    { hook:  1, cta:  4, style:  6 },
+      business:  { hook: -2, cta:  8, style: -1 },
+    }[nic] || {};
+    return {
+      hook:   Math.round(base.hook   + (adj.hook   || 0)),
+      length: Math.round(base.length + (adj.length || 0)),
+      cta:    Math.round(base.cta    + (adj.cta    || 0)),
+      style:  Math.round(base.style  + (adj.style  || 0)),
+    };
+  }
+
   // ── Rendering ─────────────────────────────────────────────
   function col(s) { return s >= 75 ? 'green' : s >= 48 ? 'yellow' : 'red'; }
   function grade(s) { return s >= 82 ? 'Strong' : s >= 65 ? 'Good' : s >= 45 ? 'Fair' : 'Weak'; }
@@ -1723,27 +2199,28 @@
     document.getElementById('hero-desc').textContent = hasText ? descs[col(overall)] : '';
 
     // Metric cards (only show text metrics when text is present)
+    const benchmarks = getBenchmarks(plat, niche);
     const metrics = [];
     if (hook !== null)   metrics.push({
-      name: 'Hook', score: hook,
+      name: 'Hook', score: hook, avg: benchmarks.hook,
       tip: hook >= 75 ? 'Great opening line — scroll-stopping!' :
            hook >= 50 ? 'Could be punchier. Try a question or bold claim.' :
                         'Weak hook. Rewrite the first line completely.',
     });
     if (length !== null) metrics.push({
-      name: 'Length', score: length,
+      name: 'Length', score: length, avg: benchmarks.length,
       tip: plat === 'instagram'
         ? (length >= 80 ? 'Good length for Instagram.' : 'Aim for 138–300 chars for best IG engagement.')
         : (length >= 80 ? 'Good length for TikTok.'   : 'TikTok captions work best at 50–150 chars.'),
     });
     if (cta !== null)    metrics.push({
-      name: 'CTA', score: cta,
+      name: 'CTA', score: cta, avg: benchmarks.cta,
       tip: cta >= 75 ? 'Strong call-to-action!' :
            cta >= 40 ? 'CTA present but could be more specific or prominent.' :
                        'Missing CTA. Tell your audience exactly what to do next.',
     });
     if (style !== null)  metrics.push({
-      name: 'Style', score: style.score,
+      name: 'Style', score: style.score, avg: benchmarks.style,
       tip: style.score >= 85 ? 'Clean and readable. Great work!' : 'See style notes below for fixes.',
     });
 
@@ -1761,7 +2238,12 @@
       coachCard.classList.add('hidden');
     }
 
-    document.getElementById('metrics-grid').innerHTML = metrics.map(m => `
+    document.getElementById('metrics-grid').innerHTML = metrics.map(m => {
+      const diff = m.score - m.avg;
+      const diffStr = diff >= 0
+        ? `<span class="b-ahead">+${diff} ahead</span>`
+        : `<span class="b-behind">${diff} below</span>`;
+      return `
       <div class="metric-card">
         <div class="mc-head">
           <span class="mc-name">${m.name}</span>
@@ -1769,16 +2251,19 @@
         </div>
         <div class="mc-bar-track">
           <div class="mc-bar bg-${col(m.score)}" style="width:${m.score}%"></div>
+          <div class="mc-bar-avg-tick" style="left:${m.avg}%"></div>
         </div>
         <div class="mc-tip">${m.tip}</div>
-      </div>
-    `).join('');
+        <div class="mc-bench">Avg ${m.avg} · ${diffStr}</div>
+      </div>`;
+    }).join('');
 
     // Image fit card
     const imgFitCard = document.getElementById('image-fit-card');
     if (image) {
       document.getElementById('img-score-num').textContent  = image.score;
       document.getElementById('img-score-num').className    = `img-score-num c-${col(image.score)}`;
+      document.querySelector('.img-score-label').textContent = imageData?.isVideo ? 'Video Fit' : 'Image Fit';
       const screenshotBadge = image.isScreenshot ? ' <span style="font-size:11px;font-weight:600;background:#f59e0b22;color:#b45309;padding:2px 7px;border-radius:99px;">Screenshot detected</span>' : '';
       document.getElementById('img-fit-title').innerHTML   = image.label + screenshotBadge;
       document.getElementById('img-fit-title').className    = `img-fit-title c-${col(image.score)}`;
@@ -1837,6 +2322,108 @@
       });
     } else {
       rewriteCard.classList.add('hidden');
+    }
+
+    // AI Rewrite button
+    const aiBtn = document.getElementById('ai-rewrite-btn');
+    const aiUsesEl = document.getElementById('ai-uses-left');
+    const AI_LIMIT = 3;
+    const AI_KEY = 'captioniq-ai-uses';
+
+    function getAiUses() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(AI_KEY) || '{}');
+        const today = new Date().toDateString();
+        if (stored.date !== today) return 0;
+        return stored.count || 0;
+      } catch { return 0; }
+    }
+
+    function incrementAiUses() {
+      try {
+        const today = new Date().toDateString();
+        const stored = JSON.parse(localStorage.getItem(AI_KEY) || '{}');
+        const count = (stored.date === today ? stored.count : 0) + 1;
+        localStorage.setItem(AI_KEY, JSON.stringify({ date: today, count }));
+        return count;
+      } catch { return 1; }
+    }
+
+    function updateAiUsesDisplay() {
+      if (isPro()) {
+        aiUsesEl.textContent = 'Unlimited with Pro ✨';
+        aiBtn.disabled = false;
+        aiBtn.querySelector('.btn-label').textContent = '✨ AI Rewrite';
+        return;
+      }
+      const used = getAiUses();
+      const left = AI_LIMIT - used;
+      if (left > 0) {
+        aiUsesEl.textContent = `${left} free AI rewrites left today`;
+        aiBtn.disabled = false;
+        aiBtn.querySelector('.btn-label').textContent = '✨ AI Rewrite';
+      } else {
+        aiUsesEl.textContent = '';
+        aiBtn.disabled = false;
+        aiBtn.querySelector('.btn-label').textContent = '⚡ Upgrade for Unlimited';
+      }
+    }
+
+    if (rewrites && rewrites.length && hasText) {
+      updateAiUsesDisplay();
+      aiBtn.onclick = async () => {
+        const caption = document.getElementById('cap').value.trim();
+        if (!caption) return;
+        if (!isPro() && getAiUses() >= AI_LIMIT) {
+          openPaywall();
+          return;
+        }
+        aiBtn.classList.add('loading');
+        aiBtn.disabled = true;
+        aiUsesEl.textContent = 'Generating…';
+        try {
+          const res = await fetch('/api/rewrite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ caption, platform: plat, niche }),
+          });
+          const data = await res.json();
+          if (!res.ok || data.error) {
+            showToast(data.error || 'AI rewrite failed. Try again.');
+            return;
+          }
+          incrementAiUses();
+          const list = document.getElementById('rewrite-list');
+          // Remove existing AI variant if present
+          list.querySelector('.ai-variant')?.remove();
+          const aiIdx = 'ai';
+          const div = document.createElement('div');
+          div.className = 'rewrite-variant ai-variant';
+          div.innerHTML = `
+            <div class="rv-head">
+              <span class="rv-icon">✨</span>
+              <div class="rv-meta">
+                <span class="rv-label">AI Rewrite <span class="rv-ai-badge">AI</span></span>
+                <span class="rv-desc">Generated by Llama 3.1 — tailored for ${plat === 'tiktok' ? 'TikTok' : 'Instagram'} ${niche}</span>
+              </div>
+              <button class="rv-copy-btn" data-idx="${aiIdx}">Copy</button>
+            </div>
+            <div class="rv-body">${data.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          `;
+          div.querySelector('.rv-copy-btn').addEventListener('click', () => {
+            copyText(data.text);
+            showToast('Copied AI rewrite');
+          });
+          list.appendChild(div);
+          updateAiUsesDisplay();
+          showToast('AI rewrite generated ✨');
+        } catch {
+          showToast('Network error — check your connection');
+        } finally {
+          aiBtn.classList.remove('loading');
+          updateAiUsesDisplay();
+        }
+      };
     }
 
     // Hashtags
