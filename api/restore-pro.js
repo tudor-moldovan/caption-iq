@@ -3,8 +3,54 @@ export const config = { runtime: 'edge' };
 import { signProToken } from './_token.js';
 
 const PRO_TTL_MS = 35 * 24 * 60 * 60 * 1000;
+const RESTORE_LIMIT = 5; // attempts per IP per day
+const restoreRateLimit = new Map(); // in-memory fallback
+
+async function checkRestoreRateLimit(ip) {
+  const base = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!base || !token) return null;
+
+  const today = new Date().toISOString().slice(0, 10);
+  const key = `captioniq:restore:${ip}:${today}`;
+
+  const res = await fetch(`${base}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      ['INCR', key],
+      ['EXPIRE', key, 90000],
+    ]),
+  });
+
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data?.[0]?.result ?? 1;
+}
 
 export default async function handler(req) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+
+  const redisCount = await checkRestoreRateLimit(ip).catch(() => null);
+  if (redisCount !== null) {
+    if (redisCount > RESTORE_LIMIT) {
+      return new Response(JSON.stringify({ error: 'Too many attempts. Try again tomorrow.' }), {
+        status: 429, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+  } else {
+    const now = Date.now();
+    const dayAgo = now - 24 * 60 * 60 * 1000;
+    const timestamps = (restoreRateLimit.get(ip) || []).filter(t => t > dayAgo);
+    if (timestamps.length >= RESTORE_LIMIT) {
+      return new Response(JSON.stringify({ error: 'Too many attempts. Try again tomorrow.' }), {
+        status: 429, headers: { 'Content-Type': 'application/json' },
+      });
+    }
+    timestamps.push(now);
+    restoreRateLimit.set(ip, timestamps);
+  }
+
   const { searchParams } = new URL(req.url);
   const email = searchParams.get('email')?.toLowerCase().trim();
 
