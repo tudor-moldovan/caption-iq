@@ -1756,7 +1756,9 @@
 
     const qHook = matched
       ? (plat === 'instagram' ? matched.qHook.ig : matched.qHook.tt)
-      : (plat === 'tiktok' ? 'Does this actually work or is it just me? 👀' : 'Is this just me, or does everyone feel this way? 👇');
+      : (plat === 'tiktok'
+          ? ['Does this actually work or is it just me? 👀', 'Am I the only one who does this? 😅', 'Why does nobody talk about this? 👀'][idx]
+          : ['Is this just me, or does everyone feel this way? 👇', 'Can we normalise talking about this more? 💬', 'Who else needed to hear this today? 👇'][idx]);
 
     const ctaText = matched
       ? (plat === 'instagram' ? matched.cta.ig : matched.cta.tt)
@@ -2372,7 +2374,7 @@
     if (rewrites && rewrites.length && hasText) {
       updateAiUsesDisplay();
       aiBtn.onclick = async () => {
-        const caption = document.getElementById('cap').value.trim();
+        const caption = document.getElementById('caption-input').value.trim();
         if (!caption) return;
         if (!isPro() && getAiUses() >= AI_LIMIT) {
           openPaywall();
