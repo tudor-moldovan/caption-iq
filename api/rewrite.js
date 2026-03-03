@@ -1,7 +1,33 @@
 export const config = { runtime: 'edge' };
 
-const rateLimit = new Map();
-const MAX_PER_HOUR = 3;
+import { verifyProToken } from './_token.js';
+
+const rateLimit = new Map(); // fallback when Redis is not configured
+const FREE_LIMIT = 3;
+
+// Upstash Redis REST helper — uses pipeline for atomic INCR + EXPIRE
+async function checkRedisRateLimit(ip) {
+  const base = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!base || !token) return null; // Redis not configured → caller uses in-memory fallback
+
+  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const key = `captioniq:rl:${ip}:${today}`;
+
+  const res = await fetch(`${base}/pipeline`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify([
+      ['INCR', key],
+      ['EXPIRE', key, 90000], // 25 hours, covers timezone edge cases
+    ]),
+  });
+
+  if (!res.ok) return null;
+  const data = await res.json();
+  const count = data?.[0]?.result ?? 1;
+  return count;
+}
 
 export default async function handler(req) {
   if (req.method === 'OPTIONS') {
@@ -18,19 +44,6 @@ export default async function handler(req) {
     return new Response('Method not allowed', { status: 405 });
   }
 
-  // Basic IP-based rate limiting (in-memory, resets on cold start)
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  const now = Date.now();
-  const hourAgo = now - 60 * 60 * 1000;
-  const timestamps = (rateLimit.get(ip) || []).filter(t => t > hourAgo);
-
-  if (timestamps.length >= MAX_PER_HOUR) {
-    return new Response(
-      JSON.stringify({ error: 'Rate limit reached. You get 3 free AI rewrites per hour.' }),
-      { status: 429, headers: { 'Content-Type': 'application/json' } }
-    );
-  }
-
   let body;
   try {
     body = await req.json();
@@ -41,7 +54,43 @@ export default async function handler(req) {
     });
   }
 
-  const { caption, platform, niche } = body;
+  const { caption, platform, niche, proToken } = body;
+
+  // ── Pro verification ────────────────────────────────────────────────────────
+  const signingSecret = process.env.PRO_SIGNING_SECRET;
+  const isPro = signingSecret && proToken
+    ? await verifyProToken(proToken, signingSecret)
+    : false;
+
+  // ── Rate limiting (free users only) ────────────────────────────────────────
+  if (!isPro) {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+
+    const redisCount = await checkRedisRateLimit(ip).catch(() => null);
+
+    if (redisCount !== null) {
+      // Redis-backed: reliable across cold starts and regions
+      if (redisCount > FREE_LIMIT) {
+        return new Response(
+          JSON.stringify({ error: 'Daily limit reached. Upgrade to Pro for unlimited rewrites.' }),
+          { status: 429, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    } else {
+      // In-memory fallback (Redis not configured)
+      const now = Date.now();
+      const hourAgo = now - 60 * 60 * 1000;
+      const timestamps = (rateLimit.get(ip) || []).filter(t => t > hourAgo);
+      if (timestamps.length >= FREE_LIMIT) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit reached. You get 3 free AI rewrites per hour.' }),
+          { status: 429, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+      timestamps.push(now);
+      rateLimit.set(ip, timestamps);
+    }
+  }
 
   if (!caption || caption.trim().length < 10) {
     return new Response(JSON.stringify({ error: 'Caption is too short to rewrite.' }), {
@@ -116,11 +165,7 @@ Rewrite the caption to maximise genuine engagement. Follow these rules:
     });
   }
 
-  // Record successful request after response is ready
-  timestamps.push(now);
-  rateLimit.set(ip, timestamps);
-
-  return new Response(JSON.stringify({ text, remaining: MAX_PER_HOUR - timestamps.length }), {
+  return new Response(JSON.stringify({ text }), {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',

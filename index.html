@@ -885,6 +885,34 @@
       text-align: center;
       margin-top: 10px;
     }
+    .restore-inline {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .restore-inline.hidden { display: none; }
+    .restore-email {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1.5px solid var(--sep);
+      border-radius: 12px;
+      font-size: 14px;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+    }
+    .restore-email:focus { border-color: var(--accent); }
+    .restore-submit-btn {
+      padding: 10px 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
 
     /* Footer */
     .app-footer {
@@ -1044,16 +1072,19 @@
   <div class="paywall-modal">
     <button class="paywall-close" id="paywall-close" aria-label="Close">×</button>
     <div class="paywall-title">✨ CaptionIQ Pro</div>
-    <div class="paywall-sub">Unlimited AI rewrites + caption history, powered by real AI.</div>
+    <div class="paywall-sub">Unlimited AI rewrites, powered by real AI.</div>
     <ul class="paywall-features">
       <li>Unlimited AI rewrites (no daily limit)</li>
-      <li>Caption history — save &amp; compare versions</li>
-      <li>Niche-specific platform insights</li>
+      <li>Priority support &amp; early access to new features</li>
       <li>Cancel anytime, no lock-in</li>
     </ul>
     <div class="paywall-price">$9 <span>/ month</span></div>
     <button class="paywall-cta-btn" id="paywall-cta-btn">Start with Pro ✨</button>
     <button class="paywall-restore-btn" id="paywall-restore-btn">Already a member? Restore access →</button>
+    <div class="restore-inline hidden" id="restore-inline">
+      <input type="email" class="restore-email" id="restore-email" placeholder="your@email.com" autocomplete="email" inputmode="email" />
+      <button class="restore-submit-btn" id="restore-submit-btn">Restore →</button>
+    </div>
     <div class="paywall-note">Secure payment via Stripe · Apple Pay &amp; Google Pay accepted</div>
   </div>
 </div>
@@ -1080,6 +1111,10 @@
   }
 
   function isPro() { return !!getProState(); }
+
+  function getProToken() {
+    return getProState()?.proToken || null;
+  }
 
   function updateProUI() {
     const pro = isPro();
@@ -1161,10 +1196,21 @@
     }
   });
 
-  // Restore access — Stripe customer portal
-  document.getElementById('paywall-restore-btn').addEventListener('click', async () => {
-    const email = prompt('Enter the email you used when subscribing:');
-    if (!email || !email.includes('@')) return;
+  // Restore access — inline email input
+  document.getElementById('paywall-restore-btn').addEventListener('click', () => {
+    const row = document.getElementById('restore-inline');
+    row.classList.toggle('hidden');
+    if (!row.classList.contains('hidden')) {
+      document.getElementById('restore-email').focus();
+    }
+  });
+
+  async function doRestorePro() {
+    const email = document.getElementById('restore-email').value.trim();
+    if (!email || !email.includes('@')) {
+      showToast('Enter a valid email address');
+      return;
+    }
     showToast('Looking up your account…');
     try {
       const res = await fetch('/api/restore-pro?email=' + encodeURIComponent(email));
@@ -1173,6 +1219,8 @@
         setProState(data);
         updateProUI();
         closePaywall();
+        document.getElementById('restore-inline').classList.add('hidden');
+        document.getElementById('restore-email').value = '';
         showToast('Pro access restored ✨');
       } else {
         showToast('No active subscription found for that email');
@@ -1180,6 +1228,11 @@
     } catch {
       showToast('Could not restore — try again');
     }
+  }
+
+  document.getElementById('restore-submit-btn').addEventListener('click', doRestorePro);
+  document.getElementById('restore-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doRestorePro();
   });
 
   updateProUI();
@@ -2387,7 +2440,7 @@
           const res = await fetch('/api/rewrite', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ caption, platform: plat, niche }),
+            body: JSON.stringify({ caption, platform: plat, niche, proToken: getProToken() }),
           });
           const data = await res.json();
           if (!res.ok || data.error) {

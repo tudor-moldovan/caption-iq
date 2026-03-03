@@ -1,5 +1,7 @@
 export const config = { runtime: 'edge' };
 
+import { signProToken } from './_token.js';
+
 // Pro token is valid for 35 days (slightly more than 30-day billing cycle)
 const PRO_TTL_MS = 35 * 24 * 60 * 60 * 1000;
 
@@ -46,11 +48,19 @@ export default async function handler(req) {
     });
   }
 
+  const until = Date.now() + PRO_TTL_MS;
+  const customerId = session.customer || session.customer_details?.email || 'unknown';
+  const signingSecret = process.env.PRO_SIGNING_SECRET;
+  const proToken = signingSecret
+    ? await signProToken(customerId, until, signingSecret)
+    : null;
+
   return new Response(JSON.stringify({
     pro: true,
-    customerId: session.customer,
+    customerId,
     email: session.customer_details?.email || null,
-    until: Date.now() + PRO_TTL_MS,
+    until,
+    proToken,
   }), {
     headers: {
       'Content-Type': 'application/json',

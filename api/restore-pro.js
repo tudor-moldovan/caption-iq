@@ -1,5 +1,7 @@
 export const config = { runtime: 'edge' };
 
+import { signProToken } from './_token.js';
+
 const PRO_TTL_MS = 35 * 24 * 60 * 60 * 1000;
 
 export default async function handler(req) {
@@ -61,11 +63,18 @@ export default async function handler(req) {
     });
   }
 
+  const until = Date.now() + PRO_TTL_MS;
+  const signingSecret = process.env.PRO_SIGNING_SECRET;
+  const proToken = signingSecret
+    ? await signProToken(customer.id, until, signingSecret)
+    : null;
+
   return new Response(JSON.stringify({
     pro: true,
     customerId: customer.id,
     email: customer.email,
-    until: Date.now() + PRO_TTL_MS,
+    until,
+    proToken,
   }), {
     headers: {
       'Content-Type': 'application/json',
