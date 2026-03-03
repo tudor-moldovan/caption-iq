@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaptionIQ — AI Caption Optimizer for Instagram &amp; TikTok</title>
+  <meta name="description" content="Score your captions, get AI rewrites, and grow faster on Instagram and TikTok. Free to try — no sign-up needed." />
+  <meta name="theme-color" content="#9333ea" />
+  <link rel="canonical" href="https://captioniq.app/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://captioniq.app/" />
+  <meta property="og:title"       content="CaptionIQ — AI Caption Optimizer" />
+  <meta property="og:description" content="Score your captions, get AI rewrites, and grow faster on Instagram and TikTok." />
+  <meta property="og:image"       content="https://captioniq.app/og-image.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content="CaptionIQ — AI Caption Optimizer" />
+  <meta name="twitter:description" content="Score your captions and grow faster on Instagram and TikTok." />
+  <meta name="twitter:image"       content="https://captioniq.app/og-image.png" />
+
+  <!-- Plausible analytics — update data-domain to match your domain -->
+  <script defer data-domain="captioniq.app" src="https://plausible.io/js/script.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --accent:  #9333ea;
+      --accent2: #ec4899;
+      --bg:      #f4f4f8;
+      --card:    #ffffff;
+      --text:    #111111;
+      --subtext: #6b6b80;
+      --sep:     #e4e4ef;
+      --green:   #22c55e;
+      --yellow:  #f59e0b;
+      --red:     #ef4444;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:      #0d0d10;
+        --card:    #1a1a20;
+        --text:    #f0f0f5;
+        --subtext: #9090a8;
+        --sep:     #2e2e3a;
+      }
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .nav-brand {
+      font-size: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 22px;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 56px 24px 48px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      font-size: 18px;
+      color: var(--subtext);
+      max-width: 520px;
+      margin: 0 auto 36px;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      border: none;
+      border-radius: 26px;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 4px 20px rgba(147,51,234,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(147,51,234,0.45); }
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1.5px solid var(--sep);
+      border-radius: 26px;
+      padding: 16px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .hero-note {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--subtext);
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+      padding: 32px 24px;
+      border-top: 1px solid var(--sep);
+      border-bottom: 1px solid var(--sep);
+      max-width: 700px;
+      margin: 0 auto 64px;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 13px; color: var(--subtext); margin-top: 2px; }
+
+    /* ── How it works ── */
+    .section { max-width: 860px; margin: 0 auto 80px; padding: 0 24px; }
+    .section-title {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 40px;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--sep);
+      border-radius: 18px;
+      padding: 28px 24px;
+    }
+    .step-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-desc { font-size: 14px; color: var(--subtext); }
+
+    /* ── Features ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--sep);
+      border-radius: 18px;
+      padding: 24px;
+    }
+    .feature-icon { font-size: 26px; margin-bottom: 10px; }
+    .feature-title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .feature-desc { font-size: 13px; color: var(--subtext); }
+    .feature-card.pro-feature {
+      border-color: var(--accent);
+      background: linear-gradient(135deg, rgba(147,51,234,0.06), rgba(236,72,153,0.04));
+    }
+    .pro-tag {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 6px;
+      padding: 2px 7px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ── Pricing ── */
+    .pricing-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .pricing-card {
+      background: var(--card);
+      border: 1.5px solid var(--sep);
+      border-radius: 22px;
+      padding: 32px 28px;
+      text-align: center;
+    }
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(147,51,234,0.08);
+    }
+    .pricing-name { font-size: 14px; font-weight: 700; color: var(--subtext); letter-spacing: 0.06em; text-transform: uppercase; }
+    .pricing-price {
+      font-size: 44px;
+      font-weight: 900;
+      margin: 12px 0 4px;
+    }
+    .pricing-price span { font-size: 16px; font-weight: 500; color: var(--subtext); }
+    .pricing-desc { font-size: 14px; color: var(--subtext); margin-bottom: 24px; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 28px; }
+    .pricing-features li {
+      font-size: 14px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--sep);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .pricing-features li:last-child { border-bottom: none; }
+    .check { color: var(--green); font-weight: 700; flex-shrink: 0; }
+    .pricing-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 16px;
+      border: none;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .pricing-btn.free { background: var(--sep); color: var(--text); }
+    .pricing-btn.pro  {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(147,51,234,0.3);
+    }
+
+    /* ── CTA banner ── */
+    .cta-banner {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 24px;
+      padding: 56px 32px;
+      text-align: center;
+      margin: 0 24px 80px;
+      max-width: 860px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-banner h2 {
+      font-size: clamp(22px, 4vw, 34px);
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .cta-banner p { color: rgba(255,255,255,0.82); font-size: 16px; margin-bottom: 28px; }
+    .cta-banner .btn-white {
+      background: #fff;
+      color: var(--accent);
+      border: none;
+      border-radius: 26px;
+      padding: 16px 36px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--subtext);
+      font-size: 13px;
+      border-top: 1px solid var(--sep);
+    }
+    footer a { color: var(--subtext); text-decoration: none; margin: 0 10px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">CaptionIQ</span>
+  <a href="/app" class="nav-cta">Try Free →</a>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <span class="hero-eyebrow">AI-Powered Caption Optimizer</span>
+  <h1>Stop guessing.<br><em>Score your captions.</em></h1>
+  <p class="hero-sub">Paste your Instagram or TikTok caption, get an instant score, fix tips, and an AI rewrite — in seconds. No sign-up.</p>
+  <div class="hero-actions">
+    <a href="/app" class="btn-primary">Analyze My Caption →</a>
+    <a href="#how-it-works" class="btn-secondary">See How It Works</a>
+  </div>
+  <p class="hero-note">Free · No account needed · Works on mobile</p>
+</section>
+
+<!-- Stats bar -->
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">10+</div>
+    <div class="stat-label">Signals Analyzed</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">2</div>
+    <div class="stat-label">Platforms Supported</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">&lt;2s</div>
+    <div class="stat-label">Average Analysis Time</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">$0</div>
+    <div class="stat-label">To Get Started</div>
+  </div>
+</div>
+
+<!-- How it works -->
+<section class="section" id="how-it-works">
+  <h2 class="section-title">How it works</h2>
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-icon">✍️</div>
+      <div class="step-title">1. Paste your caption</div>
+      <div class="step-desc">Type or paste any caption — Instagram or TikTok. Optionally upload your image too.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">📊</div>
+      <div class="step-title">2. Get your score</div>
+      <div class="step-desc">Instant 0–100 score across hook strength, CTA, length, hashtags, and image quality.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">✨</div>
+      <div class="step-title">3. Fix and rewrite</div>
+      <div class="step-desc">Follow the specific coaching tips, or let AI rewrite the whole caption for your niche.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <h2 class="section-title">Everything you need to post better content</h2>
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Hook strength score</div>
+      <div class="feature-desc">Your first line is the most important. We score it and tell you exactly how to improve it for your niche.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">👉</div>
+      <div class="feature-title">CTA detection</div>
+      <div class="feature-desc">Captions without a call-to-action lose engagement. We flag it every time and suggest platform-native alternatives.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🖼️</div>
+      <div class="feature-title">Image analysis</div>
+      <div class="feature-desc">Upload your photo and get feedback on brightness, contrast, saturation, and aspect ratio — the stuff the algorithm sees.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">#️⃣</div>
+      <div class="feature-title">Hashtag recommendations</div>
+      <div class="feature-desc">Niche-specific hashtags at three competition levels: viral, medium, and niche. Copyable in one tap.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <div class="feature-title">Platform-specific rules</div>
+      <div class="feature-desc">Instagram and TikTok have different optimal formats. We score against each platform's real engagement patterns.</div>
+    </div>
+    <div class="feature-card pro-feature">
+      <div class="feature-icon">🤖</div>
+      <div class="feature-title">AI Rewrite <span class="pro-tag">Pro</span></div>
+      <div class="feature-desc">Llama 3.1 rewrites your caption to maximise engagement — tuned for your platform and niche, no generic output.</div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+  <h2 class="section-title">Simple pricing</h2>
+  <div class="pricing-cards">
+    <div class="pricing-card">
+      <div class="pricing-name">Free</div>
+      <div class="pricing-price">$0 <span>/ forever</span></div>
+      <div class="pricing-desc">Everything you need to get started.</div>
+      <ul class="pricing-features">
+        <li><span class="check">✓</span> Full caption scoring</li>
+        <li><span class="check">✓</span> Image analysis</li>
+        <li><span class="check">✓</span> Hashtag recommendations</li>
+        <li><span class="check">✓</span> Coaching tips</li>
+        <li><span class="check">✓</span> 3 AI rewrites / day</li>
+        <li><span class="check">✓</span> Caption history (last 10)</li>
+      </ul>
+      <a href="/app" class="pricing-btn free">Get Started Free</a>
+    </div>
+    <div class="pricing-card featured">
+      <div class="pricing-name">Pro</div>
+      <div class="pricing-price">$9 <span>/ month</span></div>
+      <div class="pricing-desc">For creators who post seriously.</div>
+      <ul class="pricing-features">
+        <li><span class="check">✓</span> Everything in Free</li>
+        <li><span class="check">✓</span> Unlimited AI rewrites</li>
+        <li><span class="check">✓</span> Priority support</li>
+        <li><span class="check">✓</span> Early access to new features</li>
+        <li><span class="check">✓</span> Cancel anytime</li>
+      </ul>
+      <a href="/app" class="pricing-btn pro">Start with Pro ✨</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA Banner -->
+<div class="cta-banner">
+  <h2>Ready to post content that actually performs?</h2>
+  <p>Join creators already using CaptionIQ. Free — no account, no credit card.</p>
+  <a href="/app" class="btn-white">Analyze My Caption →</a>
+</div>
+
+<footer>
+  <p>
+    <a href="/app">App</a>
+    <a href="mailto:support@captioniq.app">Contact</a>
+  </p>
+  <p style="margin-top: 10px;">© 2026 CaptionIQ · Made for creators</p>
+</footer>
+
+</body>
+</html>

@@ -914,6 +914,106 @@
       white-space: nowrap;
     }
 
+    /* History button in header */
+    .history-btn {
+      background: none;
+      border: 1.5px solid var(--sep);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: 13px;
+      color: var(--subtext);
+      cursor: pointer;
+      display: none; /* shown via JS once history has entries */
+    }
+    .history-btn.visible { display: block; }
+
+    /* History panel */
+    .history-panel {
+      max-width: 540px;
+      margin: 24px auto 0;
+      padding: 0 16px;
+    }
+    .history-panel.hidden { display: none; }
+    .history-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .history-panel-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .history-clear-btn {
+      background: none;
+      border: none;
+      font-size: 12px;
+      color: var(--subtext);
+      cursor: pointer;
+      padding: 4px 8px;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--card);
+      border: 1px solid var(--sep);
+      border-radius: 14px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .history-item:hover { border-color: var(--accent); }
+    .history-score {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .history-score.c-green  { background: var(--green); }
+    .history-score.c-yellow { background: var(--yellow); }
+    .history-score.c-red    { background: var(--red); }
+    .history-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .history-caption-preview {
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .history-detail {
+      font-size: 11px;
+      color: var(--subtext);
+      margin-top: 2px;
+    }
+    .history-load-btn {
+      flex-shrink: 0;
+      background: none;
+      border: 1.5px solid var(--sep);
+      border-radius: 10px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--subtext);
+      cursor: pointer;
+    }
+    .history-empty {
+      text-align: center;
+      color: var(--subtext);
+      font-size: 13px;
+      padding: 24px 0;
+    }
+
     /* Footer */
     .app-footer {
       padding: 10px 20px calc(var(--safe-bottom) + 14px);
@@ -921,6 +1021,8 @@
     }
     .footer-note { font-size: 11.5px; color: var(--subtext); }
   </style>
+  <!-- Plausible analytics — update data-domain to match your domain -->
+  <script defer data-domain="captioniq.app" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
 <div id="app">
@@ -931,6 +1033,7 @@
         <span class="brand">CaptionIQ</span>
         <span class="brand-sub">Social Content Optimizer</span>
       </div>
+      <button class="history-btn" id="history-btn">History</button>
       <button class="upgrade-btn" id="upgrade-btn">Go Pro</button>
       <div class="pro-badge hidden" id="pro-badge">Pro ✨</div>
     </div>
@@ -1063,6 +1166,15 @@
     </div>
   </main>
 
+  <!-- Caption history panel -->
+  <div class="history-panel hidden" id="history-panel">
+    <div class="history-panel-header">
+      <span class="history-panel-title">Recent Analyses</span>
+      <button class="history-clear-btn" id="history-clear-btn">Clear all</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
   <footer class="app-footer">
     <p class="footer-note">Tap a hashtag to copy it • Scoring based on data from Later, HubSpot &amp; SproutSocial</p>
   </footer>
@@ -1094,6 +1206,11 @@
 <script>
 (function () {
   'use strict';
+
+  // ── Analytics helper ─────────────────────────────────────
+  function track(event, props) {
+    if (window.plausible) window.plausible(event, props ? { props } : undefined);
+  }
 
   // ── Pro state ────────────────────────────────────────────
   const PRO_KEY = 'captioniq-pro';
@@ -1130,6 +1247,7 @@
 
   function openPaywall() {
     document.getElementById('paywall-overlay').classList.remove('hidden');
+    track('Paywall Opened');
   }
 
   function closePaywall() {
@@ -1179,6 +1297,7 @@
     const btn = document.getElementById('paywall-cta-btn');
     btn.textContent = 'Redirecting…';
     btn.disabled = true;
+    track('Checkout Started');
     try {
       const res = await fetch('/api/create-checkout', { method: 'POST' });
       const data = await res.json();
@@ -1221,6 +1340,7 @@
         closePaywall();
         document.getElementById('restore-inline').classList.add('hidden');
         document.getElementById('restore-email').value = '';
+        track('Pro Restored');
         showToast('Pro access restored ✨');
       } else {
         showToast('No active subscription found for that email');
@@ -1236,6 +1356,107 @@
   });
 
   updateProUI();
+
+  // ── Caption history ───────────────────────────────────────
+  const HISTORY_KEY = 'captioniq-history';
+  const HISTORY_MAX = 10;
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function saveHistory(entries) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(entries));
+  }
+
+  function addHistoryEntry(caption, score, plat, nich) {
+    const entries = loadHistory();
+    entries.unshift({
+      id: Date.now(),
+      date: new Date().toISOString(),
+      caption: caption.slice(0, 300),
+      score,
+      platform: plat,
+      niche: nich,
+    });
+    saveHistory(entries.slice(0, HISTORY_MAX));
+    refreshHistoryUI();
+  }
+
+  function scoreClass(s) { return s >= 75 ? 'c-green' : s >= 48 ? 'c-yellow' : 'c-red'; }
+
+  function refreshHistoryUI() {
+    const entries = loadHistory();
+    const btn = document.getElementById('history-btn');
+    if (entries.length > 0) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+
+    const list = document.getElementById('history-list');
+    if (!list) return;
+
+    if (!entries.length) {
+      list.innerHTML = '<div class="history-empty">No analyses yet.</div>';
+      return;
+    }
+
+    list.innerHTML = entries.map(e => {
+      const d = new Date(e.date);
+      const dateStr = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      const platLabel = e.platform === 'tiktok' ? '🎵 TikTok' : '📸 Instagram';
+      const preview = e.caption ? e.caption.replace(/</g, '&lt;').replace(/>/g, '&gt;') : '(image only)';
+      return `
+        <div class="history-item" data-id="${e.id}">
+          <div class="history-score ${scoreClass(e.score)}">${e.score}</div>
+          <div class="history-meta">
+            <div class="history-caption-preview">${preview}</div>
+            <div class="history-detail">${platLabel} · ${e.niche} · ${dateStr}</div>
+          </div>
+          <button class="history-load-btn" data-id="${e.id}">Load</button>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.history-load-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const entry = entries.find(h => h.id === parseInt(btn.dataset.id));
+        if (!entry) return;
+        textarea.value = entry.caption;
+        platform = entry.platform;
+        niche = entry.niche;
+        localStorage.setItem('captioniq-platform', platform);
+        localStorage.setItem('captioniq-niche', niche);
+        // Update platform + niche button highlights
+        document.querySelectorAll('.plat-btn').forEach(b => b.classList.toggle('active', b.dataset.p === platform));
+        document.querySelectorAll('.niche-btn').forEach(b => b.classList.toggle('active', b.dataset.n === niche));
+        document.getElementById('analyze-btn').className = 'analyze-btn ' + (platform === 'tiktok' ? 'tt' : 'ig');
+        document.getElementById('analyze-btn').disabled = false;
+        document.getElementById('history-panel').classList.add('hidden');
+        textarea.dispatchEvent(new Event('input'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast('Caption loaded — hit Analyze to re-run');
+      });
+    });
+  }
+
+  // History panel toggle
+  document.getElementById('history-btn').addEventListener('click', () => {
+    const panel = document.getElementById('history-panel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+      refreshHistoryUI();
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+  document.getElementById('history-clear-btn').addEventListener('click', () => {
+    saveHistory([]);
+    refreshHistoryUI();
+    document.getElementById('history-panel').classList.add('hidden');
+  });
+
+  // Initialise button visibility on load
+  refreshHistoryUI();
 
   document.querySelectorAll('.plat-btn').forEach(btn => {
     if (btn.dataset.p === platform) btn.classList.add('active');
@@ -1505,6 +1726,9 @@
     void resultsEl.offsetWidth;
     resultsEl.style.animation = '';
     setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    track('Analysis Run', { platform, niche, score: result.overall });
+    // Save to history (only if there's caption text to show as a preview)
+    if (text.trim()) addHistoryEntry(text.trim(), result.overall, platform, niche);
   }
 
   // ── Scoring engine ────────────────────────────────────────
@@ -2471,6 +2695,7 @@
           });
           list.appendChild(div);
           updateAiUsesDisplay();
+          track('AI Rewrite', { platform: plat, niche });
           showToast('AI rewrite generated ✨');
         } catch {
           showToast('Network error — check your connection');

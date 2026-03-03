@@ -1,6 +1,6 @@
 export const config = { runtime: 'edge' };
 
-import { verifyProToken } from './_token.js';
+import { verifyProToken, parseProToken } from './_token.js';
 
 const rateLimit = new Map(); // fallback when Redis is not configured
 const FREE_LIMIT = 3;
@@ -58,9 +58,29 @@ export default async function handler(req) {
 
   // ── Pro verification ────────────────────────────────────────────────────────
   const signingSecret = process.env.PRO_SIGNING_SECRET;
-  const isPro = signingSecret && proToken
-    ? await verifyProToken(proToken, signingSecret)
-    : false;
+  let isPro = false;
+  if (signingSecret && proToken && await verifyProToken(proToken, signingSecret)) {
+    // Token is cryptographically valid — also check revocation list in Redis
+    const parsed = parseProToken(proToken);
+    if (parsed?.customerId) {
+      const base  = process.env.UPSTASH_REDIS_REST_URL;
+      const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+      if (base && token) {
+        try {
+          const r = await fetch(
+            `${base}/get/${encodeURIComponent(`captioniq:revoked:${parsed.customerId}`)}`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          const d = await r.json();
+          isPro = d?.result == null; // null means key absent → not revoked
+        } catch {
+          isPro = true; // Redis down → allow (fail open) rather than block paying users
+        }
+      } else {
+        isPro = true; // Redis not configured → trust the HMAC token
+      }
+    }
+  }
 
   // ── Rate limiting (free users only) ────────────────────────────────────────
   if (!isPro) {

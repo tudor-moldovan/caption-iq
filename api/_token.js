@@ -19,6 +19,19 @@ export async function signProToken(customerId, until, secret) {
   return `${b64}|${until}|${customerId}`;
 }
 
+// Extract fields from a token without verifying. Only call after verifyProToken returns true.
+export function parseProToken(token) {
+  try {
+    const firstPipe = token.indexOf('|');
+    const secondPipe = token.indexOf('|', firstPipe + 1);
+    if (firstPipe === -1 || secondPipe === -1) return null;
+    return {
+      until: parseInt(token.slice(firstPipe + 1, secondPipe)),
+      customerId: token.slice(secondPipe + 1),
+    };
+  } catch { return null; }
+}
+
 export async function verifyProToken(token, secret) {
   try {
     if (!token || typeof token !== 'string') return false;
