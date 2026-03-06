@@ -3,588 +3,1021 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tudor Moldovan – QA & Software Testing Services</title>
+  <meta name="description" content="Tudor Moldovan — independent QA specialist offering mobile, web, and enterprise software testing services on a contract and project basis." />
+  <title>Tudor Moldovan – QA & Software Testing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #f8f9fb;
-      --card: #ffffff;
-      --text: #1a1a2e;
-      --subtext: #555570;
-      --accent: #1e40af;
-      --accent-light: #dbeafe;
-      --border: #e2e8f0;
-      --radius: 12px;
+      --bg:       #f5f6fa;
+      --surface:  #ffffff;
+      --text:     #0f1117;
+      --muted:    #5c6070;
+      --accent:   #2557d6;
+      --accent-h: #1a3fa0;
+      --accent-l: #e8eeff;
+      --border:   #e3e6ef;
+      --r:        14px;
+      --shadow:   0 2px 12px rgba(15,17,23,0.07);
+      --shadow-lg:0 8px 32px rgba(15,17,23,0.10);
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
+    html { scroll-behavior: smooth; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.65;
       font-size: 16px;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* NAV */
+    /* ── FADE-IN ON SCROLL ─────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ── NAV ───────────────────────────────────── */
     nav {
       position: sticky;
       top: 0;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(8px);
+      z-index: 200;
+      background: rgba(255,255,255,0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
-      z-index: 100;
-      padding: 0 24px;
     }
 
-    nav .nav-inner {
-      max-width: 1000px;
+    .nav-inner {
+      max-width: 1100px;
       margin: 0 auto;
+      padding: 0 28px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 60px;
     }
 
-    nav .logo {
-      font-weight: 700;
+    .nav-logo {
+      font-family: 'Space Grotesk', sans-serif;
       font-size: 1.1rem;
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      gap: 28px;
-    }
-
-    nav ul a {
-      text-decoration: none;
-      color: var(--subtext);
-      font-size: 0.9rem;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    nav ul a:hover {
-      color: var(--accent);
-    }
-
-    /* SECTIONS */
-    section {
-      padding: 80px 24px;
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 12px;
-    }
-
-    h2 {
-      font-size: 2rem;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--text);
-      margin-bottom: 16px;
-      line-height: 1.2;
+      text-decoration: none;
+      letter-spacing: -0.02em;
     }
 
-    .section-desc {
-      font-size: 1.05rem;
-      color: var(--subtext);
-      max-width: 620px;
-      margin-bottom: 48px;
-    }
+    .nav-logo span { color: var(--accent); }
 
-    /* HERO */
-    #hero {
-      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 60%, #2563eb 100%);
-      color: white;
-      padding: 100px 24px 90px;
-    }
-
-    #hero .container {
+    .nav-links {
       display: flex;
-      flex-direction: column;
-      gap: 20px;
+      list-style: none;
+      gap: 6px;
+      align-items: center;
     }
 
-    #hero .eyebrow {
-      font-size: 0.85rem;
+    .nav-links a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: color 0.18s, background 0.18s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: var(--accent);
+      background: var(--accent-l);
+    }
+
+    .nav-cta {
+      background: var(--accent) !important;
+      color: white !important;
+      border-radius: 8px;
+      padding: 8px 18px !important;
+      font-weight: 600 !important;
+      transition: background 0.18s !important;
+    }
+
+    .nav-cta:hover { background: var(--accent-h) !important; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 6px;
+      border: none;
+      background: none;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.25s, opacity 0.25s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 28px 20px;
+      gap: 4px;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mobile-menu a:last-child { border-bottom: none; color: var(--accent); font-weight: 600; }
+
+    /* ── HERO ──────────────────────────────────── */
+    #hero {
+      position: relative;
+      overflow: hidden;
+      background: #0a1628;
+      padding: 110px 28px 100px;
+      color: white;
+    }
+
+    /* subtle dot grid */
+    #hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    /* glow blob */
+    #hero::after {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(37,87,214,0.35) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37,87,214,0.25);
+      border: 1px solid rgba(37,87,214,0.5);
+      color: #93b8ff;
+      font-size: 0.78rem;
       font-weight: 600;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      opacity: 0.75;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #4ade80;
     }
 
     #hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(2.4rem, 5.5vw, 3.8rem);
       font-weight: 800;
-      line-height: 1.15;
-      max-width: 700px;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      max-width: 780px;
+      margin-bottom: 24px;
     }
 
-    #hero h1 span {
-      color: #93c5fd;
+    #hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, #60a5fa, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    #hero .hero-sub {
+    .hero-sub {
       font-size: 1.15rem;
-      opacity: 0.85;
-      max-width: 560px;
-      line-height: 1.6;
+      color: rgba(255,255,255,0.72);
+      max-width: 540px;
+      line-height: 1.7;
+      margin-bottom: 40px;
     }
 
-    #hero .cta-group {
+    .hero-actions {
       display: flex;
       gap: 14px;
       flex-wrap: wrap;
-      margin-top: 8px;
     }
 
     .btn {
-      display: inline-block;
-      padding: 13px 28px;
-      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 10px;
       font-weight: 600;
       font-size: 0.95rem;
       text-decoration: none;
       cursor: pointer;
-      transition: opacity 0.2s, transform 0.15s;
+      border: none;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s, opacity 0.15s;
     }
 
-    .btn:hover {
-      opacity: 0.9;
-      transform: translateY(-1px);
-    }
+    .btn:hover { transform: translateY(-2px); }
 
-    .btn-primary {
+    .btn-white {
       background: white;
       color: var(--accent);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
     }
 
-    .btn-outline {
-      background: transparent;
+    .btn-white:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.22); }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.1);
       color: white;
-      border: 2px solid rgba(255,255,255,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
-    /* SERVICES */
-    #services {
-      background: var(--bg);
+    .btn-ghost:hover { background: rgba(255,255,255,0.16); }
+
+    .btn-accent {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 16px rgba(37,87,214,0.3);
     }
+
+    .btn-accent:hover {
+      background: var(--accent-h);
+      box-shadow: 0 6px 24px rgba(37,87,214,0.38);
+    }
+
+    /* trust strip */
+    .trust-strip {
+      margin-top: 64px;
+      padding-top: 36px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .trust-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .trust-item strong {
+      font-size: 1.6rem;
+      font-weight: 800;
+      font-family: 'Space Grotesk', sans-serif;
+      color: white;
+    }
+
+    .trust-item span {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ── SHARED SECTION LAYOUT ─────────────────── */
+    section {
+      padding: 88px 28px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-l);
+      padding: 4px 12px;
+      border-radius: 100px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 14px;
+      color: var(--text);
+    }
+
+    .section-sub {
+      font-size: 1rem;
+      color: var(--muted);
+      max-width: 580px;
+      line-height: 1.7;
+    }
+
+    .section-header { margin-bottom: 52px; }
+
+    /* ── SERVICES ──────────────────────────────── */
+    #services { background: var(--bg); }
 
     .services-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
 
-    .service-card {
-      background: var(--card);
+    @media (max-width: 900px) {
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 580px) {
+      .services-grid { grid-template-columns: 1fr; }
+    }
+
+    .s-card {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 28px 24px;
-      transition: box-shadow 0.2s, transform 0.2s;
+      border-radius: var(--r);
+      padding: 30px 26px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .service-card:hover {
-      box-shadow: 0 8px 24px rgba(30,64,175,0.08);
-      transform: translateY(-2px);
+    .s-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
-    .service-icon {
-      font-size: 1.8rem;
-      margin-bottom: 14px;
+    .s-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
     }
 
-    .service-card h3 {
-      font-size: 1.05rem;
+    .s-card:hover::before { opacity: 1; }
+
+    .s-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--accent-l);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 18px;
+    }
+
+    .s-card h3 {
+      font-size: 1rem;
       font-weight: 700;
       margin-bottom: 8px;
       color: var(--text);
     }
 
-    .service-card p {
-      font-size: 0.9rem;
-      color: var(--subtext);
-      line-height: 1.55;
+    .s-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.6;
     }
 
-    /* ABOUT */
-    #about {
-      background: white;
+    /* ── PROCESS ───────────────────────────────── */
+    #process {
+      background: var(--surface);
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
 
-    .about-layout {
+    .process-steps {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      position: relative;
+    }
+
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: calc(12.5% + 14px);
+      right: calc(12.5% + 14px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      z-index: 0;
     }
 
     @media (max-width: 700px) {
-      .about-layout {
+      .process-steps {
         grid-template-columns: 1fr;
-        gap: 32px;
+        gap: 28px;
+      }
+      .process-steps::before { display: none; }
+    }
+
+    .p-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 0 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .p-num {
+      width: 56px;
+      height: 56px;
+      background: var(--accent);
+      color: white;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 14px rgba(37,87,214,0.3);
+    }
+
+    .p-step h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .p-step p {
+      font-size: 0.83rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── ABOUT ─────────────────────────────────── */
+    #about { background: var(--bg); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: start;
+    }
+
+    @media (max-width: 740px) {
+      .about-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
       }
     }
 
     .about-text p {
-      color: var(--subtext);
-      margin-bottom: 16px;
-      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 18px;
+      font-size: 0.975rem;
+      line-height: 1.75;
     }
 
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
+    .about-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px;
+      margin-bottom: 32px;
     }
 
-    .stat-box {
-      background: var(--accent-light);
-      border-radius: var(--radius);
-      padding: 24px 20px;
-      text-align: center;
-    }
-
-    .stat-box .number {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--accent);
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-
-    .stat-box .label {
+    .pill {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 6px 16px;
       font-size: 0.82rem;
-      color: var(--subtext);
       font-weight: 500;
+      color: var(--text);
     }
 
-    /* WHY ME */
-    #why {
-      background: var(--bg);
-    }
-
-    .why-list {
+    .about-cards {
       display: flex;
       flex-direction: column;
       gap: 16px;
-      max-width: 700px;
     }
 
-    .why-item {
+    .a-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 22px 22px;
+      box-shadow: var(--shadow);
       display: flex;
       gap: 16px;
       align-items: flex-start;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px 22px;
     }
 
-    .why-icon {
-      font-size: 1.4rem;
+    .a-card-icon {
+      font-size: 1.5rem;
       flex-shrink: 0;
-      margin-top: 2px;
     }
 
-    .why-item strong {
+    .a-card strong {
       display: block;
-      font-size: 0.97rem;
+      font-size: 0.92rem;
+      font-weight: 700;
       margin-bottom: 4px;
     }
 
-    .why-item p {
-      font-size: 0.88rem;
-      color: var(--subtext);
+    .a-card p {
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.5;
     }
 
-    /* CONTACT */
+    /* ── CONTACT ───────────────────────────────── */
     #contact {
-      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      background: #0a1628;
       color: white;
-      text-align: center;
+      position: relative;
+      overflow: hidden;
     }
 
-    #contact h2 {
+    #contact::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    #contact::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(37,87,214,0.25) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .contact-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    @media (max-width: 740px) {
+      .contact-inner {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    .contact-text .section-tag { background: rgba(37,87,214,0.3); color: #93b8ff; }
+
+    .contact-text .section-title { color: white; }
+
+    .contact-text p {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.975rem;
+      line-height: 1.75;
+      margin-top: 14px;
+    }
+
+    .contact-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: var(--r);
+      padding: 36px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .contact-row-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(37,87,214,0.3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .contact-row-info strong {
+      display: block;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.45);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+
+    .contact-row-info a {
       color: white;
-    }
-
-    #contact .section-label {
-      color: #93c5fd;
-    }
-
-    #contact .contact-sub {
-      font-size: 1.05rem;
-      opacity: 0.8;
-      max-width: 480px;
-      margin: 0 auto 36px;
-    }
-
-    .email-link {
-      display: inline-block;
-      background: white;
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 1.1rem;
-      padding: 16px 36px;
-      border-radius: 8px;
       text-decoration: none;
-      transition: opacity 0.2s, transform 0.15s;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: color 0.18s;
     }
 
-    .email-link:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
+    .contact-row-info a:hover { color: #93b8ff; }
+
+    .contact-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.1);
     }
 
-    .linkedin-link {
-      display: inline-block;
-      margin-top: 20px;
-      color: rgba(255,255,255,0.7);
-      font-size: 0.9rem;
-      text-decoration: none;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-      padding-bottom: 2px;
-      transition: color 0.2s;
-    }
-
-    .linkedin-link:hover {
-      color: white;
-    }
-
-    /* FOOTER */
+    /* ── FOOTER ────────────────────────────────── */
     footer {
+      background: #060d1a;
+      color: rgba(255,255,255,0.4);
       text-align: center;
-      padding: 24px;
+      padding: 24px 28px;
       font-size: 0.82rem;
-      color: var(--subtext);
-      border-top: 1px solid var(--border);
     }
 
-    /* RESPONSIVE NAV */
-    @media (max-width: 600px) {
-      nav ul {
-        gap: 18px;
-      }
+    footer a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+    }
 
-      nav ul li:nth-child(2) {
-        display: none;
-      }
+    footer a:hover { color: white; }
+
+    /* ── RESPONSIVE NAV ────────────────────────── */
+    @media (max-width: 740px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      section { padding: 64px 20px; }
+
+      #hero { padding: 80px 20px 70px; }
+
+      .trust-strip { gap: 28px; }
+
+      .process-steps { gap: 32px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
+  <!-- ── NAV ── -->
   <nav>
     <div class="nav-inner">
-      <a class="logo" href="#">Tudor Moldovan</a>
-      <ul>
+      <a class="nav-logo" href="#">Tudor<span>.</span></a>
+      <ul class="nav-links">
         <li><a href="#services">Services</a></li>
+        <li><a href="#process">Process</a></li>
         <li><a href="#about">About</a></li>
-        <li><a href="#why">Why me</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="#contact" class="nav-cta">Get in touch</a></li>
       </ul>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-menu" id="mobile-menu">
+      <a href="#services" class="mobile-link">Services</a>
+      <a href="#process" class="mobile-link">Process</a>
+      <a href="#about" class="mobile-link">About</a>
+      <a href="#contact" class="mobile-link">Get in touch →</a>
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- ── HERO ── -->
   <section id="hero">
-    <div class="container">
-      <p class="eyebrow">QA &amp; Software Testing</p>
-      <h1>Your software, <span>tested thoroughly</span> before it reaches users.</h1>
+    <div class="hero-inner">
+      <div class="hero-badge">Available for new projects</div>
+      <h1>Software testing<br />you can <em>rely on.</em></h1>
       <p class="hero-sub">
-        I help teams ship with confidence — catching bugs, edge cases, and UX issues
-        before they become production problems.
+        I help teams catch bugs, edge cases, and UX issues before they reach users —
+        across mobile apps, web platforms, and enterprise systems.
       </p>
-      <div class="cta-group">
-        <a href="#contact" class="btn btn-primary">Get in touch</a>
-        <a href="#services" class="btn btn-outline">See services</a>
+      <div class="hero-actions">
+        <a href="#contact" class="btn btn-white">Get in touch</a>
+        <a href="#services" class="btn btn-ghost">See services</a>
+      </div>
+      <div class="trust-strip">
+        <div class="trust-item">
+          <strong>Mobile</strong>
+          <span>iOS &amp; Android</span>
+        </div>
+        <div class="trust-item">
+          <strong>Industrial</strong>
+          <span>Precision software</span>
+        </div>
+        <div class="trust-item">
+          <strong>Flexible</strong>
+          <span>Any engagement type</span>
+        </div>
+        <div class="trust-item">
+          <strong>All clients</strong>
+          <span>Startups to enterprise</span>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- SERVICES -->
+  <!-- ── SERVICES ── -->
   <section id="services">
     <div class="container">
-      <p class="section-label">What I offer</p>
-      <h2>Testing services</h2>
-      <p class="section-desc">
-        From small startups to enterprise-grade systems, I adapt my approach
-        to fit your product, team, and timeline.
-      </p>
+      <div class="section-header reveal">
+        <span class="section-tag">What I offer</span>
+        <h2 class="section-title">Testing services</h2>
+        <p class="section-sub">From early-stage products to complex enterprise systems — I adapt to your stack, team, and timeline.</p>
+      </div>
 
       <div class="services-grid">
-
-        <div class="service-card">
-          <div class="service-icon">📱</div>
+        <div class="s-card reveal">
+          <div class="s-icon">📱</div>
           <h3>Mobile App Testing</h3>
-          <p>Extensive testing on iOS and Android — functionality, gestures, performance, OS compatibility, and real-device edge cases.</p>
+          <p>Extensive iOS and Android coverage — functionality, gestures, performance, OS compatibility, and real-device edge cases.</p>
         </div>
-
-        <div class="service-card">
-          <div class="service-icon">🌐</div>
+        <div class="s-card reveal">
+          <div class="s-icon">🌐</div>
           <h3>Web Application Testing</h3>
-          <p>Cross-browser and responsive testing across devices to ensure a consistent experience for every user.</p>
+          <p>Cross-browser and responsive testing across devices to ensure every user has a consistent, error-free experience.</p>
         </div>
-
-        <div class="service-card">
-          <div class="service-icon">🔁</div>
-          <h3>Functional &amp; Regression Testing</h3>
-          <p>Verifying core features work as expected and that new changes haven't broken existing behaviour.</p>
+        <div class="s-card reveal">
+          <div class="s-icon">🔁</div>
+          <h3>Functional &amp; Regression</h3>
+          <p>Verifying core features work correctly and that new changes haven't broken existing behaviour.</p>
         </div>
-
-        <div class="service-card">
-          <div class="service-icon">🏭</div>
-          <h3>Enterprise &amp; Industrial Software</h3>
+        <div class="s-card reveal">
+          <div class="s-icon">🏭</div>
+          <h3>Enterprise &amp; Industrial</h3>
           <p>Experience with high-stakes software in precision industrial environments where reliability and accuracy are non-negotiable.</p>
         </div>
-
-        <div class="service-card">
-          <div class="service-icon">📋</div>
-          <h3>Test Planning &amp; Documentation</h3>
-          <p>Creating clear test plans, test cases, and bug reports that give your team full visibility into quality status.</p>
-        </div>
-
-        <div class="service-card">
-          <div class="service-icon">🔍</div>
+        <div class="s-card reveal">
+          <div class="s-icon">🔍</div>
           <h3>Exploratory Testing</h3>
-          <p>Going beyond test scripts to find the unexpected — the bugs users will hit that no checklist would catch.</p>
+          <p>Going beyond test scripts to find the unexpected — the bugs real users will encounter that no checklist would catch.</p>
         </div>
-
+        <div class="s-card reveal">
+          <div class="s-icon">📋</div>
+          <h3>Test Plans &amp; Bug Reports</h3>
+          <p>Clear, structured documentation — test cases, coverage maps, and bug reports your developers can act on immediately.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ABOUT -->
+  <!-- ── PROCESS ── -->
+  <section id="process">
+    <div class="container">
+      <div class="section-header reveal" style="text-align:center; margin-bottom: 64px;">
+        <span class="section-tag">How it works</span>
+        <h2 class="section-title">Simple, structured process</h2>
+        <p class="section-sub" style="margin:0 auto;">No long ramp-up. We start testing quickly and you get results you can act on.</p>
+      </div>
+
+      <div class="process-steps">
+        <div class="p-step reveal">
+          <div class="p-num">1</div>
+          <h4>Discovery call</h4>
+          <p>We discuss your product, stack, deadlines, and what you need tested.</p>
+        </div>
+        <div class="p-step reveal">
+          <div class="p-num">2</div>
+          <h4>Test planning</h4>
+          <p>I define scope, test cases, and acceptance criteria tailored to your goals.</p>
+        </div>
+        <div class="p-step reveal">
+          <div class="p-num">3</div>
+          <h4>Testing</h4>
+          <p>Thorough execution — functional, exploratory, edge cases, and regression.</p>
+        </div>
+        <div class="p-step reveal">
+          <div class="p-num">4</div>
+          <h4>Reporting</h4>
+          <p>Detailed, actionable bug reports and a summary of coverage and findings.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ABOUT ── -->
   <section id="about">
     <div class="container">
-      <p class="section-label">Background</p>
-      <h2>About me</h2>
+      <div class="about-grid">
+        <div class="about-text reveal">
+          <span class="section-tag">About me</span>
+          <h2 class="section-title">Tudor Moldovan</h2>
+          <p>
+            I'm an independent QA specialist with hands-on experience across mobile consumer
+            applications and precision industrial software — two very different environments,
+            both demanding a high standard of quality.
+          </p>
+          <p>
+            I treat testing as a discipline, not a checklist. That means thinking like a user,
+            probing edge cases developers don't anticipate, and delivering findings that are
+            clear and immediately useful.
+          </p>
+          <p>
+            I work on a contract and project basis and welcome clients of any size — from
+            solo founders to established engineering teams.
+          </p>
 
-      <div class="about-layout">
-        <div class="about-text">
-          <p>
-            I'm Tudor Moldovan, a QA professional with a background spanning mobile applications
-            and precision industrial software. I've worked on complex systems where quality isn't
-            optional — where a missed bug has real consequences.
-          </p>
-          <p>
-            I take testing seriously as a discipline, not a checkbox. My approach combines
-            structured test coverage with the instinct that comes from extensive hands-on
-            experience across different industries and product types.
-          </p>
-          <p>
-            I work on a contract and project basis, and I'm open to any engagement size —
-            from a one-off audit to ongoing QA support alongside your team.
-          </p>
-          <a href="#contact" class="btn btn-primary" style="margin-top:8px; background: var(--accent); color: white;">Let's work together</a>
+          <div class="about-pills">
+            <span class="pill">iOS Testing</span>
+            <span class="pill">Android Testing</span>
+            <span class="pill">Web Testing</span>
+            <span class="pill">Industrial Software</span>
+            <span class="pill">Regression Testing</span>
+            <span class="pill">Exploratory Testing</span>
+            <span class="pill">Bug Reporting</span>
+          </div>
+
+          <a href="#contact" class="btn btn-accent">Let's work together</a>
         </div>
 
-        <div class="stats-grid">
-          <div class="stat-box">
-            <div class="number">Mobile</div>
-            <div class="label">iOS &amp; Android tested extensively</div>
+        <div class="about-cards reveal">
+          <div class="a-card">
+            <div class="a-card-icon">🎯</div>
+            <div>
+              <strong>Fresh perspective</strong>
+              <p>An outside tester spots what your team is too close to see — assumptions baked in, edge cases overlooked.</p>
+            </div>
           </div>
-          <div class="stat-box">
-            <div class="number">Ind.</div>
-            <div class="label">Precision industrial software experience</div>
+          <div class="a-card">
+            <div class="a-card-icon">⚙️</div>
+            <div>
+              <strong>Cross-industry experience</strong>
+              <p>Working in both consumer mobile and precision industrial software shapes a rigorous, adaptable testing mindset.</p>
+            </div>
           </div>
-          <div class="stat-box">
-            <div class="number">Any</div>
-            <div class="label">Client type welcomed</div>
+          <div class="a-card">
+            <div class="a-card-icon">📄</div>
+            <div>
+              <strong>Actionable reporting</strong>
+              <p>Bug reports your developers can act on immediately — no noise, no ambiguity, clear reproduction steps.</p>
+            </div>
           </div>
-          <div class="stat-box">
-            <div class="number">Flex</div>
-            <div class="label">Contract &amp; project-based</div>
+          <div class="a-card">
+            <div class="a-card-icon">🤝</div>
+            <div>
+              <strong>No lock-in</strong>
+              <p>Contract work, one-off projects, or ongoing support — no long-term commitment required to get started.</p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- WHY ME -->
-  <section id="why">
-    <div class="container">
-      <p class="section-label">Why work with me</p>
-      <h2>What sets me apart</h2>
-      <p class="section-desc">A few reasons teams choose to work with an independent QA specialist rather than handle testing in-house.</p>
-
-      <div class="why-list">
-
-        <div class="why-item">
-          <div class="why-icon">🎯</div>
-          <div>
-            <strong>Fresh eyes on your product</strong>
-            <p>An outside tester spots what your team has become too close to see — assumptions baked in, edge cases overlooked.</p>
-          </div>
-        </div>
-
-        <div class="why-item">
-          <div class="why-icon">⚙️</div>
-          <div>
-            <strong>Cross-industry experience</strong>
-            <p>Working across mobile consumer apps and high-precision industrial software gives me a broad perspective on what rigorous testing actually means.</p>
-          </div>
-        </div>
-
-        <div class="why-item">
-          <div class="why-icon">📄</div>
-          <div>
-            <strong>Clear, actionable reporting</strong>
-            <p>Bug reports and test results your developers can act on immediately — no noise, no ambiguity.</p>
-          </div>
-        </div>
-
-        <div class="why-item">
-          <div class="why-icon">🤝</div>
-          <div>
-            <strong>Flexible engagement</strong>
-            <p>No long-term commitment required to get started. Contract work, one-off projects, or ongoing support — whatever fits your situation.</p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
+  <!-- ── CONTACT ── -->
   <section id="contact">
     <div class="container">
-      <p class="section-label">Get in touch</p>
-      <h2>Ready to talk?</h2>
-      <p class="contact-sub">
-        Tell me about your project and what you're looking to test.
-        No pressure, no commitment — just a conversation.
-      </p>
-      <a href="mailto:moldovan_tudor@yahoo.com" class="email-link">moldovan_tudor@yahoo.com</a>
-      <br>
-      <a href="https://www.linkedin.com/in/tudor-moldovan-2baa5688" class="linkedin-link" target="_blank" rel="noopener">Connect on LinkedIn</a>
+      <div class="contact-inner">
+        <div class="contact-text reveal">
+          <span class="section-tag">Get in touch</span>
+          <h2 class="section-title">Ready to talk?</h2>
+          <p>
+            Tell me about your product and what you need tested. I'll get back to you promptly —
+            no sales process, just a straightforward conversation about whether I can help.
+          </p>
+        </div>
+
+        <div class="contact-card reveal">
+          <div class="contact-row">
+            <div class="contact-row-icon">✉️</div>
+            <div class="contact-row-info">
+              <strong>Email</strong>
+              <a href="mailto:moldovan_tudor@yahoo.com">moldovan_tudor@yahoo.com</a>
+            </div>
+          </div>
+          <div class="contact-divider"></div>
+          <div class="contact-row">
+            <div class="contact-row-icon">💼</div>
+            <div class="contact-row-info">
+              <strong>LinkedIn</strong>
+              <a href="https://www.linkedin.com/in/tudor-moldovan-2baa5688" target="_blank" rel="noopener">tudor-moldovan-2baa5688</a>
+            </div>
+          </div>
+          <div class="contact-divider"></div>
+          <a href="mailto:moldovan_tudor@yahoo.com" class="btn btn-accent" style="justify-content:center; margin-top:4px;">
+            Send me a message
+          </a>
+        </div>
+      </div>
     </div>
   </section>
 
+  <!-- ── FOOTER ── -->
   <footer>
-    <p>&copy; 2026 Tudor Moldovan. QA &amp; Software Testing Services.</p>
+    <p>&copy; 2026 Tudor Moldovan &mdash; QA &amp; Software Testing &nbsp;·&nbsp;
+      <a href="mailto:moldovan_tudor@yahoo.com">moldovan_tudor@yahoo.com</a>
+    </p>
   </footer>
 
+  <script>
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Hamburger menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+    });
+
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+      });
+    });
+
+    // Active nav link on scroll
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+
+    const navObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.nav-links a[href="#${e.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+
+    sections.forEach(s => navObserver.observe(s));
+  </script>
 </body>
 </html>
