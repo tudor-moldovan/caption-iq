@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tudor Moldovan – QA & Software Testing Services</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --text: #1a1a2e;
+      --subtext: #555570;
+      --accent: #1e40af;
+      --accent-light: #dbeafe;
+      --border: #e2e8f0;
+      --radius: 12px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 0 24px;
+    }
+
+    nav .nav-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+    }
+
+    nav .logo {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 28px;
+    }
+
+    nav ul a {
+      text-decoration: none;
+      color: var(--subtext);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    nav ul a:hover {
+      color: var(--accent);
+    }
+
+    /* SECTIONS */
+    section {
+      padding: 80px 24px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+
+    .section-desc {
+      font-size: 1.05rem;
+      color: var(--subtext);
+      max-width: 620px;
+      margin-bottom: 48px;
+    }
+
+    /* HERO */
+    #hero {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 60%, #2563eb 100%);
+      color: white;
+      padding: 100px 24px 90px;
+    }
+
+    #hero .container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    #hero .eyebrow {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.75;
+    }
+
+    #hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.15;
+      max-width: 700px;
+    }
+
+    #hero h1 span {
+      color: #93c5fd;
+    }
+
+    #hero .hero-sub {
+      font-size: 1.15rem;
+      opacity: 0.85;
+      max-width: 560px;
+      line-height: 1.6;
+    }
+
+    #hero .cta-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 13px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: white;
+      color: var(--accent);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: white;
+      border: 2px solid rgba(255,255,255,0.5);
+    }
+
+    /* SERVICES */
+    #services {
+      background: var(--bg);
+    }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .service-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .service-card:hover {
+      box-shadow: 0 8px 24px rgba(30,64,175,0.08);
+      transform: translateY(-2px);
+    }
+
+    .service-icon {
+      font-size: 1.8rem;
+      margin-bottom: 14px;
+    }
+
+    .service-card h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .service-card p {
+      font-size: 0.9rem;
+      color: var(--subtext);
+      line-height: 1.55;
+    }
+
+    /* ABOUT */
+    #about {
+      background: white;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    @media (max-width: 700px) {
+      .about-layout {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
+    }
+
+    .about-text p {
+      color: var(--subtext);
+      margin-bottom: 16px;
+      font-size: 1rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .stat-box {
+      background: var(--accent-light);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .stat-box .number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .stat-box .label {
+      font-size: 0.82rem;
+      color: var(--subtext);
+      font-weight: 500;
+    }
+
+    /* WHY ME */
+    #why {
+      background: var(--bg);
+    }
+
+    .why-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 700px;
+    }
+
+    .why-item {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+    }
+
+    .why-icon {
+      font-size: 1.4rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .why-item strong {
+      display: block;
+      font-size: 0.97rem;
+      margin-bottom: 4px;
+    }
+
+    .why-item p {
+      font-size: 0.88rem;
+      color: var(--subtext);
+    }
+
+    /* CONTACT */
+    #contact {
+      background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+      color: white;
+      text-align: center;
+    }
+
+    #contact h2 {
+      color: white;
+    }
+
+    #contact .section-label {
+      color: #93c5fd;
+    }
+
+    #contact .contact-sub {
+      font-size: 1.05rem;
+      opacity: 0.8;
+      max-width: 480px;
+      margin: 0 auto 36px;
+    }
+
+    .email-link {
+      display: inline-block;
+      background: white;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 16px 36px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+
+    .email-link:hover {
+      opacity: 0.92;
+      transform: translateY(-1px);
+    }
+
+    .linkedin-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 2px;
+      transition: color 0.2s;
+    }
+
+    .linkedin-link:hover {
+      color: white;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 0.82rem;
+      color: var(--subtext);
+      border-top: 1px solid var(--border);
+    }
+
+    /* RESPONSIVE NAV */
+    @media (max-width: 600px) {
+      nav ul {
+        gap: 18px;
+      }
+
+      nav ul li:nth-child(2) {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-inner">
+      <a class="logo" href="#">Tudor Moldovan</a>
+      <ul>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#why">Why me</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="container">
+      <p class="eyebrow">QA &amp; Software Testing</p>
+      <h1>Your software, <span>tested thoroughly</span> before it reaches users.</h1>
+      <p class="hero-sub">
+        I help teams ship with confidence — catching bugs, edge cases, and UX issues
+        before they become production problems.
+      </p>
+      <div class="cta-group">
+        <a href="#contact" class="btn btn-primary">Get in touch</a>
+        <a href="#services" class="btn btn-outline">See services</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="container">
+      <p class="section-label">What I offer</p>
+      <h2>Testing services</h2>
+      <p class="section-desc">
+        From small startups to enterprise-grade systems, I adapt my approach
+        to fit your product, team, and timeline.
+      </p>
+
+      <div class="services-grid">
+
+        <div class="service-card">
+          <div class="service-icon">📱</div>
+          <h3>Mobile App Testing</h3>
+          <p>Extensive testing on iOS and Android — functionality, gestures, performance, OS compatibility, and real-device edge cases.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🌐</div>
+          <h3>Web Application Testing</h3>
+          <p>Cross-browser and responsive testing across devices to ensure a consistent experience for every user.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🔁</div>
+          <h3>Functional &amp; Regression Testing</h3>
+          <p>Verifying core features work as expected and that new changes haven't broken existing behaviour.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🏭</div>
+          <h3>Enterprise &amp; Industrial Software</h3>
+          <p>Experience with high-stakes software in precision industrial environments where reliability and accuracy are non-negotiable.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">📋</div>
+          <h3>Test Planning &amp; Documentation</h3>
+          <p>Creating clear test plans, test cases, and bug reports that give your team full visibility into quality status.</p>
+        </div>
+
+        <div class="service-card">
+          <div class="service-icon">🔍</div>
+          <h3>Exploratory Testing</h3>
+          <p>Going beyond test scripts to find the unexpected — the bugs users will hit that no checklist would catch.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <p class="section-label">Background</p>
+      <h2>About me</h2>
+
+      <div class="about-layout">
+        <div class="about-text">
+          <p>
+            I'm Tudor Moldovan, a QA professional with a background spanning mobile applications
+            and precision industrial software. I've worked on complex systems where quality isn't
+            optional — where a missed bug has real consequences.
+          </p>
+          <p>
+            I take testing seriously as a discipline, not a checkbox. My approach combines
+            structured test coverage with the instinct that comes from extensive hands-on
+            experience across different industries and product types.
+          </p>
+          <p>
+            I work on a contract and project basis, and I'm open to any engagement size —
+            from a one-off audit to ongoing QA support alongside your team.
+          </p>
+          <a href="#contact" class="btn btn-primary" style="margin-top:8px; background: var(--accent); color: white;">Let's work together</a>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="number">Mobile</div>
+            <div class="label">iOS &amp; Android tested extensively</div>
+          </div>
+          <div class="stat-box">
+            <div class="number">Ind.</div>
+            <div class="label">Precision industrial software experience</div>
+          </div>
+          <div class="stat-box">
+            <div class="number">Any</div>
+            <div class="label">Client type welcomed</div>
+          </div>
+          <div class="stat-box">
+            <div class="number">Flex</div>
+            <div class="label">Contract &amp; project-based</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY ME -->
+  <section id="why">
+    <div class="container">
+      <p class="section-label">Why work with me</p>
+      <h2>What sets me apart</h2>
+      <p class="section-desc">A few reasons teams choose to work with an independent QA specialist rather than handle testing in-house.</p>
+
+      <div class="why-list">
+
+        <div class="why-item">
+          <div class="why-icon">🎯</div>
+          <div>
+            <strong>Fresh eyes on your product</strong>
+            <p>An outside tester spots what your team has become too close to see — assumptions baked in, edge cases overlooked.</p>
+          </div>
+        </div>
+
+        <div class="why-item">
+          <div class="why-icon">⚙️</div>
+          <div>
+            <strong>Cross-industry experience</strong>
+            <p>Working across mobile consumer apps and high-precision industrial software gives me a broad perspective on what rigorous testing actually means.</p>
+          </div>
+        </div>
+
+        <div class="why-item">
+          <div class="why-icon">📄</div>
+          <div>
+            <strong>Clear, actionable reporting</strong>
+            <p>Bug reports and test results your developers can act on immediately — no noise, no ambiguity.</p>
+          </div>
+        </div>
+
+        <div class="why-item">
+          <div class="why-icon">🤝</div>
+          <div>
+            <strong>Flexible engagement</strong>
+            <p>No long-term commitment required to get started. Contract work, one-off projects, or ongoing support — whatever fits your situation.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <p class="section-label">Get in touch</p>
+      <h2>Ready to talk?</h2>
+      <p class="contact-sub">
+        Tell me about your project and what you're looking to test.
+        No pressure, no commitment — just a conversation.
+      </p>
+      <a href="mailto:tudor.moldovan@example.com" class="email-link">tudor.moldovan@example.com</a>
+      <br>
+      <a href="https://www.linkedin.com/in/tudor-moldovan-2baa5688" class="linkedin-link" target="_blank" rel="noopener">Connect on LinkedIn</a>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 Tudor Moldovan. QA &amp; Software Testing Services.</p>
+  </footer>
+
+</body>
+</html>
