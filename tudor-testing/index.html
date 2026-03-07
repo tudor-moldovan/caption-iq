@@ -70,11 +70,22 @@
 
     .nav-logo {
       font-family: 'Space Grotesk', sans-serif;
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 800;
       color: var(--text);
       text-decoration: none;
       letter-spacing: -0.02em;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .nav-logo-sub {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      text-transform: uppercase;
     }
 
     .nav-logo span { color: var(--accent); }
@@ -982,7 +993,7 @@
   <!-- ── NAV ── -->
   <nav>
     <div class="nav-inner">
-      <a class="nav-logo" href="#">Tudor<span>.</span></a>
+      <a class="nav-logo" href="#">Tudor Moldovan<span class="nav-logo-sub">QA Consultancy</span></a>
       <ul class="nav-links">
         <li><a href="#services">Services</a></li>
         <li><a href="#process">Process</a></li>
@@ -1126,18 +1137,20 @@
           <span class="section-tag">About me</span>
           <h2 class="section-title">Tudor Moldovan</h2>
           <p>
-            I'm an independent QA specialist with hands-on experience across mobile consumer
-            applications and precision industrial software — two very different environments,
-            both demanding a high standard of quality.
+            I've spent over 10 years in IT — the last several of them dedicated entirely to
+            software quality. In that time I've worked across mobile consumer apps, precision
+            industrial systems, fintech platforms, and everything in between.
           </p>
           <p>
-            I treat testing as a discipline, not a checklist. That means thinking like a user,
-            probing edge cases developers don't anticipate, and delivering findings that are
-            clear and immediately useful.
+            Testing, done well, is not about running scripts until the clock runs out.
+            It's about thinking — asking the questions nobody thought to ask, exploring the
+            corners developers didn't consider, and understanding a product well enough to
+            know what matters most when something breaks.
           </p>
           <p>
-            I work on a contract and project basis and welcome clients of any size — from
-            solo founders to established engineering teams.
+            I work directly with founders, engineering leads, and product teams — without
+            layers of process in the way. You get clear findings, honest assessments, and
+            reports your developers can act on the same day.
           </p>
 
           <div class="about-pills">
