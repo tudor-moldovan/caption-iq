@@ -1095,6 +1095,43 @@
       flex-shrink: 0;
     }
 
+    /* ── FAQ ────────────────────────────────────── */
+    #faq {
+      background: var(--bg);
+      padding: 80px 0;
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    @media (max-width: 720px) {
+      .faq-grid { grid-template-columns: 1fr; }
+    }
+
+    .faq-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px 28px;
+    }
+
+    .faq-item h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .faq-item p {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
     /* ── CONTACT FORM ──────────────────────────── */
     .form-row {
       display: grid;
@@ -1299,7 +1336,7 @@
         and make quality everyone's shared responsibility.
       </p>
       <div class="hero-actions">
-        <a href="#contact" class="btn btn-white">Book a free 20-min call</a>
+        <a href="https://calendar.google.com/calendar/appointments/schedules/REPLACE_WITH_YOUR_BOOKING_LINK" target="_blank" rel="noopener" class="btn btn-white">Book a free 20-min call</a>
         <a href="#services" class="btn btn-ghost">See services</a>
       </div>
       <div class="trust-strip">
@@ -1561,7 +1598,7 @@
             <span class="pill">Stakeholder Reporting</span>
           </div>
 
-          <a href="#contact" class="btn btn-accent">Let's work together</a>
+          <a href="https://calendar.google.com/calendar/appointments/schedules/REPLACE_WITH_YOUR_BOOKING_LINK" target="_blank" rel="noopener" class="btn btn-accent">Book a free 20-min call</a>
         </div>
 
         <div class="about-cards reveal">
@@ -1770,6 +1807,51 @@
           </a>
         </div>
 
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section id="faq">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">FAQ</span>
+        <h2 class="section-title">Common questions</h2>
+        <p class="section-sub">Quick answers to the things most clients ask before reaching out.</p>
+      </div>
+      <div class="faq-grid">
+        <div class="faq-item reveal">
+          <h4>Do you work with non-EU clients?</h4>
+          <p>Yes — fully remote across time zones. I've worked with teams in the UK, North America, and the Middle East. Location is never a barrier.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>Do you sign NDAs?</h4>
+          <p>Yes. A standard mutual NDA is available before our first call if you'd like it. Protecting your product details is a given.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>What timezone do you work in?</h4>
+          <p>I'm based in Romania (EET/EEST, UTC+2/+3). I regularly overlap with Western European mornings and Eastern US afternoons with no issues.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>Is this a one-person shop?</h4>
+          <p>Yes — you work directly with me, not an account manager. That's intentional. You get senior-level attention on every engagement, not a junior handoff.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>Can I hire you for a single one-off audit?</h4>
+          <p>Yes. The QA Audit is a fixed-scope, single-engagement service. No ongoing commitment required — though many clients do continue afterwards.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>What's your typical response time?</h4>
+          <p>Within one business day for new enquiries. Once we're working together, I'm available during agreed hours and flag blockers same day.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>Do you only work in one industry?</h4>
+          <p>No — I've tested across 8 industries including fintech, healthtech, industrial software, and consumer apps. Cross-industry experience is an advantage, not a gap.</p>
+        </div>
+        <div class="faq-item reveal">
+          <h4>How quickly can you start?</h4>
+          <p>Typically within one to two weeks of an agreed scope. If your situation is urgent, mention it — I'll tell you honestly what's possible.</p>
+        </div>
       </div>
     </div>
   </section>
