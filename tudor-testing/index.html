@@ -585,6 +585,132 @@
       line-height: 1.5;
     }
 
+    /* ── PROJECTS ──────────────────────────────── */
+    #projects {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 560px) {
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+
+    .proj-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 28px 24px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .proj-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), #818cf8);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .proj-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .proj-card:hover::before { opacity: 1; }
+
+    .proj-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .proj-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+      background: var(--accent-l);
+    }
+
+    .proj-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 100px;
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      white-space: nowrap;
+    }
+
+    .proj-card h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .proj-card p {
+      font-size: 0.865rem;
+      color: var(--muted);
+      line-height: 1.6;
+      flex: 1;
+      margin-bottom: 20px;
+    }
+
+    .proj-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      transition: gap 0.15s;
+    }
+
+    .proj-link:hover { gap: 10px; }
+
+    .proj-link svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
     /* ── CONTACT ───────────────────────────────── */
     #contact {
       background: #0a1628;
@@ -734,6 +860,7 @@
         <li><a href="#services">Services</a></li>
         <li><a href="#process">Process</a></li>
         <li><a href="#about">About</a></li>
+        <li><a href="#projects">Projects</a></li>
         <li><a href="#contact" class="nav-cta">Get in touch</a></li>
       </ul>
       <button class="hamburger" id="hamburger" aria-label="Toggle menu">
@@ -744,6 +871,7 @@
       <a href="#services" class="mobile-link">Services</a>
       <a href="#process" class="mobile-link">Process</a>
       <a href="#about" class="mobile-link">About</a>
+      <a href="#projects" class="mobile-link">Projects</a>
       <a href="#contact" class="mobile-link">Get in touch →</a>
     </div>
   </nav>
@@ -925,6 +1053,94 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Side projects</span>
+        <h2 class="section-title">Things I've built</h2>
+        <p class="section-sub">A selection of apps and websites I designed and developed — from productivity tools to games and AI-powered products.</p>
+      </div>
+
+      <div class="projects-grid">
+
+        <div class="proj-card reveal">
+          <div class="proj-header">
+            <div class="proj-icon">✅</div>
+          </div>
+          <h3>To Do App</h3>
+          <p>A clean, minimal task manager for staying on top of daily work. Built for simplicity and speed.</p>
+          <a class="proj-link" href="https://tudor-to-do.netlify.app/" target="_blank" rel="noopener">
+            Visit app
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="proj-card reveal">
+          <div class="proj-header">
+            <div class="proj-icon">📺</div>
+          </div>
+          <h3>Las Fierbinti</h3>
+          <p>A fan site for the beloved Romanian TV series — episode guides, characters, and a tribute to a cultural institution.</p>
+          <a class="proj-link" href="https://gregarious-crisp-fa54d7.netlify.app/" target="_blank" rel="noopener">
+            Visit site
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="proj-card reveal">
+          <div class="proj-header">
+            <div class="proj-icon">⛅</div>
+          </div>
+          <h3>Hvar Weather</h3>
+          <p>Live weather for the island of Hvar, Croatia. A focused, beautiful weather app for a favourite destination.</p>
+          <a class="proj-link" href="https://hvar-ttt.netlify.app/" target="_blank" rel="noopener">
+            Visit app
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="proj-card reveal">
+          <div class="proj-header">
+            <div class="proj-icon">✍️</div>
+          </div>
+          <h3>Personal Blog</h3>
+          <p>A blog and portfolio where I write about testing, technology, and things I find interesting.</p>
+          <a class="proj-link" href="https://blog-portfolio-indol.vercel.app/blog" target="_blank" rel="noopener">
+            Read blog
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="proj-card reveal">
+          <div class="proj-header">
+            <div class="proj-icon">♟️</div>
+          </div>
+          <h3>Chess Game</h3>
+          <p>A fully playable online chess game with clean UI, move validation, and real-time gameplay.</p>
+          <a class="proj-link" href="https://client-psi-sage-82.vercel.app/" target="_blank" rel="noopener">
+            Play now
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
+        <div class="proj-card reveal">
+          <div class="proj-header">
+            <div class="proj-icon">🚀</div>
+            <span class="proj-badge">Monetized</span>
+          </div>
+          <h3>Caption IQ</h3>
+          <p>An AI-powered social media content optimizer that generates high-performing captions, hooks, and hashtags — with a paid tier.</p>
+          <a class="proj-link" href="https://caption-iq.vercel.app/" target="_blank" rel="noopener">
+            Visit app
+            <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+        </div>
+
       </div>
     </div>
   </section>
