@@ -525,6 +525,18 @@
       }
     }
 
+    .about-photo {
+      width: 100%;
+      max-width: 320px;
+      aspect-ratio: 4 / 5;
+      object-fit: cover;
+      object-position: center top;
+      border-radius: 16px;
+      display: block;
+      margin-bottom: 32px;
+      box-shadow: var(--shadow-lg);
+    }
+
     .about-text p {
       color: var(--muted);
       margin-bottom: 18px;
@@ -1110,6 +1122,7 @@
     <div class="container">
       <div class="about-grid">
         <div class="about-text reveal">
+          <img src="https://raw.githubusercontent.com/tudor-moldovan/QA-Services/main/tudor.jpg" alt="Tudor Moldovan" class="about-photo" />
           <span class="section-tag">About me</span>
           <h2 class="section-title">Tudor Moldovan</h2>
           <p>
