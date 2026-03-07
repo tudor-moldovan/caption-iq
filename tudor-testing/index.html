@@ -711,6 +711,120 @@
       flex-shrink: 0;
     }
 
+    /* ── INDUSTRIES ────────────────────────────── */
+    #industries {
+      background: var(--bg);
+    }
+
+    .industries-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 52px;
+    }
+
+    @media (max-width: 900px) {
+      .industries-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .industries-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    }
+
+    .ind-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      cursor: default;
+    }
+
+    .ind-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--accent);
+    }
+
+    .ind-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--accent-l);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .ind-card h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.3;
+    }
+
+    .scale-strip {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 28px 32px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow);
+      align-items: center;
+    }
+
+    .scale-strip-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .scale-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .scale-item-icon {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .scale-item-text strong {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .scale-item-text span {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      .scale-strip { flex-direction: column; gap: 10px; }
+      .scale-item { min-width: unset; width: 100%; }
+    }
+
     /* ── CONTACT ───────────────────────────────── */
     #contact {
       background: #0a1628;
@@ -859,6 +973,7 @@
       <ul class="nav-links">
         <li><a href="#services">Services</a></li>
         <li><a href="#process">Process</a></li>
+        <li><a href="#industries">Industries</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#projects">Projects</a></li>
         <li><a href="#contact" class="nav-cta">Get in touch</a></li>
@@ -870,6 +985,7 @@
     <div class="mobile-menu" id="mobile-menu">
       <a href="#services" class="mobile-link">Services</a>
       <a href="#process" class="mobile-link">Process</a>
+      <a href="#industries" class="mobile-link">Industries</a>
       <a href="#about" class="mobile-link">About</a>
       <a href="#projects" class="mobile-link">Projects</a>
       <a href="#contact" class="mobile-link">Get in touch →</a>
@@ -1051,6 +1167,77 @@
               <strong>No lock-in</strong>
               <p>Contract work, one-off projects, or ongoing support — no long-term commitment required to get started.</p>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── INDUSTRIES ── -->
+  <section id="industries">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Sectors</span>
+        <h2 class="section-title">Industries I've tested in</h2>
+        <p class="section-sub">Eight years across wildly different domains — from consumer apps to safety-critical industrial systems.</p>
+      </div>
+
+      <div class="industries-grid">
+        <div class="ind-card reveal">
+          <div class="ind-icon">🚗</div>
+          <h4>Automotive</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">🏦</div>
+          <h4>Finance &amp; Banking</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">🏥</div>
+          <h4>Healthcare &amp; Life Sciences</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">🎬</div>
+          <h4>Media &amp; Entertainment</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">💳</div>
+          <h4>Payments</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">💻</div>
+          <h4>Technology</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">🏭</div>
+          <h4>Heavy Industries</h4>
+        </div>
+        <div class="ind-card reveal">
+          <div class="ind-icon">📡</div>
+          <h4>Communications</h4>
+        </div>
+      </div>
+
+      <div class="scale-strip reveal">
+        <span class="scale-strip-label">Experience across</span>
+        <div class="scale-item">
+          <div class="scale-item-icon">🚀</div>
+          <div class="scale-item-text">
+            <strong>Startups</strong>
+            <span>Fast-moving teams, shifting priorities</span>
+          </div>
+        </div>
+        <div class="scale-item">
+          <div class="scale-item-icon">🏢</div>
+          <div class="scale-item-text">
+            <strong>Small &amp; Medium Companies</strong>
+            <span>Lean processes, broad impact</span>
+          </div>
+        </div>
+        <div class="scale-item">
+          <div class="scale-item-icon">🌐</div>
+          <div class="scale-item-text">
+            <strong>Large Corporations</strong>
+            <span>Enterprise scale, complex systems</span>
           </div>
         </div>
       </div>
