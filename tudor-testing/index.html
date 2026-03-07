@@ -856,6 +856,107 @@
       line-height: 1.5;
     }
 
+    /* ── TESTIMONIALS ───────────────────────────── */
+    #testimonials {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 720px) {
+      .testimonials-grid { grid-template-columns: 1fr; }
+    }
+
+    .testimonial-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 32px 28px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+    }
+
+    .testimonial-card::before {
+      content: '\201C';
+      position: absolute;
+      top: 20px;
+      right: 28px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 4rem;
+      line-height: 1;
+      color: var(--accent-l);
+      font-weight: 800;
+    }
+
+    .testimonial-text {
+      font-size: 0.93rem;
+      color: var(--muted);
+      line-height: 1.75;
+      font-style: italic;
+      flex: 1;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-top: 1px solid var(--border);
+      padding-top: 18px;
+    }
+
+    .testimonial-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent-l);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .testimonial-author-info strong {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .testimonial-author-info span {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .testimonial-source {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #0a66c2;
+      text-decoration: none;
+      margin-top: 4px;
+    }
+
+    .testimonial-source svg {
+      width: 12px;
+      height: 12px;
+      fill: #0a66c2;
+    }
+
     /* ── INDUSTRIES ────────────────────────────── */
     #industries { background: var(--bg); border-top: 1px solid var(--border); }
 
@@ -1639,6 +1740,66 @@
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TESTIMONIALS ── -->
+  <section id="testimonials">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-tag">Testimonials</span>
+        <h2 class="section-title">What colleagues say</h2>
+        <p class="section-sub">Recommendations from people who've worked alongside me.</p>
+      </div>
+      <div class="testimonials-grid">
+
+        <div class="testimonial-card reveal">
+          <p class="testimonial-text">
+            Extremely adaptable and efficient is the phrase that comes to mind when I think about Tudor.
+            I was truly impressed by his cheerful personality and great sense of humor. I closely observed
+            his ability to handle even the toughest situations with such ease, a skill that seemed to come
+            naturally to him. Tudor is a results-driven coworker who knows how to get things done and achieve
+            the end goal. What I most appreciate about him is that he's constantly working on his knowledge,
+            improving his skills in the testing field and making sure he's up to date with technology.
+            Highly effective Software Tester with an awesome personality!
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">AI</div>
+            <div class="testimonial-author-info">
+              <strong>Ana Iuga</strong>
+              <span>QA Engineer at Cognizant Softvision</span>
+              <a class="testimonial-source" href="https://www.linkedin.com/in/tudor-moldovan-2baa5688/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn recommendation
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal">
+          <p class="testimonial-text">
+            Tudor is meticulous in his approach and he always understands the importance of what he does.
+            He is curious about learning new technologies and applying them in his daily tasks. He sets the
+            bar for others on his team with innovative thinking. I especially admire the ease with which he
+            integrates into any new team, and how quickly he earns the trust of others. During a bug hunting
+            contest organized by Cluj Community Testing, he was among the winners, showing his ability to
+            find extremely interesting bugs. He always looks on the bright side of things and puts a smile
+            on your face, which makes him a very pleasant colleague to work with.
+          </p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">CB</div>
+            <div class="testimonial-author-info">
+              <strong>Calin Bejan</strong>
+              <span>Agile Delivery Lead &amp; QA Lead</span>
+              <a class="testimonial-source" href="https://www.linkedin.com/in/tudor-moldovan-2baa5688/" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                LinkedIn recommendation
+              </a>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
