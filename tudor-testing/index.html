@@ -759,7 +759,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .ind-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
 
     .ind-card h4 {
@@ -770,59 +780,50 @@
     }
 
     .scale-strip {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      padding: 28px 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--r);
       box-shadow: var(--shadow);
-      align-items: center;
-    }
-
-    .scale-strip-label {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      flex-shrink: 0;
-      margin-right: 4px;
+      overflow: hidden;
     }
 
     .scale-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 18px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      flex: 1;
-      min-width: 180px;
+      padding: 28px 32px;
+      border-right: 1px solid var(--border);
     }
 
-    .scale-item-icon {
-      font-size: 1.3rem;
-      flex-shrink: 0;
+    .scale-item:last-child { border-right: none; }
+
+    .scale-item-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
     }
 
-    .scale-item-text strong {
+    .scale-item strong {
       display: block;
-      font-size: 0.88rem;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1.05rem;
       font-weight: 700;
       color: var(--text);
+      margin-bottom: 6px;
     }
 
-    .scale-item-text span {
-      font-size: 0.78rem;
+    .scale-item span {
+      font-size: 0.82rem;
       color: var(--muted);
+      line-height: 1.5;
     }
 
-    @media (max-width: 600px) {
-      .scale-strip { flex-direction: column; gap: 10px; }
-      .scale-item { min-width: unset; width: 100%; }
+    @media (max-width: 640px) {
+      .scale-strip { grid-template-columns: 1fr; }
+      .scale-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .scale-item:last-child { border-bottom: none; }
     }
 
     /* ── CONTACT ───────────────────────────────── */
@@ -1184,61 +1185,70 @@
 
       <div class="industries-grid">
         <div class="ind-card reveal">
-          <div class="ind-icon">🚗</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v3"/><rect x="9" y="11" width="14" height="10" rx="2"/><circle cx="12" cy="21" r="1"/><circle cx="20" cy="21" r="1"/></svg>
+          </div>
           <h4>Automotive</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">🏦</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
           <h4>Finance &amp; Banking</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">🏥</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
           <h4>Healthcare &amp; Life Sciences</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">🎬</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg>
+          </div>
           <h4>Media &amp; Entertainment</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">💳</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
           <h4>Payments</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">💻</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="2" x2="9" y2="4"/><line x1="15" y1="2" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="22"/><line x1="15" y1="20" x2="15" y2="22"/><line x1="2" y1="9" x2="4" y2="9"/><line x1="2" y1="15" x2="4" y2="15"/><line x1="20" y1="9" x2="22" y2="9"/><line x1="20" y1="15" x2="22" y2="15"/></svg>
+          </div>
           <h4>Technology</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">🏭</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><path d="M2 20h20"/><path d="M4 20V10l8-6 8 6v10"/><path d="M10 20v-6h4v6"/></svg>
+          </div>
           <h4>Heavy Industries</h4>
         </div>
         <div class="ind-card reveal">
-          <div class="ind-icon">📡</div>
+          <div class="ind-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg>
+          </div>
           <h4>Communications</h4>
         </div>
       </div>
 
       <div class="scale-strip reveal">
-        <span class="scale-strip-label">Experience across</span>
         <div class="scale-item">
-          <div class="scale-item-icon">🚀</div>
-          <div class="scale-item-text">
-            <strong>Startups</strong>
-            <span>Fast-moving teams, shifting priorities</span>
-          </div>
+          <div class="scale-item-label">Early stage</div>
+          <strong>Startups</strong>
+          <span>Fast-moving teams, tight deadlines, shifting priorities</span>
         </div>
         <div class="scale-item">
-          <div class="scale-item-icon">🏢</div>
-          <div class="scale-item-text">
-            <strong>Small &amp; Medium Companies</strong>
-            <span>Lean processes, broad impact</span>
-          </div>
+          <div class="scale-item-label">Growth stage</div>
+          <strong>Small &amp; Medium Companies</strong>
+          <span>Lean processes, cross-functional teams, broad scope</span>
         </div>
         <div class="scale-item">
-          <div class="scale-item-icon">🌐</div>
-          <div class="scale-item-text">
-            <strong>Large Corporations</strong>
-            <span>Enterprise scale, complex systems</span>
-          </div>
+          <div class="scale-item-label">Enterprise</div>
+          <strong>Large Corporations</strong>
+          <span>Complex systems, regulated environments, long release cycles</span>
         </div>
       </div>
     </div>
