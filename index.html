@@ -1,2489 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CaptionIQ" />
-  <meta name="theme-color" content="#9333ea" />
-  <link rel="manifest" href="manifest.json" />
-  <title>CaptionIQ</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --accent:  #9333ea;
-      --accent2: #ec4899;
-      --bg:      #f4f4f8;
-      --card:    #ffffff;
-      --text:    #111111;
-      --subtext: #6b6b80;
-      --sep:     #e2e2ea;
-      --radius:  16px;
-      --green:   #22c55e;
-      --yellow:  #f59e0b;
-      --red:     #ef4444;
-      --safe-top:    env(safe-area-inset-top,    0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg:   #0d0d10;
-        --card: #1a1a20;
-        --text: #f0f0f5;
-        --subtext: #88889a;
-        --sep:  #2a2a35;
-      }
-    }
-
-    html, body {
-      min-height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      -webkit-tap-highlight-color: transparent;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    #app {
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── Header ── */
-    .app-header {
-      padding: calc(var(--safe-top) + 20px) 20px 16px;
-      position: sticky;
-      top: 0;
-      background: var(--bg);
-      z-index: 10;
-    }
-
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .brand {
-      font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -0.8px;
-      background: linear-gradient(135deg, #9333ea, #ec4899);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .brand-sub {
-      font-size: 12px;
-      color: var(--subtext);
-      font-weight: 500;
-    }
-
-    /* Platform toggle */
-    .platform-toggle {
-      display: flex;
-      background: var(--card);
-      border-radius: 30px;
-      padding: 4px;
-      gap: 4px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.10);
-    }
-
-    .plat-btn {
-      flex: 1;
-      padding: 9px 0;
-      border-radius: 26px;
-      border: none;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      background: transparent;
-      color: var(--subtext);
-      transition: background 0.2s, color 0.2s;
-      letter-spacing: 0.1px;
-    }
-
-    .plat-btn[data-p="instagram"].active {
-      background: linear-gradient(135deg, #9333ea, #ec4899);
-      color: #fff;
-    }
-
-    .plat-btn[data-p="tiktok"].active {
-      background: #111;
-      color: #fff;
-    }
-
-    /* ── Main ── */
-    main {
-      flex: 1;
-      padding: 0 16px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    /* Input card */
-    .input-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-    }
-
-    .caption-textarea {
-      width: 100%;
-      min-height: 150px;
-      border: none;
-      background: transparent;
-      color: var(--text);
-      font-size: 15px;
-      font-family: inherit;
-      line-height: 1.55;
-      resize: none;
-      outline: none;
-    }
-
-    .caption-textarea::placeholder { color: var(--subtext); }
-
-    .input-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--sep);
-    }
-
-    .char-count {
-      font-size: 12px;
-      color: var(--subtext);
-      font-variant-numeric: tabular-nums;
-    }
-    .char-count.over { color: var(--red); }
-    .live-badge {
-      font-size: 11px;
-      font-weight: 700;
-      color: #22c55e;
-      opacity: 0;
-      transition: opacity 0.4s;
-      animation: livePulse 2s ease-in-out infinite;
-    }
-    .live-badge.visible { opacity: 1; }
-    @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-
-    .analyze-btn {
-      padding: 10px 22px;
-      border-radius: 24px;
-      border: none;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      color: #fff;
-      letter-spacing: 0.2px;
-      transition: transform 0.1s ease, opacity 0.1s ease;
-    }
-    .analyze-btn.ig  { background: linear-gradient(135deg, #9333ea, #ec4899); }
-    .analyze-btn.tt  { background: #111; }
-    .analyze-btn:active { transform: scale(0.95); opacity: 0.88; }
-    .analyze-btn:disabled { opacity: 0.35; pointer-events: none; }
-
-    /* ── Results ── */
-    .results {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      animation: fadeUp 0.35s ease forwards;
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(14px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Score hero */
-    .score-hero {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 22px 18px;
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-    }
-
-    .ring-wrap { flex-shrink: 0; }
-
-    .score-ring {
-      width: 88px;
-      height: 88px;
-      transform: rotate(-90deg);
-    }
-
-    .ring-bg   { fill: none; stroke: var(--sep); stroke-width: 9; }
-    .ring-fill {
-      fill: none;
-      stroke-width: 9;
-      stroke-linecap: round;
-      stroke-dasharray: 226.2;
-      stroke-dashoffset: 226.2;
-      transition: stroke-dashoffset 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-                  stroke 0.3s ease;
-    }
-
-    .hero-text { flex: 1; min-width: 0; }
-
-    .hero-num {
-      font-size: 46px;
-      font-weight: 900;
-      line-height: 1;
-      letter-spacing: -2px;
-    }
-
-    .hero-grade {
-      font-size: 14px;
-      font-weight: 700;
-      margin-top: 2px;
-    }
-
-    .hero-platform {
-      font-size: 11px;
-      color: var(--subtext);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      margin-top: 2px;
-    }
-
-    .hero-sub {
-      font-size: 12px;
-      color: var(--subtext);
-      margin-top: 6px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .hero-sub-item {
-      background: var(--bg);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .hero-desc {
-      font-size: 13px;
-      color: var(--subtext);
-      line-height: 1.45;
-      margin-top: 10px;
-    }
-
-    /* Metric cards */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .metric-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 14px 14px 12px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-    }
-
-    .mc-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .mc-name {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      color: var(--subtext);
-    }
-
-    .mc-score {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-    }
-
-    .mc-bar-track {
-      height: 5px;
-      background: var(--sep);
-      border-radius: 3px;
-      overflow: visible;
-      margin-bottom: 9px;
-      position: relative;
-    }
-
-    .mc-bar {
-      height: 100%;
-      border-radius: 3px;
-      width: 0;
-      transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .mc-bar-avg-tick {
-      position: absolute;
-      top: -3px;
-      width: 2px;
-      height: 11px;
-      background: var(--subtext);
-      border-radius: 1px;
-      opacity: 0.35;
-    }
-
-    .mc-tip {
-      font-size: 12px;
-      color: var(--subtext);
-      line-height: 1.4;
-    }
-
-    .mc-bench {
-      font-size: 10px;
-      color: var(--subtext);
-      margin-top: 5px;
-      opacity: 0.75;
-    }
-    .mc-bench .b-ahead  { color: var(--green); font-weight: 700; }
-    .mc-bench .b-behind { color: var(--yellow); font-weight: 700; }
-
-    /* Shared card */
-    .info-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-    }
-
-    .section-title {
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--subtext);
-      margin-bottom: 10px;
-    }
-
-    /* Style issues */
-    .issue-row {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      padding: 9px 0;
-      border-bottom: 1px solid var(--sep);
-      font-size: 13.5px;
-      line-height: 1.45;
-    }
-    .issue-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .issue-row:first-child { padding-top: 0; }
-    .issue-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-
-    /* Platform tips */
-    .tip-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--sep);
-    }
-    .tip-row:last-child { border-bottom: none; padding-bottom: 0; }
-    .tip-row:first-child { padding-top: 0; }
-    .tip-icon { font-size: 18px; flex-shrink: 0; }
-    .tip-text { font-size: 13.5px; line-height: 1.45; }
-
-    /* Hashtags */
-    .hashtag-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .copy-all-btn {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent);
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 2px 0;
-    }
-
-    .hashtag-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .h-chip {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      transition: transform 0.1s ease, opacity 0.1s;
-      user-select: none;
-    }
-    .h-chip:active { transform: scale(0.92); opacity: 0.8; }
-
-    .h-chip.broad  { background: rgba(239,68,68,0.10);  border-color: rgba(239,68,68,0.30);  color: var(--red); }
-    .h-chip.medium { background: rgba(245,158,11,0.10); border-color: rgba(245,158,11,0.30); color: var(--yellow); }
-    .h-chip.niche  { background: rgba(34,197,94,0.10);  border-color: rgba(34,197,94,0.30);  color: var(--green); }
-
-    .h-legend {
-      display: flex;
-      gap: 14px;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--sep);
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 11px;
-      color: var(--subtext);
-    }
-
-    .legend-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    /* Image upload zone */
-    .upload-zone {
-      border: 2px dashed var(--sep);
-      border-radius: 12px;
-      padding: 18px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      margin-bottom: 12px;
-      position: relative;
-    }
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: var(--accent);
-      background: rgba(147,51,234,0.05);
-    }
-    .upload-zone input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-    .upload-icon { font-size: 26px; margin-bottom: 5px; }
-    .upload-label { font-size: 13px; color: var(--subtext); line-height: 1.45; }
-    .upload-label strong { color: var(--text); }
-
-    /* Image preview */
-    .img-preview-wrap {
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 12px;
-      background: var(--sep);
-      position: relative;
-    }
-    .img-preview {
-      width: 100%;
-      max-height: 220px;
-      object-fit: cover;
-      display: block;
-    }
-    .img-remove-btn {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.55);
-      border: none;
-      color: #fff;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-      line-height: 1;
-    }
-    .img-meta {
-      font-size: 11px;
-      color: var(--subtext);
-      padding: 6px 10px 8px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .img-meta-badge {
-      background: var(--sep);
-      border-radius: 6px;
-      padding: 2px 7px;
-    }
-
-    /* Image fit card (full width) */
-    .image-fit-card {
-      background: var(--card);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .img-score-block { flex-shrink: 0; text-align: center; }
-    .img-score-num {
-      font-size: 38px;
-      font-weight: 900;
-      letter-spacing: -1.5px;
-      line-height: 1;
-    }
-    .img-score-label { font-size: 10px; color: var(--subtext); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 3px; }
-    .img-fit-info { flex: 1; min-width: 0; }
-    .img-fit-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-    .img-fit-tip { font-size: 12.5px; color: var(--subtext); line-height: 1.45; }
-
-    /* Utility */
-    .c-green  { color: var(--green);  }
-    .c-yellow { color: var(--yellow); }
-    .c-red    { color: var(--red);    }
-    .bg-green  { background: var(--green);  }
-    .bg-yellow { background: var(--yellow); }
-    .bg-red    { background: var(--red);    }
-    .hidden    { display: none !important; }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: calc(var(--safe-bottom) + 28px);
-      left: 50%;
-      transform: translateX(-50%) translateY(12px);
-      background: rgba(10,10,10,0.88);
-      color: #fff;
-      padding: 10px 22px;
-      border-radius: 24px;
-      font-size: 14px;
-      font-weight: 600;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-      white-space: nowrap;
-      z-index: 999;
-      backdrop-filter: blur(8px);
-    }
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    /* Rewrite variants */
-    .rewrite-variant {
-      border: 1.5px solid var(--sep);
-      border-radius: 12px;
-      overflow: hidden;
-      margin-bottom: 10px;
-    }
-    .rewrite-variant:last-child { margin-bottom: 0; }
-    .rv-head {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 14px;
-      background: var(--bg);
-    }
-    .rv-icon { font-size: 16px; flex-shrink: 0; }
-    .rv-meta { flex: 1; min-width: 0; }
-    .rv-label { font-size: 12px; font-weight: 700; display: block; }
-    .rv-desc  { font-size: 11px; color: var(--subtext); }
-    .rv-copy-btn {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--accent);
-      background: none;
-      border: 1.5px solid var(--accent);
-      border-radius: 20px;
-      padding: 5px 12px;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: background 0.15s, color 0.15s;
-    }
-    .rv-copy-btn:active { background: var(--accent); color: #fff; }
-    .rv-body {
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      color: var(--text);
-      border-top: 1px solid var(--sep);
-      max-height: 150px;
-      overflow-y: auto;
-    }
-
-    /* AI Rewrite button & state */
-    .ai-rewrite-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 12px;
-      gap: 10px;
-    }
-    .ai-rewrite-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, #9333ea, #ec4899);
-      color: #fff;
-      border: none;
-      border-radius: 22px;
-      padding: 9px 18px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-    .ai-rewrite-btn:active { transform: scale(0.97); }
-    .ai-rewrite-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-    .ai-rewrite-btn .btn-spinner {
-      width: 13px;
-      height: 13px;
-      border: 2px solid rgba(255,255,255,0.35);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: none;
-    }
-    .ai-rewrite-btn.loading .btn-spinner { display: block; }
-    .ai-rewrite-btn.loading .btn-label { display: none; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .ai-uses-left {
-      font-size: 11px;
-      color: var(--subtext);
-      flex: 1;
-      text-align: right;
-    }
-    /* AI variant — distinct purple glow border */
-    .rewrite-variant.ai-variant {
-      border-color: #9333ea;
-      box-shadow: 0 0 0 1px rgba(147,51,234,0.18);
-    }
-    .rv-ai-badge {
-      font-size: 10px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #9333ea, #ec4899);
-      color: #fff;
-      border-radius: 8px;
-      padding: 2px 7px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-
-    /* ── Niche row ── */
-    .niche-row {
-      display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      padding-bottom: 2px;
-      margin-top: 10px;
-    }
-    .niche-row::-webkit-scrollbar { display: none; }
-    .niche-btn {
-      flex-shrink: 0;
-      padding: 5px 13px;
-      border-radius: 20px;
-      border: 1.5px solid var(--sep);
-      background: transparent;
-      color: var(--subtext);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s, color 0.15s;
-      white-space: nowrap;
-    }
-    .niche-btn.active {
-      border-color: var(--accent);
-      background: #9333ea18;
-      color: var(--accent);
-    }
-
-    /* ── Coach card ── */
-    .coach-card {
-      background: linear-gradient(135deg, #9333ea0f, #ec489908);
-      border: 1.5px solid #9333ea28;
-      border-radius: var(--radius);
-      padding: 14px 16px;
-    }
-    .coach-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .coach-icon { font-size: 18px; }
-    .coach-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 1px solid #9333ea18;
-      font-size: 13.5px;
-      line-height: 1.5;
-    }
-    .coach-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .coach-item-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
-    .coach-item-msg { color: var(--text); }
-
-    /* ── Pro / Paywall ── */
-    .header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .upgrade-btn {
-      font-size: 11px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #9333ea, #ec4899);
-      color: #fff;
-      border: none;
-      border-radius: 20px;
-      padding: 5px 13px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .pro-badge {
-      font-size: 11px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #9333ea22, #ec489922);
-      color: #9333ea;
-      border: 1.5px solid #9333ea44;
-      border-radius: 20px;
-      padding: 4px 11px;
-      flex-shrink: 0;
-    }
-    .paywall-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.55);
-      z-index: 999;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      padding-bottom: var(--safe-bottom);
-      animation: fade-in 0.2s ease;
-    }
-    .paywall-overlay.hidden { display: none; }
-    @keyframes fade-in { from { opacity: 0; } }
-    .paywall-modal {
-      background: var(--card);
-      border-radius: 20px 20px 0 0;
-      padding: 24px 22px 28px;
-      width: 100%;
-      max-width: 480px;
-      animation: slide-up 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
-    }
-    @keyframes slide-up { from { transform: translateY(60px); opacity: 0; } }
-    .paywall-close {
-      float: right;
-      background: none;
-      border: none;
-      font-size: 20px;
-      color: var(--subtext);
-      cursor: pointer;
-      line-height: 1;
-      margin-top: -2px;
-    }
-    .paywall-title {
-      font-size: 20px;
-      font-weight: 900;
-      margin-bottom: 4px;
-    }
-    .paywall-sub {
-      font-size: 13px;
-      color: var(--subtext);
-      margin-bottom: 16px;
-      line-height: 1.5;
-    }
-    .paywall-features {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 20px;
-    }
-    .paywall-features li {
-      font-size: 13.5px;
-      padding: 5px 0;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
-    .paywall-features li::before {
-      content: '✓';
-      color: #9333ea;
-      font-weight: 900;
-      font-size: 14px;
-      flex-shrink: 0;
-    }
-    .paywall-price {
-      font-size: 28px;
-      font-weight: 900;
-      text-align: center;
-      margin-bottom: 14px;
-    }
-    .paywall-price span {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--subtext);
-    }
-    .paywall-cta-btn {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background: linear-gradient(135deg, #9333ea, #ec4899);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 800;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    .paywall-restore-btn {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      background: none;
-      border: 1.5px solid var(--sep);
-      border-radius: 14px;
-      font-size: 13px;
-      color: var(--subtext);
-      cursor: pointer;
-      text-align: center;
-    }
-    .paywall-note {
-      font-size: 11px;
-      color: var(--subtext);
-      text-align: center;
-      margin-top: 10px;
-    }
-
-    /* Footer */
-    .app-footer {
-      padding: 10px 20px calc(var(--safe-bottom) + 14px);
-      text-align: center;
-    }
-    .footer-note { font-size: 11.5px; color: var(--subtext); }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The $50K Portfolio — Managed by Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080c10;--sf:#0f1419;--sf2:#151c25;
+  --bd:#1e2a38;--bd2:#243346;
+  --tx:#e8edf2;--mu:#7a8fa6;--di:#3d5166;
+  --gr:#00c896;--gr2:#00c89614;
+  --rd:#ff4d6d;--rd2:#ff4d6d14;
+  --pu:#a78bfa;--pu2:#a78bfa12;
+  --go:#f59e0b;--bl:#60a5fa;
+  --mo:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh}
+/* header */
+header{background:var(--sf);border-bottom:1px solid var(--bd);padding:13px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:99;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-mark{width:30px;height:30px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.logo-name{font-weight:700;font-size:14px}.logo-sub{font-size:10px;color:var(--mu);font-weight:400}
+.hc{text-align:center}
+.hc-lbl{font-size:10px;color:var(--di);text-transform:uppercase;letter-spacing:.8px}
+.hc-val{font-family:var(--mo);font-size:22px;font-weight:700;letter-spacing:-1px}
+.hr{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.pill{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;font-family:var(--mo)}
+.pill.up{background:var(--gr2);color:var(--gr)}
+.pill.dn{background:var(--rd2);color:var(--rd)}
+.pill.fl{background:var(--sf2);color:var(--mu)}
+.live{width:7px;height:7px;border-radius:50%;background:var(--gr);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.reset-btn{background:none;border:1px solid var(--bd);color:var(--di);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;transition:.15s}
+.reset-btn:hover{border-color:var(--rd);color:var(--rd)}
+/* layout */
+main{max-width:1240px;margin:0 auto;padding:24px;display:grid;grid-template-columns:1fr 380px;gap:20px}
+@media(max-width:900px){main{grid-template-columns:1fr;padding:16px}}
+.col{display:flex;flex-direction:column;gap:20px}
+/* card */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.ch{padding:13px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--mu)}
+.cb{font-size:11px;color:var(--di)}
+.cbody{padding:18px}
+/* stats */
+.sbar{display:grid;grid-template-columns:repeat(4,1fr);background:var(--bd)}
+@media(max-width:600px){.sbar{grid-template-columns:repeat(2,1fr)}}
+.st{background:var(--sf);padding:14px 18px}
+.st-lbl{font-size:10px;color:var(--di);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.st-val{font-family:var(--mo);font-size:17px;font-weight:600}
+.st-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.up{color:var(--gr)}.dn{color:var(--rd)}.nt{color:var(--tx)}
+/* table */
+table{width:100%;border-collapse:collapse}
+thead th{padding:9px 14px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--di);background:var(--sf2);border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+tbody td{padding:11px 14px;border-bottom:1px solid var(--bd);font-family:var(--mo);font-size:12px;white-space:nowrap}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--sf2)}
+.tsym{color:var(--bl);font-weight:600}.tname{font-family:'Inter',sans-serif;font-size:11px;color:var(--mu)}
+/* empty */
+.empty{padding:44px 20px;text-align:center}
+.ei{font-size:28px;margin-bottom:10px}.em{color:var(--mu);font-size:13px}.es{color:var(--di);font-size:11px;margin-top:5px}
+/* advisor */
+.ask-btn{width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.ask-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(124,58,237,.4)}
+.ask-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.thinking{display:none;align-items:center;gap:10px;padding:13px;background:var(--pu2);border:1px solid rgba(167,139,250,.2);border-radius:10px;font-size:13px;color:var(--pu)}
+.thinking.on{display:flex}
+.dots span{width:5px;height:5px;background:var(--pu);border-radius:50%;display:inline-block;margin:0 1.5px;animation:bop 1.2s infinite}
+.dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}
+@keyframes bop{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-5px);opacity:1}}
+.err{display:none;padding:10px 14px;background:var(--rd2);border:1px solid rgba(255,77,109,.2);border-radius:8px;color:var(--rd);font-size:13px}
+.err.on{display:block}
+/* rec */
+.rec{display:none;flex-direction:column;gap:12px}
+.rec.on{display:flex}
+.rec-top{display:flex;align-items:center;gap:12px}
+.atag{padding:5px 13px;border-radius:6px;font-size:12px;font-weight:700;font-family:var(--mo);letter-spacing:.5px}
+.atag.BUY{background:var(--gr2);color:var(--gr)}.atag.SELL{background:var(--rd2);color:var(--rd)}.atag.HOLD{background:var(--sf2);color:var(--mu)}
+.rec-stk{flex:1}
+.rsym{font-size:20px;font-weight:700;font-family:var(--mo);color:var(--bl)}.rco{font-size:11px;color:var(--mu)}
+.rpb{text-align:right}
+.rprice{font-size:18px;font-weight:600;font-family:var(--mo)}.rshares{font-size:11px;color:var(--mu)}
+.rrat{background:var(--sf2);border-radius:8px;padding:12px 14px;font-size:13px;line-height:1.65;color:var(--tx);border-left:3px solid var(--pu)}
+.rrisk{font-size:12px;color:var(--mu);padding:0 2px}
+.crow{display:flex;align-items:center;gap:8px;font-size:12px}
+.clbl{color:var(--di)}
+.ctag{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.ctag.HIGH{background:#00c89620;color:var(--gr)}.ctag.MEDIUM{background:#f59e0b20;color:var(--go)}.ctag.LOW{background:#ff4d6d20;color:var(--rd)}
+.rnote{font-size:11px;color:var(--di)}
+.divider{height:1px;background:var(--bd);margin:0 -18px}
+.exec-btn{width:100%;padding:11px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:.15s}
+.exec-btn.buy{border:1px solid var(--gr);background:var(--gr2);color:var(--gr)}.exec-btn.buy:hover{background:var(--gr);color:#000}
+.exec-btn.sell{border:1px solid var(--rd);background:var(--rd2);color:var(--rd)}.exec-btn.sell:hover{background:var(--rd);color:#fff}
+.exec-btn.hold{border:1px solid var(--bd);background:transparent;color:var(--mu);cursor:not-allowed}
+.exec-btn:disabled{opacity:.5;cursor:not-allowed}
+/* trades */
+.ti{padding:11px 16px;border-bottom:1px solid var(--bd);display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:start}
+.ti:last-child{border-bottom:none}
+.ttag{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;font-family:var(--mo)}
+.ttag.BUY{background:var(--gr2);color:var(--gr)}.ttag.SELL{background:var(--rd2);color:var(--rd)}
+.tsym2{font-weight:600;font-family:var(--mo);font-size:13px;color:var(--bl)}
+.tmeta{font-size:11px;color:var(--mu);margin-top:2px}
+.treason{font-size:11px;color:var(--di);margin-top:4px;font-style:italic}
+.tamt{font-family:var(--mo);font-size:13px;font-weight:600;text-align:right}
+.tdate{font-size:10px;color:var(--di);text-align:right;margin-top:2px}
+/* watchlist */
+.wg{display:grid;grid-template-columns:repeat(2,1fr);background:var(--bd);gap:1px}
+.wi{background:var(--sf);padding:10px 14px}
+.wn{font-size:10px;color:var(--di);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.ws{font-size:12px;font-weight:600;font-family:var(--mo);color:var(--bl)}
+.wp{font-size:14px;font-weight:600;font-family:var(--mo)}
+.wc{font-size:11px;font-family:var(--mo)}
+/* toast */
+.toast{position:fixed;bottom:24px;right:24px;padding:11px 18px;border-radius:8px;font-size:13px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:.3s;pointer-events:none}
+.toast.on{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--gr);color:#000}.toast.fail{background:var(--rd);color:#fff}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+</style>
 </head>
 <body>
-<div id="app">
-
-  <header class="app-header">
-    <div class="header-row">
-      <div>
-        <span class="brand">CaptionIQ</span>
-        <span class="brand-sub">Social Content Optimizer</span>
-      </div>
-      <button class="upgrade-btn" id="upgrade-btn">Go Pro</button>
-      <div class="pro-badge hidden" id="pro-badge">Pro ✨</div>
-    </div>
-    <div class="platform-toggle">
-      <button class="plat-btn active" data-p="instagram">📸 Instagram</button>
-      <button class="plat-btn"        data-p="tiktok"   >🎵 TikTok</button>
-    </div>
-    <div class="niche-row">
-      <button class="niche-btn" data-n="lifestyle">✨ Lifestyle</button>
-      <button class="niche-btn" data-n="fashion"  >👗 Fashion</button>
-      <button class="niche-btn" data-n="food"     >🍽️ Food</button>
-      <button class="niche-btn" data-n="travel"   >✈️ Travel</button>
-      <button class="niche-btn" data-n="beauty"   >💄 Beauty</button>
-      <button class="niche-btn" data-n="business" >💼 Business</button>
-    </div>
-  </header>
-
-  <main>
-    <div class="input-card">
-      <!-- Image upload -->
-      <div class="upload-zone" id="upload-zone">
-        <input type="file" id="img-input" accept="image/*,video/*" />
-        <div class="upload-icon" id="upload-icon">🖼️</div>
-        <div class="upload-label"><strong>Add your photo or video</strong><br>Tap to upload · drag &amp; drop</div>
-      </div>
-      <div class="img-preview-wrap hidden" id="img-preview-wrap">
-        <img class="img-preview" id="img-preview" src="" alt="Preview" />
-        <button class="img-remove-btn" id="img-remove-btn" aria-label="Remove image">✕</button>
-        <div class="img-meta" id="img-meta"></div>
-      </div>
-
-      <textarea
-        class="caption-textarea"
-        id="caption-input"
-        placeholder="Paste or write your caption here…"
-        maxlength="2200"
-        autocorrect="on"
-        autocapitalize="sentences"
-        spellcheck="true"
-      ></textarea>
-      <div class="input-meta">
-        <span class="char-count" id="char-count">0 / 2200</span>
-        <span class="live-badge" id="live-badge">● Live</span>
-        <button class="analyze-btn ig" id="analyze-btn" disabled>Analyze</button>
-      </div>
-    </div>
-
-    <div class="results hidden" id="results">
-
-      <!-- Overall score ring -->
-      <div class="score-hero">
-        <div class="ring-wrap">
-          <svg class="score-ring" viewBox="0 0 88 88">
-            <circle class="ring-bg"   cx="44" cy="44" r="36"/>
-            <circle class="ring-fill" id="ring-fill" cx="44" cy="44" r="36"/>
-          </svg>
-        </div>
-        <div class="hero-text">
-          <div class="hero-num"      id="hero-num">–</div>
-          <div class="hero-grade"    id="hero-grade"></div>
-          <div class="hero-platform" id="hero-platform"></div>
-          <div class="hero-sub"      id="hero-sub"></div>
-          <div class="hero-desc"     id="hero-desc"></div>
-        </div>
-      </div>
-
-      <!-- Coach card -->
-      <div class="coach-card hidden" id="coach-card">
-        <div class="coach-header">
-          <span class="coach-icon">🎯</span>
-          <div class="section-title" style="margin:0">Your Coach Says</div>
-        </div>
-        <div id="coach-list"></div>
-      </div>
-
-      <!-- 4 metric cards -->
-      <div class="metrics-grid" id="metrics-grid"></div>
-
-      <!-- Image fit card (shown only when image uploaded) -->
-      <div class="image-fit-card hidden" id="image-fit-card">
-        <div class="img-score-block">
-          <div class="img-score-num" id="img-score-num">–</div>
-          <div class="img-score-label">Image Fit</div>
-        </div>
-        <div class="img-fit-info">
-          <div class="img-fit-title" id="img-fit-title"></div>
-          <div class="img-fit-tip"   id="img-fit-tip"></div>
-        </div>
-      </div>
-
-      <!-- Style & grammar -->
-      <div class="info-card" id="style-card">
-        <div class="section-title">Style &amp; Grammar</div>
-        <div id="style-issues"></div>
-      </div>
-
-      <!-- Platform tips -->
-      <div class="info-card">
-        <div class="section-title" id="tips-title">Platform Tips</div>
-        <div id="tips-list"></div>
-      </div>
-
-      <!-- Optimised Versions -->
-      <div class="info-card hidden" id="rewrite-card">
-        <div class="section-title">Optimised Versions</div>
-        <div id="rewrite-list"></div>
-        <div class="ai-rewrite-row">
-          <button class="ai-rewrite-btn" id="ai-rewrite-btn">
-            <span class="btn-spinner"></span>
-            <span class="btn-label">✨ AI Rewrite</span>
-          </button>
-          <span class="ai-uses-left" id="ai-uses-left"></span>
-        </div>
-      </div>
-
-      <!-- Hashtags -->
-      <div class="info-card" id="hashtag-section">
-        <div class="hashtag-header">
-          <div class="section-title" style="margin-bottom:0">Suggested Hashtags</div>
-          <button class="copy-all-btn" id="copy-all-btn">Copy all</button>
-        </div>
-        <div class="hashtag-grid" id="hashtag-grid"></div>
-        <div class="h-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Broad 1M+</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>Medium 100K–1M</div>
-          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Niche &lt;100K</div>
-        </div>
-      </div>
-
-    </div>
-  </main>
-
-  <footer class="app-footer">
-    <p class="footer-note">Tap a hashtag to copy it • Scoring based on data from Later, HubSpot &amp; SproutSocial</p>
-  </footer>
-</div>
-
-<div class="paywall-overlay hidden" id="paywall-overlay">
-  <div class="paywall-modal">
-    <button class="paywall-close" id="paywall-close" aria-label="Close">×</button>
-    <div class="paywall-title">✨ CaptionIQ Pro</div>
-    <div class="paywall-sub">Unlimited AI rewrites + caption history, powered by real AI.</div>
-    <ul class="paywall-features">
-      <li>Unlimited AI rewrites (no daily limit)</li>
-      <li>Caption history — save &amp; compare versions</li>
-      <li>Niche-specific platform insights</li>
-      <li>Cancel anytime, no lock-in</li>
-    </ul>
-    <div class="paywall-price">$9 <span>/ month</span></div>
-    <button class="paywall-cta-btn" id="paywall-cta-btn">Start with Pro ✨</button>
-    <button class="paywall-restore-btn" id="paywall-restore-btn">Already a member? Restore access →</button>
-    <div class="paywall-note">Secure payment via Stripe · Apple Pay &amp; Google Pay accepted</div>
+<header>
+  <div class="logo">
+    <div class="logo-mark">⚡</div>
+    <div><div class="logo-name">The $50K Portfolio</div><div class="logo-sub">Managed by Claude</div></div>
   </div>
-</div>
+  <div class="hc">
+    <div class="hc-lbl">Portfolio Value</div>
+    <div class="hc-val" id="hVal">$50,000.00</div>
+  </div>
+  <div class="hr">
+    <div class="pill fl" id="hRet">+0.00%</div>
+    <div class="live" title="Live prices"></div>
+    <button class="reset-btn" onclick="confirmReset()">Reset</button>
+  </div>
+</header>
+
+<main>
+  <div class="col">
+    <!-- Stats -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="sbar">
+        <div class="st"><div class="st-lbl">Total Value</div><div class="st-val nt" id="sVal">$50,000</div><div class="st-sub">Started $50,000</div></div>
+        <div class="st"><div class="st-lbl">Total Return</div><div class="st-val nt" id="sRet">+$0.00</div><div class="st-sub" id="sRetP">0.00%</div></div>
+        <div class="st"><div class="st-lbl">Cash</div><div class="st-val nt" id="sCash">$50,000</div><div class="st-sub" id="sCashP">100% liquid</div></div>
+        <div class="st"><div class="st-lbl">S&amp;P 500 (SPY)</div><div class="st-val nt" id="sSpy">—</div><div class="st-sub" id="sSpyP">Loading…</div></div>
+      </div>
+    </div>
+
+    <!-- Holdings -->
+    <div class="card">
+      <div class="ch"><div class="ct">Holdings</div><div class="cb" id="hCnt">0 positions</div></div>
+      <div id="hBody">
+        <div class="empty"><div class="ei">📊</div><div class="em">No positions yet</div><div class="es">Ask Claude to recommend the first trade →</div></div>
+      </div>
+    </div>
+
+    <!-- Trades -->
+    <div class="card">
+      <div class="ch"><div class="ct">Trade History</div><div class="cb" id="tCnt">0 trades</div></div>
+      <div id="tBody">
+        <div class="empty" style="padding:32px 20px"><div class="ei">📋</div><div class="em">No trades executed yet</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <!-- AI Advisor -->
+    <div class="card">
+      <div class="ch"><div class="ct">Claude AI Advisor</div><div style="font-size:11px;color:var(--pu)">claude-opus-4-6</div></div>
+      <div class="cbody" style="display:flex;flex-direction:column;gap:12px">
+        <button class="ask-btn" id="askBtn" onclick="askClaude()">⚡ &nbsp;Ask Claude</button>
+        <div class="thinking" id="thinking"><div class="dots"><span></span><span></span><span></span></div><span>Claude is analyzing market conditions…</span></div>
+        <div class="err" id="errMsg"></div>
+        <div class="rec" id="rec">
+          <div class="rec-top">
+            <div class="atag" id="rAct">BUY</div>
+            <div class="rec-stk"><div class="rsym" id="rSym">—</div><div class="rco" id="rCo"></div></div>
+            <div class="rpb"><div class="rprice" id="rPrice">—</div><div class="rshares" id="rShares"></div></div>
+          </div>
+          <div class="rrat" id="rRat"></div>
+          <div class="rrisk" id="rRisk"></div>
+          <div class="crow">
+            <span class="clbl">Confidence:</span>
+            <span class="ctag" id="rConf">—</span>
+            <span style="flex:1"></span>
+            <span style="font-size:11px;color:var(--di)" id="rTot"></span>
+          </div>
+          <div class="divider"></div>
+          <div class="rnote" id="rNote"></div>
+          <button class="exec-btn hold" id="execBtn" onclick="executeTrade()">Execute Trade</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watchlist -->
+    <div class="card">
+      <div class="ch"><div class="ct">Market Prices</div><div class="cb" id="pTime">—</div></div>
+      <div class="wg" id="wGrid"></div>
+    </div>
+  </div>
+</main>
 
 <div class="toast" id="toast"></div>
 
 <script>
-(function () {
-  'use strict';
+const START=50000,WATCHLIST=['SPY','AAPL','MSFT','NVDA','GOOGL','AMZN','META','TSLA','JPM','V','BRK-B','QQQ'];
+let portfolio=load(),quotes={},pendingRec=null;
 
-  // ── Pro state ────────────────────────────────────────────
-  const PRO_KEY = 'captioniq-pro';
+function load(){try{const s=localStorage.getItem('p50k_v1');if(s)return JSON.parse(s);}catch{}return{cash:START,holdings:[],trades:[],createdAt:new Date().toISOString()};}
+function save(){localStorage.setItem('p50k_v1',JSON.stringify(portfolio));}
+const usd=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',minimumFractionDigits:2}).format(n);
+const pct=n=>(n>=0?'+':'')+n.toFixed(2)+'%';
+function totalValue(){return portfolio.holdings.reduce((s,h)=>s+h.shares*(quotes[h.symbol]?.price||h.avgCost),0)+portfolio.cash;}
 
-  function getProState() {
-    try {
-      const s = JSON.parse(localStorage.getItem(PRO_KEY) || 'null');
-      if (!s || s.until < Date.now()) { localStorage.removeItem(PRO_KEY); return null; }
-      return s;
-    } catch { return null; }
+function renderStats(){
+  const tv=totalValue(),gain=tv-START,gp=gain/START*100,cp=portfolio.cash/tv*100,spy=quotes['SPY'];
+  document.getElementById('hVal').textContent=usd(tv);
+  const rp=document.getElementById('hRet');rp.textContent=pct(gp);rp.className='pill '+(gain>0?'up':gain<0?'dn':'fl');
+  const sv=document.getElementById('sVal');sv.textContent=usd(tv);sv.className='st-val '+(gain>0?'up':gain<0?'dn':'nt');
+  const sr=document.getElementById('sRet');sr.textContent=(gain>=0?'+':'')+usd(gain);sr.className='st-val '+(gain>0?'up':gain<0?'dn':'nt');
+  const srp=document.getElementById('sRetP');srp.textContent=pct(gp);srp.className='st-sub '+(gain>0?'up':gain<0?'dn':'');
+  document.getElementById('sCash').textContent=usd(portfolio.cash);
+  document.getElementById('sCashP').textContent=cp.toFixed(0)+'% liquid';
+  if(spy){document.getElementById('sSpy').textContent='$'+spy.price.toFixed(2);const sp=document.getElementById('sSpyP');sp.textContent=pct(spy.changePercent)+' today';sp.className='st-sub '+(spy.changePercent>=0?'up':'dn');}
+}
+
+function renderHoldings(){
+  const el=document.getElementById('hBody');
+  document.getElementById('hCnt').textContent=portfolio.holdings.length+' position'+(portfolio.holdings.length!==1?'s':'');
+  if(!portfolio.holdings.length){el.innerHTML='<div class="empty"><div class="ei">📊</div><div class="em">No positions yet</div><div class="es">Ask Claude to recommend the first trade →</div></div>';return;}
+  const rows=portfolio.holdings.map(h=>{
+    const q=quotes[h.symbol]||{};const price=q.price||h.avgCost;
+    const mv=h.shares*price,cb=h.shares*h.avgCost,pnl=mv-cb,pp=pnl/cb*100;
+    const pc=pnl>=0?'up':'dn',dc=(q.changePercent??0)>=0?'up':'dn';
+    return`<tr><td class="tsym">${h.symbol}</td><td class="tname">${q.name||h.name||''}</td><td>${h.shares}</td><td>$${h.avgCost.toFixed(2)}</td><td>$${price.toFixed(2)}</td><td class="${dc}" style="font-size:11px">${q.changePercent!=null?pct(q.changePercent):'—'}</td><td>${usd(mv)}</td><td class="${pc}">${(pnl>=0?'+':'')+usd(pnl)}</td><td class="${pc}">${pct(pp)}</td></tr>`;
+  }).join('');
+  el.innerHTML=`<table><thead><tr><th>Ticker</th><th>Name</th><th>Shares</th><th>Avg Cost</th><th>Price</th><th>Day</th><th>Value</th><th>P&L</th><th>Return</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderTrades(){
+  const el=document.getElementById('tBody');
+  document.getElementById('tCnt').textContent=portfolio.trades.length+' trade'+(portfolio.trades.length!==1?'s':'');
+  if(!portfolio.trades.length){el.innerHTML='<div class="empty" style="padding:32px 20px"><div class="ei">📋</div><div class="em">No trades executed yet</div></div>';return;}
+  const items=[...portfolio.trades].reverse().map(t=>{
+    const tot=t.shares*t.price,d=new Date(t.date);
+    const ds=d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const ts=d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    const ac=t.action==='SELL'?'up':'';
+    const reason=t.rationale?`<div class="treason">"${t.rationale.slice(0,110)}${t.rationale.length>110?'…':''}"</div>`:'';
+    return`<div class="ti"><div><span class="ttag ${t.action}">${t.action}</span></div><div><div class="tsym2">${t.symbol}</div><div class="tmeta">${t.shares} shares @ $${t.price.toFixed(2)}${t.name?' · '+t.name:''}</div>${reason}</div><div><div class="tamt ${ac}">${t.action==='BUY'?'-':'+'}${usd(tot)}</div><div class="tdate">${ds}<br>${ts}</div></div></div>`;
+  }).join('');
+  el.innerHTML=items;
+}
+
+function renderWatchlist(){
+  document.getElementById('wGrid').innerHTML=WATCHLIST.map(sym=>{
+    const q=quotes[sym];
+    if(!q)return`<div class="wi"><div class="wn">${sym}</div><div class="ws">${sym}</div><div class="wp" style="color:var(--di)">—</div></div>`;
+    const cls=q.changePercent>=0?'up':'dn';
+    return`<div class="wi"><div class="wn">${q.name||sym}</div><div style="display:flex;align-items:baseline;gap:6px"><div class="ws">${sym}</div><div class="wc ${cls}" style="font-size:10px">${pct(q.changePercent)}</div></div><div class="wp">$${q.price.toFixed(2)}</div></div>`;
+  }).join('');
+  document.getElementById('pTime').textContent='Updated '+new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+}
+
+async function fetchPrices(){
+  const syms=[...new Set([...WATCHLIST,...portfolio.holdings.map(h=>h.symbol)])];
+  try{const r=await fetch('/api/quote?symbols='+syms.join(','));if(!r.ok)return;Object.assign(quotes,await r.json());renderWatchlist();renderStats();renderHoldings();}catch{}
+}
+
+async function askClaude(){
+  const btn=document.getElementById('askBtn'),th=document.getElementById('thinking'),re=document.getElementById('rec'),er=document.getElementById('errMsg');
+  btn.disabled=true;th.classList.add('on');re.classList.remove('on');er.classList.remove('on');
+  try{
+    const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({portfolio})});
+    const d=await r.json();
+    if(!r.ok||d.error)throw new Error(d.error||'Analysis failed');
+    if(d.quotes){Object.assign(quotes,d.quotes);renderWatchlist();renderStats();renderHoldings();}
+    pendingRec=d;showRec(d);
+  }catch(e){er.textContent='⚠ '+e.message;er.classList.add('on');}
+  finally{btn.disabled=false;th.classList.remove('on');}
+}
+
+function showRec(r){
+  const action=r.action||'HOLD';
+  document.getElementById('rAct').textContent=action;document.getElementById('rAct').className='atag '+action;
+  document.getElementById('rSym').textContent=r.symbol||'—';document.getElementById('rCo').textContent=r.name||'';
+  document.getElementById('rPrice').textContent=r.estimatedPrice?usd(r.estimatedPrice):'—';
+  document.getElementById('rShares').textContent=r.shares?r.shares+' shares':'';
+  document.getElementById('rRat').textContent=r.rationale||'';
+  document.getElementById('rRisk').textContent=r.risks?'⚠ '+r.risks:'';
+  const ct=document.getElementById('rConf');ct.textContent=r.confidence||'—';ct.className='ctag '+(r.confidence||'');
+  document.getElementById('rTot').textContent=(r.shares&&r.estimatedPrice)?'Total: '+usd(r.shares*r.estimatedPrice):'';
+  document.getElementById('rNote').textContent=r.portfolioNote||'';
+  const eb=document.getElementById('execBtn');
+  if(action==='BUY'&&r.symbol&&r.shares){eb.textContent=`Buy ${r.shares} shares of ${r.symbol}`;eb.className='exec-btn buy';eb.disabled=false;}
+  else if(action==='SELL'&&r.symbol&&r.shares){eb.textContent=`Sell ${r.shares} shares of ${r.symbol}`;eb.className='exec-btn sell';eb.disabled=false;}
+  else{eb.textContent='Hold — No Trade';eb.className='exec-btn hold';eb.disabled=true;}
+  document.getElementById('rec').classList.add('on');
+  document.getElementById('rec').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function executeTrade(){
+  if(!pendingRec)return;
+  const r=pendingRec,price=r.estimatedPrice||quotes[r.symbol]?.price;
+  if(!price){toast('Cannot get live price for '+r.symbol,false);return;}
+  if(r.action==='BUY'){
+    if(r.shares*price>portfolio.cash+0.01){toast('Insufficient cash',false);return;}
+    const ex=portfolio.holdings.find(h=>h.symbol===r.symbol);
+    if(ex){const tot=ex.shares+r.shares;ex.avgCost=(ex.shares*ex.avgCost+r.shares*price)/tot;ex.shares=tot;ex.name=r.name||ex.name;}
+    else portfolio.holdings.push({symbol:r.symbol,name:r.name,shares:r.shares,avgCost:price,purchasedAt:new Date().toISOString()});
+    portfolio.cash-=r.shares*price;
+    portfolio.trades.push({date:new Date().toISOString(),action:'BUY',symbol:r.symbol,name:r.name,shares:r.shares,price,rationale:r.rationale,confidence:r.confidence});
+    toast(`Bought ${r.shares} shares of ${r.symbol}`,true);
+  }else if(r.action==='SELL'){
+    const h=portfolio.holdings.find(h=>h.symbol===r.symbol);
+    if(!h||h.shares<r.shares){toast('Not enough shares to sell',false);return;}
+    h.shares-=r.shares;if(h.shares===0)portfolio.holdings=portfolio.holdings.filter(x=>x.symbol!==r.symbol);
+    portfolio.cash+=r.shares*price;
+    portfolio.trades.push({date:new Date().toISOString(),action:'SELL',symbol:r.symbol,name:r.name,shares:r.shares,price,rationale:r.rationale});
+    toast(`Sold ${r.shares} shares of ${r.symbol}`,true);
   }
-
-  function setProState(data) {
-    localStorage.setItem(PRO_KEY, JSON.stringify(data));
-  }
-
-  function isPro() { return !!getProState(); }
-
-  function updateProUI() {
-    const pro = isPro();
-    document.getElementById('upgrade-btn').classList.toggle('hidden', pro);
-    document.getElementById('pro-badge').classList.toggle('hidden', !pro);
-    // If currently showing the AI button, re-evaluate its state
-    const aiBtn = document.getElementById('ai-rewrite-btn');
-    if (aiBtn && pro) {
-      aiBtn.disabled = false;
-      document.getElementById('ai-uses-left').textContent = 'Unlimited with Pro ✨';
-    }
-  }
-
-  function openPaywall() {
-    document.getElementById('paywall-overlay').classList.remove('hidden');
-  }
-
-  function closePaywall() {
-    document.getElementById('paywall-overlay').classList.add('hidden');
-  }
-
-  // ── State ────────────────────────────────────────────────
-  let platform = localStorage.getItem('captioniq-platform') || 'instagram';
-  let niche    = localStorage.getItem('captioniq-niche')    || 'lifestyle';
-  let imageData = null;
-  const CIRC = 226.2; // 2π × 36
-
-  // ── Boot ─────────────────────────────────────────────────
-
-  // Handle post-Stripe-payment redirect (?pro=success&session_id=xxx)
-  (function checkProReturn() {
-    const params = new URLSearchParams(location.search);
-    if (params.get('pro') === 'success') {
-      const sessionId = params.get('session_id');
-      history.replaceState({}, '', location.pathname);
-      if (sessionId) {
-        fetch('/api/verify-session?id=' + encodeURIComponent(sessionId))
-          .then(r => r.json())
-          .then(data => {
-            if (data.pro) {
-              setProState(data);
-              updateProUI();
-              showToast('Welcome to CaptionIQ Pro ✨');
-            } else {
-              showToast('Could not verify payment — contact support');
-            }
-          })
-          .catch(() => showToast('Verification failed — try again'));
-      }
-    }
-  })();
-
-  // Paywall open/close
-  document.getElementById('upgrade-btn').addEventListener('click', openPaywall);
-  document.getElementById('paywall-close').addEventListener('click', closePaywall);
-  document.getElementById('paywall-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('paywall-overlay')) closePaywall();
-  });
-
-  // Stripe checkout
-  document.getElementById('paywall-cta-btn').addEventListener('click', async () => {
-    const btn = document.getElementById('paywall-cta-btn');
-    btn.textContent = 'Redirecting…';
-    btn.disabled = true;
-    try {
-      const res = await fetch('/api/create-checkout', { method: 'POST' });
-      const data = await res.json();
-      if (data.url) {
-        location.href = data.url;
-      } else {
-        showToast(data.error || 'Could not start checkout — try again');
-        btn.textContent = 'Start with Pro ✨';
-        btn.disabled = false;
-      }
-    } catch {
-      showToast('Network error — check your connection');
-      btn.textContent = 'Start with Pro ✨';
-      btn.disabled = false;
-    }
-  });
-
-  // Restore access — Stripe customer portal
-  document.getElementById('paywall-restore-btn').addEventListener('click', async () => {
-    const email = prompt('Enter the email you used when subscribing:');
-    if (!email || !email.includes('@')) return;
-    showToast('Looking up your account…');
-    try {
-      const res = await fetch('/api/restore-pro?email=' + encodeURIComponent(email));
-      const data = await res.json();
-      if (data.pro) {
-        setProState(data);
-        updateProUI();
-        closePaywall();
-        showToast('Pro access restored ✨');
-      } else {
-        showToast('No active subscription found for that email');
-      }
-    } catch {
-      showToast('Could not restore — try again');
-    }
-  });
-
-  updateProUI();
-
-  document.querySelectorAll('.plat-btn').forEach(btn => {
-    if (btn.dataset.p === platform) btn.classList.add('active');
-    else btn.classList.remove('active');
-  });
-  document.querySelectorAll('.niche-btn').forEach(btn => {
-    if (btn.dataset.n === niche) btn.classList.add('active');
-    else btn.classList.remove('active');
-  });
-  syncAnalyzeBtn();
-
-  // ── Platform toggle ──────────────────────────────────────
-  document.querySelectorAll('.plat-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      platform = btn.dataset.p;
-      localStorage.setItem('captioniq-platform', platform);
-      document.querySelectorAll('.plat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      syncAnalyzeBtn();
-      // Re-run if results visible
-      if (!document.getElementById('results').classList.contains('hidden')) {
-        analyze();
-      }
-    });
-  });
-
-  // ── Niche toggle ─────────────────────────────────────────
-  document.querySelectorAll('.niche-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      niche = btn.dataset.n;
-      localStorage.setItem('captioniq-niche', niche);
-      document.querySelectorAll('.niche-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (!document.getElementById('results').classList.contains('hidden')) analyze();
-    });
-  });
-
-  function syncAnalyzeBtn() {
-    const btn = document.getElementById('analyze-btn');
-    btn.className = 'analyze-btn ' + (platform === 'tiktok' ? 'tt' : 'ig');
-  }
-
-  // ── Image upload ─────────────────────────────────────────
-  const imgInput       = document.getElementById('img-input');
-  const uploadZone     = document.getElementById('upload-zone');
-  const imgPreviewWrap = document.getElementById('img-preview-wrap');
-  const imgPreviewEl   = document.getElementById('img-preview');
-  const imgRemoveBtn   = document.getElementById('img-remove-btn');
-  const imgMetaEl      = document.getElementById('img-meta');
-
-  imgInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.type.startsWith('video/')) loadVideo(file);
-    else loadImage(file);
-  });
-
-  uploadZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    uploadZone.classList.add('drag-over');
-  });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-    if (file.type.startsWith('video/')) loadVideo(file);
-    else if (file.type.startsWith('image/')) loadImage(file);
-  });
-
-  imgRemoveBtn.addEventListener('click', () => {
-    imageData = null;
-    imgInput.value = '';
-    imgPreviewWrap.classList.add('hidden');
-    uploadZone.classList.remove('hidden');
-    updateAnalyzeBtnState();
-  });
-
-  function loadVideo(file) {
-    if (file.size > 200 * 1024 * 1024) {
-      showToast('Video too large (max 200 MB) — try a shorter clip');
-      return;
-    }
-    const url = URL.createObjectURL(file);
-    const video = document.createElement('video');
-    video.muted = true;
-    video.preload = 'metadata';
-    video.crossOrigin = 'anonymous';
-    video.src = url;
-
-    video.onloadedmetadata = () => {
-      video.currentTime = Math.min(1, video.duration * 0.1);
-    };
-
-    video.onseeked = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext('2d').drawImage(video, 0, 0);
-      const frameUrl = canvas.toDataURL('image/jpeg', 0.85);
-      URL.revokeObjectURL(url);
-
-      imageData = {
-        url:      frameUrl,
-        width:    video.videoWidth,
-        height:   video.videoHeight,
-        ratio:    video.videoWidth / video.videoHeight,
-        fileSize: file.size,
-        fileType: file.type,
-        isVideo:  true,
-        duration: video.duration,
-      };
-
-      imgPreviewEl.src = frameUrl;
-      const sizeKB  = file.size / 1024;
-      const sizeStr = sizeKB >= 1024 ? (sizeKB / 1024).toFixed(1) + ' MB' : Math.round(sizeKB) + ' KB';
-      const dur     = video.duration;
-      const durStr  = dur >= 60 ? Math.floor(dur / 60) + 'm ' + Math.round(dur % 60) + 's' : Math.round(dur) + 's';
-      imgMetaEl.innerHTML =
-        `<span class="img-meta-badge">📹 Video</span>` +
-        `<span class="img-meta-badge">${video.videoWidth}×${video.videoHeight}</span>` +
-        `<span class="img-meta-badge">${getRatioLabel(imageData.ratio)}</span>` +
-        `<span class="img-meta-badge">⏱ ${durStr}</span>` +
-        `<span class="img-meta-badge">${sizeStr}</span>`;
-      imgPreviewWrap.classList.remove('hidden');
-      uploadZone.classList.add('hidden');
-      updateAnalyzeBtnState();
-
-      analyzeCanvas(frameUrl, cv => {
-        imageData.brightness = cv.brightness;
-        imageData.hasFace    = cv.hasFace;
-        const brightLabel = cv.brightness < 55 ? '🌑 Dark frame' : cv.brightness > 215 ? '☀️ Bright frame' : '💡 Well-lit';
-        imgMetaEl.innerHTML += `<span class="img-meta-badge">${brightLabel}</span>`;
-        if (cv.hasFace) imgMetaEl.innerHTML += `<span class="img-meta-badge">👤 Face</span>`;
-        if (!document.getElementById('results').classList.contains('hidden')) analyze();
-      });
-    };
-
-    video.onerror = () => {
-      URL.revokeObjectURL(url);
-      showToast('Could not read video — MP4 works best');
-    };
-  }
-
-  function loadImage(file) {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const url = e.target.result;
-      const img = new Image();
-      img.onload = () => {
-        imageData = {
-          url,
-          width:    img.naturalWidth,
-          height:   img.naturalHeight,
-          ratio:    img.naturalWidth / img.naturalHeight,
-          fileSize: file.size,
-          fileType: file.type,
-        };
-        imgPreviewEl.src = url;
-        const sizeKB = file.size / 1024;
-        const sizeStr = sizeKB >= 1024
-          ? (sizeKB / 1024).toFixed(1) + ' MB'
-          : Math.round(sizeKB) + ' KB';
-        imgMetaEl.innerHTML =
-          `<span class="img-meta-badge">${img.naturalWidth}×${img.naturalHeight}</span>` +
-          `<span class="img-meta-badge">${getRatioLabel(imageData.ratio)}</span>` +
-          `<span class="img-meta-badge">${sizeStr}</span>`;
-        imgPreviewWrap.classList.remove('hidden');
-        uploadZone.classList.add('hidden');
-        updateAnalyzeBtnState();
-        // Canvas analysis for brightness + face
-        analyzeCanvas(url, cv => {
-          imageData.brightness = cv.brightness;
-          imageData.hasFace    = cv.hasFace;
-          const brightLabel = cv.brightness < 55 ? '🌑 Dark' : cv.brightness > 215 ? '☀️ Bright' : '💡 Well-lit';
-          imgMetaEl.innerHTML += `<span class="img-meta-badge">${brightLabel}</span>`;
-          if (cv.hasFace) imgMetaEl.innerHTML += `<span class="img-meta-badge">👤 Face</span>`;
-          // Re-render with canvas data if the user already ran analysis
-          if (!document.getElementById('results').classList.contains('hidden')) analyze();
-        });
-      };
-      img.src = url;
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function analyzeCanvas(url, callback) {
-    const SIZE = 80;
-    const canvas = document.createElement('canvas');
-    canvas.width = SIZE; canvas.height = SIZE;
-    const ctx = canvas.getContext('2d');
-    const tmp = new Image();
-    tmp.onload = () => {
-      ctx.drawImage(tmp, 0, 0, SIZE, SIZE);
-      const d = ctx.getImageData(0, 0, SIZE, SIZE).data;
-      let lumSum = 0, skin = 0, satSum = 0;
-      const lumVals = [];
-      const n = SIZE * SIZE;
-      for (let i = 0; i < d.length; i += 4) {
-        const r = d[i], g = d[i+1], b = d[i+2];
-        const pixLum = 0.299 * r + 0.587 * g + 0.114 * b;
-        lumSum += pixLum;
-        lumVals.push(pixLum);
-        if (r > 60 && g > 40 && b > 20 && r > b && r > g && r < 250 && Math.abs(r - g) > 10) skin++;
-        const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-        satSum += mx === 0 ? 0 : (mx - mn) / mx;
-      }
-      const brightness  = Math.round(lumSum / n);
-      const saturation  = Math.round(satSum / n * 100);
-      const mean        = lumSum / n;
-      const contrast    = Math.round(Math.sqrt(lumVals.reduce((s, v) => s + (v - mean) ** 2, 0) / n));
-      callback({ brightness, saturation, contrast, hasFace: skin / n > 0.07 });
-    };
-    tmp.src = url;
-  }
-
-  function getRatioLabel(r) {
-    if (Math.abs(r - 1)      < 0.06) return '1:1';
-    if (Math.abs(r - 0.8)    < 0.07) return '4:5';
-    if (Math.abs(r - 0.5625) < 0.06) return '9:16';
-    if (Math.abs(r - 1.7778) < 0.10) return '16:9';
-    if (Math.abs(r - 1.9101) < 0.10) return '1.91:1';
-    return r < 1 ? 'Portrait' : 'Landscape';
-  }
-
-  // ── Textarea ─────────────────────────────────────────────
-  const textarea   = document.getElementById('caption-input');
-  const charCount  = document.getElementById('char-count');
-  const analyzeBtn = document.getElementById('analyze-btn');
-
-  function updateAnalyzeBtnState() {
-    analyzeBtn.disabled = textarea.value.trim().length === 0 && imageData === null;
-  }
-
-  let _debounce = null;
-  const liveBadge = document.getElementById('live-badge');
-
-  textarea.addEventListener('input', () => {
-    const len = textarea.value.length;
-    charCount.textContent = `${len} / 2200`;
-    charCount.classList.toggle('over', len > 2200);
-    updateAnalyzeBtnState();
-    clearTimeout(_debounce);
-    if (textarea.value.trim()) {
-      _debounce = setTimeout(() => {
-        analyze();
-        liveBadge.classList.add('visible');
-      }, 700);
-    } else {
-      liveBadge.classList.remove('visible');
-    }
-  });
-
-  analyzeBtn.addEventListener('click', analyze);
-
-  // ── Analyze ───────────────────────────────────────────────
-  function analyze() {
-    const text = textarea.value;
-    if (!text.trim() && !imageData) return;
-    const result = run(text, platform, imageData);
-    render(result);
-    const resultsEl = document.getElementById('results');
-    resultsEl.classList.remove('hidden');
-    // Trigger CSS re-animation
-    resultsEl.style.animation = 'none';
-    void resultsEl.offsetWidth;
-    resultsEl.style.animation = '';
-    setTimeout(() => resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-  }
-
-  // ── Scoring engine ────────────────────────────────────────
-  function generateCoach(hook, cta, style, image, plat, nich) {
-    const items = [];
-
-    // Image issues first (most visual, most obvious)
-    if (image) {
-      if (image.score < 65) {
-        const short = image.tip.split('.')[0].replace(/^[A-Z]/, c => c.toLowerCase());
-        items.push({ icon: '📐', msg: `Image format issue: ${short}.` });
-      }
-      if (image.brightness !== undefined && image.brightness < 55) {
-        items.push({ icon: '💡', msg: 'The photo is too dark. Bright, well-lit images get ~20% more engagement — try editing brightness +30 in your photos app.' });
-      }
-      if (image.saturation !== undefined && image.saturation < 18) {
-        const nicheTip = nich === 'food'   ? 'Food photos need vibrant colour — warm tones and high saturation make dishes look irresistible.' :
-                         nich === 'fashion'? 'Fashion content pops with clear, vivid colours. Try a preset that lifts saturation without oversaturating skin tones.' :
-                         nich === 'travel' ? 'Travel photos need punchy skies and rich tones — bump saturation and add a slight warm shift.' :
-                         'Add a warm or vibrant filter — even +15 saturation makes a big difference in the feed.';
-        items.push({ icon: '🎨', msg: `Colours look flat. ${nicheTip}` });
-      }
-      if (image.contrast !== undefined && image.contrast < 18) {
-        items.push({ icon: '🌓', msg: 'Image looks washed out (low contrast). Pull shadows down and lift highlights in Lightroom, VSCO, or your phone editor.' });
-      }
-    }
-
-    // Hook
-    if (hook !== null && hook < 55) {
-      const hookTip = nich === 'fashion'  ? 'Lead with a styling tip or bold statement about the look — e.g. "This colour combo works for every skin tone."' :
-                      nich === 'food'     ? 'Open with what makes this dish unmissable — the smell, texture, or a craving — e.g. "Crispy edges. Melty centre."' :
-                      nich === 'travel'   ? 'Lead with what surprised or moved you — e.g. "No one told me this beach existed."' :
-                      nich === 'beauty'   ? 'Open with the problem this solved — e.g. "I stopped breaking out the week I switched to this."' :
-                      nich === 'business' ? 'Lead with the result or the counterintuitive truth — e.g. "I worked fewer hours and made more money. Here\'s how."' :
-                      'Try a question, a bold claim, or a surprising stat in your first line to stop the scroll.';
-      items.push({ icon: '✍️', msg: `Opening line needs more pull. ${hookTip}` });
-    }
-
-    // CTA
-    if (cta !== null && cta < 40) {
-      const ctaTip = plat === 'tiktok'
-        ? 'End with "Comment [word] for more" or "Follow for daily ' + nich + ' content" — TikTok rewards comment velocity.'
-        : 'End with a question or "Save this for later" — saves are Instagram\'s strongest ranking signal.';
-      items.push({ icon: '👉', msg: `No call to action — you\'re leaving engagement on the table. ${ctaTip}` });
-    }
-
-    // Style issues (only top one, to avoid overwhelming)
-    if (style) {
-      const bad = style.issues.filter(i => !i.ok);
-      if (bad.length && items.length < 4) items.push({ icon: '📝', msg: bad[0].msg });
-    }
-
-    if (!items.length) items.push({ icon: '🌟', msg: 'Looking great! Strong hook, clear CTA, and good visuals. Time to post!' });
-    return items;
-  }
-
-  function run(text, plat, img) {
-    const hasText = text.trim().length > 0;
-    const firstLine = text.split('\n')[0] || '';
-    const hook    = hasText ? scoreHook(firstLine)      : null;
-    const length  = hasText ? scoreLength(text.length, plat) : null;
-    const cta     = hasText ? scoreCTA(text)            : null;
-    const style   = hasText ? checkStyle(text)          : null;
-    const tags    = hasText ? suggestTags(text, plat)   : [];
-    const tips    = platformTips(text, plat, hook || 0, length || 0, cta || 0, img);
-    const image   = img ? scoreImage(img, plat) : null;
-    const coach   = generateCoach(hook, cta, style, image, plat, niche);
-
-    let textScore = null;
-    let overall = 0;
-    if (hasText && image) {
-      const ts = [hook, length, cta, style ? style.score : null].filter(s => s !== null);
-      textScore = ts.length ? Math.round(ts.reduce((a, b) => a + b, 0) / ts.length) : 0;
-      overall = Math.round(textScore * 0.70 + image.score * 0.30);
-    } else if (hasText) {
-      const ts = [hook, length, cta, style ? style.score : null].filter(s => s !== null);
-      overall = ts.length ? Math.round(ts.reduce((a, b) => a + b, 0) / ts.length) : 0;
-    } else if (image) {
-      overall = image.score;
-    }
-
-    const rewrites = hasText ? rewriteCaption(text, plat, hook || 0, cta || 0) : [];
-    return { overall, textScore, hook, length, cta, style, tags, tips, image, plat, rewrites, coach };
-  }
-
-  function scoreImage(img, plat) {
-    const r = img.ratio;
-    let score, label, tip;
-
-    const isScreenshot = r < 0.48 || r > 2.3;
-
-    if (plat === 'instagram') {
-      if (r < 0.48) {
-        score = 55; label = 'Screenshot / Ultra-tall';
-        tip = 'This very tall format gets letterboxed or cropped in the Instagram feed. For screenshots, place them on a 4:5 branded graphic. For video, use Reels with a 9:16 crop.';
-      } else if (Math.abs(r - 0.5625) < 0.07) {
-        score = 72; label = '9:16 — Great for Reels/Stories';
-        tip = '9:16 fills Instagram Reels and Stories perfectly. For a feed post it will be letterboxed — crop to 4:5 to maximise feed visibility.';
-      } else if (Math.abs(r - 0.8) < 0.08) {
-        score = 100; label = '4:5 Portrait — Perfect for IG';
-        tip = 'Ideal ratio for the Instagram feed. Takes up maximum vertical real estate, keeping viewers focused on your content.';
-      } else if (Math.abs(r - 1) < 0.06) {
-        score = 86; label = '1:1 Square — Great';
-        tip = 'Classic Instagram square. Works well across feed, profile grid, and older integrations.';
-      } else if (r > 1.7 && r < 2.3) {
-        score = 65; label = 'Landscape — Reduced visibility';
-        tip = 'Landscape takes up less vertical space in the feed. Consider cropping to 4:5 portrait for more impact.';
-      } else if (r >= 2.3) {
-        score = 48; label = 'Ultra-wide — Heavily cropped';
-        tip = 'Very wide images get severely cropped on Instagram. Reframe to 4:5 or 1:1 for the feed.';
-      } else if (r < 0.65) {
-        score = 74; label = 'Tall Portrait — Close to 9:16';
-        tip = 'Almost there! Crop to exactly 9:16 for Reels/Stories, or to 4:5 for the main feed to get maximum screen space.';
-      } else {
-        score = 58; label = 'Non-standard ratio';
-        tip = 'Unusual ratio may get cropped unexpectedly by Instagram. Aim for 4:5 (portrait) or 1:1 (square) for best results.';
-      }
-    } else {
-      if (r < 0.48) {
-        score = 52; label = 'Screenshot / Ultra-tall';
-        tip = 'Screenshots need adaptation for TikTok. Place them on a 9:16 black or branded background using a template, or use TikTok\'s built-in green-screen / text features for full-screen impact.';
-      } else if (Math.abs(r - 0.5625) < 0.07) {
-        score = 100; label = '9:16 Vertical — Perfect for TikTok';
-        tip = 'Full-screen vertical is the gold standard on TikTok. This format maximises viewer immersion and engagement.';
-      } else if (Math.abs(r - 0.8) < 0.08) {
-        score = 76; label = '4:5 Portrait — Good';
-        tip = 'Good portrait ratio but not full-screen on TikTok. Crop to 9:16 to remove the black bars and fill the screen.';
-      } else if (Math.abs(r - 1) < 0.06) {
-        score = 62; label = '1:1 Square — Pillarboxed';
-        tip = 'Square video shows with black bars on TikTok and performs noticeably worse. Re-shoot or reframe vertically if possible.';
-      } else if (r > 1) {
-        score = 34; label = 'Landscape — Poor fit for TikTok';
-        tip = 'Landscape gets heavy black bars and is scroll-unfriendly on TikTok. Strongly recommend reframing to 9:16 vertical.';
-      } else {
-        score = 65; label = 'Portrait — Close to 9:16';
-        tip = 'Portrait is heading in the right direction for TikTok. A 9:16 crop would fill the screen and improve performance.';
-      }
-    }
-
-    // Penalise very large files
-    if (img.fileSize > 8 * 1024 * 1024) {
-      const mb = (img.fileSize / 1024 / 1024).toFixed(1);
-      tip += ` Note: your file is ${mb} MB — compress it before uploading to avoid quality loss from platform recompression.`;
-      score = Math.max(0, score - 8);
-    }
-
-    // Visual quality signals (added async by analyzeCanvas — may be undefined on first render)
-    const notes = [];
-    if (img.brightness !== undefined) {
-      if (img.brightness < 55) {
-        notes.push('Image looks dark — well-lit photos get ~20% more engagement.');
-        score = Math.max(0, score - 8);
-      } else if (img.brightness > 215) {
-        notes.push('Overexposed — highlights look washed out on mobile. Reduce exposure slightly.');
-        score = Math.max(0, score - 4);
-      }
-    }
-    if (img.saturation !== undefined) {
-      if (img.saturation < 18) {
-        notes.push('Colours look flat or grey — bump saturation in editing for more visual pop.');
-        score = Math.max(0, score - 8);
-      } else if (img.saturation > 88) {
-        notes.push('Very high saturation — may look over-filtered on mobile. Try toning it back slightly.');
-        score = Math.max(0, score - 4);
-      }
-    }
-    if (img.contrast !== undefined && img.contrast < 18) {
-      notes.push('Low contrast — image looks flat. Increase shadows/highlights in your editing app.');
-      score = Math.max(0, score - 6);
-    }
-
-    // Face presence boost
-    if (img.hasFace) {
-      notes.push('Face detected — content with a human face averages 38% higher engagement (Nielsen).');
-      score = Math.min(100, score + 6);
-    }
-
-    if (notes.length) tip += ' ' + notes.join(' ');
-
-    // Video-specific duration tips
-    if (img.isVideo && img.duration !== undefined) {
-      const dur = img.duration;
-      if (plat === 'tiktok') {
-        if (dur < 5) {
-          tip += ' Very short clip — TikTok auto-loops videos under 5s, which works brilliantly for satisfying loops.';
-        } else if (dur >= 7 && dur <= 15) {
-          tip += ' Duration is in the TikTok sweet spot (7–15s) for high replay rate.';
-        } else if (dur > 15 && dur <= 60) {
-          tip += ' Good length for story-driven TikToks. Hook viewers in the first 2s.';
-        } else if (dur > 60 && dur <= 180) {
-          tip += ' Longer TikToks (1–3 min) perform well for educational content — keep pacing tight.';
-        } else if (dur > 180) {
-          tip += ' Videos over 3 min see significant drop-off on TikTok — trim or split into a series.';
-          score = Math.max(0, score - 6);
-        }
-      } else {
-        if (dur < 5) {
-          tip += ' Very short Reel — aim for 7–30s for the Instagram algorithm sweet spot.';
-        } else if (dur >= 7 && dur <= 30) {
-          tip += ' Duration is ideal for Instagram Reels reach — the algorithm favours 7–30s.';
-        } else if (dur > 30 && dur <= 90) {
-          tip += ' Good length. Reels up to 90s can perform well if every second earns attention.';
-        } else if (dur > 90) {
-          tip += ' Reels over 90s see higher drop-off — trim to under 90s for better completion rate.';
-          score = Math.max(0, score - 6);
-        }
-      }
-      tip += ' Ensure your first 3 seconds hook viewers before they scroll.';
-    }
-
-    return { score, label, tip, isScreenshot };
-  }
-
-  function rewriteCaption(text, plat, hookScore, ctaScore) {
-    const hashtags = (text.match(/#\w+/g) || []).join(' ');
-    const body     = text.replace(/#\w+/g, '').trim();
-    const hasCTA   = ctaScore >= 40;
-    const hLine    = hashtags ? '\n.\n.\n.\n' + hashtags : '';
-    const t        = text.toLowerCase();
-    const kwRe     = kw => new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(t);
-
-    const topics = [
-      {
-        id: 'food',
-        kw: ['food','eat','recipe','cook','meal','restaurant','dinner','lunch','breakfast','bake','chef','cuisine','delicious','tasty'],
-        hooks: ['This recipe is the reason I stopped eating out:', 'Honestly? Best thing I\'ve made in months.', 'I\'ve cooked this 4 times this week — no notes. 🍳'],
-        qHook: { ig: 'What\'s the one meal you could eat every single day? 👇', tt: 'Am I the only one who does this in the kitchen? 👀' },
-        cta: { ig: '\n\nSave this recipe before you scroll past 🔖\nTag someone who needs to try this 👇', tt: '\n\nComment "RECIPE" for the full version 🍳\nFollow so you don\'t miss the next one 🎯' },
-      },
-      {
-        id: 'fitness',
-        kw: ['fitness','workout','gym','exercise','train','lift','run','cardio','muscle','gains','squat','deadlift','crossfit'],
-        hooks: ['The one training change that actually moved the needle:', 'Most gym advice is noise. Here\'s what actually works:', 'I stopped doing this and my results completely changed 👇'],
-        qHook: { ig: 'What\'s the fitness habit you wish you started sooner? 💭', tt: 'Be honest — are you training hard or just staying comfortable? 👀' },
-        cta: { ig: '\n\nSave this for your next session 🔖\nDrop your current split in the comments 👇', tt: '\n\nComment your PR 💪 let\'s see those numbers!\nFollow for weekly programming 🎯' },
-      },
-      {
-        id: 'travel',
-        kw: ['travel','trip','adventur','explor','wanderlust','vacation','holiday','destination','hotel','flight','passport','backpack'],
-        hooks: ['This place genuinely stopped me mid-trip:', 'The travel tip I wish I had before I left:', 'Hidden gem alert — not sharing the exact location though. 😅'],
-        qHook: { ig: 'What destination is on your non-negotiable bucket list? 🌍', tt: 'Would you book a trip somewhere you know nothing about? 👀' },
-        cta: { ig: '\n\nSave this for your next trip 🗺️\nWhere should I go next? Drop it below 👇', tt: '\n\nComment your dream destination 🌍\nFollow for honest travel content 🎯' },
-      },
-      {
-        id: 'fashion',
-        kw: ['fashion','style','outfit','ootd','wear','dress','clothes','brand','trend','closet','wardrobe','accessory'],
-        hooks: ['The outfit formula I keep coming back to (it never fails):', 'This one piece made everything in my wardrobe click:', 'I used to overcomplicate getting dressed. Then I found this:'],
-        qHook: { ig: 'What\'s the one item that elevated your entire wardrobe? 👇', tt: 'Be honest — how long does getting dressed actually take you? 😅' },
-        cta: { ig: '\n\nSave this look for outfit inspo 🔖\nDrop a 🔥 if you\'d wear this 👇', tt: '\n\nComment your vibe: classic, streetwear, or maximalist? 💅\nFollow for daily looks 🎯' },
-      },
-      {
-        id: 'beauty',
-        kw: ['beauty','makeup','skincare','skin','glow','lipstick','foundation','eyeshadow','routine','moisturizer','serum','concealer','blush'],
-        hooks: ['The skincare step everyone skips (and why it matters most):', 'This one product quietly fixed 80% of my skin issues:', 'I\'ve tried everything. Here\'s what actually works:'],
-        qHook: { ig: 'What\'s your non-negotiable skincare step? Drop it below 👇', tt: 'Be honest — how many half-empty products do you have? 😅' },
-        cta: { ig: '\n\nSave this routine — your future skin will thank you 🔖\nWhat\'s your holy grail product? 👇', tt: '\n\nComment your skin type 🧖 I\'ll give you a rec!\nFollow for honest beauty reviews 🎯' },
-      },
-      {
-        id: 'business',
-        kw: ['business','entrepreneur','money','income','side hustle','startup','marketing','success','invest','passive income','brand'],
-        hooks: ['The business lesson that cost me the most to learn — for free:', 'Everyone\'s talking about passive income. Here\'s the real math:', 'I almost quit before this happened. Here\'s what changed:'],
-        qHook: { ig: 'What\'s the hardest business lesson you\'ve had to learn? 💭', tt: 'Are you building a business or just creating a job for yourself? 👀' },
-        cta: { ig: '\n\nSave this — worth revisiting as you grow 🔖\nBiggest business challenge right now? Drop it below 👇', tt: '\n\nComment your revenue goal this year 💰\nFollow for real business talk, no fluff 🎯' },
-      },
-      {
-        id: 'motivation',
-        kw: ['motivat','inspir','mindset','quote','positive','growth','self','discipline','consistency'],
-        hooks: ['The mindset shift that changed how I approach everything:', 'Nobody talks about the quiet, unglamorous part of real growth:', 'This is the reminder I come back to every time I want to quit:'],
-        qHook: { ig: 'What\'s the one thing you\'d tell your past self today? 💭', tt: 'What would you attempt if you knew you couldn\'t fail? 👀' },
-        cta: { ig: '\n\nSave this for when you need it most 🔖\nTag someone who needs to hear this 💜', tt: '\n\nComment "YES" if this hit different 🙌\nFollow for daily mindset content 🎯' },
-      },
-      {
-        id: 'pet',
-        kw: ['pet','dog','cat','puppy','kitten','animal','pup','fur baby','furball','adopt'],
-        hooks: ['My pet did this and I\'ve been thinking about it ever since:', 'The moment I realised my pet understands me better than most people:', 'Nobody warned me about this part of pet ownership. 😅'],
-        qHook: { ig: 'What\'s the most unhinged thing your pet has ever done? 🐾', tt: 'Does your pet do this too or is it just mine? 👀' },
-        cta: { ig: '\n\nSave this — instant mood boost 🔖\nDrop a 🐾 if your pet does this too 👇', tt: '\n\nComment your pet\'s name below 🐶\nFollow for the best pet content on here 🎯' },
-      },
-      {
-        id: 'tech',
-        kw: ['tech','technology','software','app','coding','developer','ai','gadget','phone','computer','iphone','android','review'],
-        hooks: ['This tool changed how I work — I can\'t go back now:', 'The tech mistake costing most people hours every week:', 'I tested this so you don\'t have to. Here\'s my honest take:'],
-        qHook: { ig: 'What\'s the best tool or app you\'ve discovered recently? 👇', tt: 'How much time does bad tech actually cost you per week? ⏱️' },
-        cta: { ig: '\n\nSave this for your next setup upgrade 🔖\nBest tech purchase this year? Drop it below 👇', tt: '\n\nComment "LINK" for where to get it 🔗\nFollow for weekly tech finds 🎯' },
-      },
-      {
-        id: 'parenting',
-        kw: ['parent','mom','dad','baby','kid','toddler','family','children','pregnan','newborn'],
-        hooks: ['The parenting moment nobody prepares you for:', 'My kid said something that completely stopped me in my tracks:', 'The part of parenting they leave out of all the books:'],
-        qHook: { ig: 'What\'s the one thing you wish you knew before becoming a parent? 💭', tt: 'Is it just me or does parenting get harder the older they get? 👀' },
-        cta: { ig: '\n\nSave this for the hard days 🔖\nTag a parent who needs this reminder 💜', tt: '\n\nComment your kid\'s age 👶 you\'re not alone!\nFollow for real parenting content 🎯' },
-      },
-    ];
-
-    const matched = topics.find(tp => tp.kw.some(kwRe));
-    const idx     = text.length % 3;
-
-    const topicHook = matched ? matched.hooks[idx]
-      : (plat === 'tiktok'
-          ? ['The part nobody talks about 👀', 'Okay but why didn\'t anyone tell me this sooner:', 'POV: this actually works.'][idx]
-          : ['Here\'s something I wish I knew sooner 👇', 'The thing most people get completely wrong:', 'Saving this for myself — and for you. 💜'][idx]);
-
-    const qHook = matched
-      ? (plat === 'instagram' ? matched.qHook.ig : matched.qHook.tt)
-      : (plat === 'tiktok'
-          ? ['Does this actually work or is it just me? 👀', 'Am I the only one who does this? 😅', 'Why does nobody talk about this? 👀'][idx]
-          : ['Is this just me, or does everyone feel this way? 👇', 'Can we normalise talking about this more? 💬', 'Who else needed to hear this today? 👇'][idx]);
-
-    const ctaText = matched
-      ? (plat === 'instagram' ? matched.cta.ig : matched.cta.tt)
-      : (plat === 'tiktok'
-          ? '\n\nComment your thoughts below 💬\nFollow so you never miss one 🎯'
-          : '\n\nSave this — you\'ll want to come back to it 🔖\nFollow for more like this 💜');
-
-    // Variant 1: Hook-first — replace a weak opener with the topic-matched hook
-    const sentences = body.split(/(?<=[.!?…])\s+/);
-    const v1Body    = hookScore < 55 && sentences.length > 1 ? sentences.slice(1).join(' ') : body;
-    const v1        = (topicHook + '\n\n' + v1Body + (hasCTA ? '' : ctaText) + hLine).trim();
-
-    // Variant 2: Question-driven — curiosity-gap opener that drives comments
-    const v2 = (qHook + '\n\n' + body + (hasCTA ? '' : ctaText) + hLine).trim();
-
-    return [
-      { label: 'Hook-first', icon: '🔥',
-        desc: matched ? `Topic-matched opener for ${matched.id} content` : 'Pattern-interrupt opener to stop the scroll',
-        text: v1 },
-      { label: 'Question-driven', icon: '💭',
-        desc: 'Curiosity-gap question — drives comments and algorithm reach',
-        text: v2 },
-    ];
-  }
-
-  function scoreHook(firstLine) {
-    if (!firstLine.trim()) return 0;
-    let s = 22;
-    const fl = firstLine.toLowerCase();
-    if (firstLine.includes('?'))           s += 26;
-    if (/\d/.test(firstLine))             s += 18;
-    const power = ['secret','never','always','stop','truth','exposed','warning','mistake','hack','how i','why i','how to','pov','nobody tells you','unpopular opinion','hot take','controversial','honest','real talk','hear me out','okay but','wait','plot twist'];
-    if (power.some(w => fl.includes(w)))  s += 20;
-    const emo = ['love','hate','obsessed','shocked',"can't believe",'finally','never going back','life-changing','game changer','mind blown','crying','screaming'];
-    if (emo.some(w => fl.includes(w)))    s += 15;
-    const wc = firstLine.trim().split(/\s+/).length;
-    if (wc <= 6)       s += 10;
-    else if (wc <= 10) s += 5;
-    if (/[…]$|\.{3}$/.test(firstLine.trim())) s += 7;
-    return Math.min(100, s);
-  }
-
-  function scoreLength(chars, plat) {
-    if (plat === 'instagram') {
-      if (chars >= 138 && chars <= 300) return 100;
-      if (chars > 300  && chars <= 500) return 84;
-      if (chars >= 60  && chars < 138)  return 70;
-      if (chars > 500  && chars <= 2200)return 58;
-      if (chars > 0    && chars < 60)   return 28;
-      return chars > 2200 ? 10 : 0;
-    } else {
-      if (chars >= 50  && chars <= 150) return 100;
-      if (chars > 150  && chars <= 300) return 76;
-      if (chars > 0    && chars < 50)   return 52;
-      if (chars > 300  && chars <= 500) return 54;
-      if (chars > 500)                  return 32;
-      return 0;
-    }
-  }
-
-  function scoreCTA(text) {
-    const t = text.toLowerCase();
-    const rules = [
-      { re: /comment\s+(below|down|your|👇|what|if|above|and)/, pts: 30 },
-      { re: /follow\s+(for|me|us|along|to get)/,                pts: 24 },
-      { re: /save\s+(this|post|for later|it)/,                  pts: 28 },
-      { re: /share\s+(this|with|to|it)/,                        pts: 22 },
-      { re: /link\s+in\s+(my\s+)?bio/,                          pts: 20 },
-      { re: /swipe\s+(up|left|right|to)/,                       pts: 18 },
-      { re: /tag\s+(a|your|someone|a friend)/,                  pts: 24 },
-      { re: /dm\s+(me|us|for)/,                                  pts: 20 },
-      { re: /drop\s+(a|your|an?\s+\w+)/,                        pts: 22 },
-      { re: /let me know/,                                       pts: 17 },
-      { re: /what do you think/,                                 pts: 15 },
-      { re: /tell me/,                                           pts: 14 },
-      { re: /click\s+(the\s+)?link/,                            pts: 18 },
-    ];
-    const found = rules.filter(r => r.re.test(t));
-    if (!found.length) return 8;
-    let s = found.reduce((a, r) => a + r.pts, 0);
-    const tail = t.slice(-130);
-    if (rules.some(r => r.re.test(tail))) s += 15;
-    if (found.length > 2) s -= 14;
-    return Math.min(100, Math.max(0, s));
-  }
-
-  function checkStyle(text) {
-    const issues = [];
-    let s = 100;
-
-    if (/  /.test(text)) {
-      issues.push({ ok: false, msg: 'Double spaces detected — clean them up' });
-      s -= 5;
-    }
-
-    const excl = (text.match(/!/g) || []).length;
-    if (excl > 3) {
-      issues.push({ ok: false, msg: `${excl} exclamation marks — 1–2 land harder` });
-      s -= 12;
-    }
-
-    const caps = text.split(/\s+/).filter(w =>
-      !w.startsWith('#') && !w.startsWith('@') &&
-      w.length > 2 && w === w.toUpperCase() && /[A-Z]/.test(w)
-    );
-    if (caps.length > 2) {
-      issues.push({ ok: false, msg: 'Excessive ALL CAPS — use emojis or line breaks for emphasis' });
-      s -= 10;
-    }
-
-    const emojis = (text.match(/\p{Emoji_Presentation}|\p{Extended_Pictographic}/gu) || []);
-    if (emojis.length > 10) {
-      issues.push({ ok: false, msg: `${emojis.length} emojis is a lot — aim for 3–6 for clarity` });
-      s -= 8;
-    } else if (emojis.length === 0) {
-      issues.push({ ok: false, msg: 'No emojis — 1–3 relevant ones boost engagement on both platforms' });
-      s -= 15;
-    }
-
-    if (text.length > 220 && !text.includes('\n')) {
-      issues.push({ ok: false, msg: 'Wall of text — add line breaks for mobile readers' });
-      s -= 12;
-    }
-
-    const hashCount = (text.match(/#\w+/g) || []).length;
-    if (hashCount > 25) {
-      issues.push({ ok: false, msg: `${hashCount} hashtags looks spammy — use 8–15 targeted ones` });
-      s -= 10;
-    }
-
-    // ── Grammar checks ──────────────────────────────────────
-    // Strip hashtags/mentions so we don't false-positive on #iPhone etc.
-    const prose = text.replace(/#\w+/g, '').replace(/@\w+/g, '');
-
-    // Repeated consecutive words ("the the", "I I")
-    const repeated = prose.match(/\b(\w+)\s+\1\b/gi);
-    if (repeated) {
-      const ex = repeated[0].split(/\s+/)[0];
-      issues.push({ ok: false, msg: `Repeated word: "${ex} ${ex}" — looks like a typo` });
-      s -= 10;
-    }
-
-    // Standalone lowercase "i" (should be "I")
-    if (/(?:^|\s)i(?:\s|$|[',])/.test(prose)) {
-      issues.push({ ok: false, msg: 'Lowercase "i" found — should be capitalised ("I")' });
-      s -= 8;
-    }
-
-    // Missing space after comma or full stop (ignores decimals & URLs)
-    if (/[a-z],[a-zA-Z]/.test(prose) || /[a-z]\.[a-zA-Z]{3,}/.test(prose.replace(/https?:\/\/\S+/g, ''))) {
-      issues.push({ ok: false, msg: 'Missing space after punctuation — check commas and full stops' });
-      s -= 8;
-    }
-
-    // Common confusable pairs (your/you're, their/there/they're, its/it's)
-    const confusables = [
-      [/\byour\s+(going|doing|coming|trying|making|getting|being|amazing|awesome|great|wonderful)\b/i, '"your" → should be "you\'re" here'],
-      [/\bthier\b/i, 'Spelling: "thier" → "their"'],
-      [/\brecieve\b/i, 'Spelling: "recieve" → "receive"'],
-      [/\bseperate\b/i, 'Spelling: "seperate" → "separate"'],
-      [/\bdefenitely\b/i, 'Spelling: "defenitely" → "definitely"'],
-      [/\boccured\b/i, 'Spelling: "occured" → "occurred"'],
-      [/\buntill\b/i, 'Spelling: "untill" → "until"'],
-      [/\bwich\b/i, 'Spelling: "wich" → "which"'],
-      [/\bwoud\b/i, 'Spelling: "woud" → "would"'],
-      [/\balot\b/i, '"alot" → should be two words: "a lot"'],
-    ];
-    for (const [re, msg] of confusables) {
-      if (re.test(prose)) {
-        issues.push({ ok: false, msg });
-        s -= 10;
-        break; // one grammar issue at a time to avoid overwhelming
-      }
-    }
-
-    if (!issues.length) {
-      issues.push({ ok: true, msg: 'Great style! Clean, readable, and social-media ready.' });
-    }
-
-    return { score: Math.max(0, s), issues };
-  }
-
-  function suggestTags(text, plat) {
-    const t = text.toLowerCase();
-
-    const general = plat === 'tiktok'
-      ? [
-          { tag: '#fyp',        size: 'broad' },
-          { tag: '#foryou',     size: 'broad' },
-          { tag: '#foryoupage', size: 'broad' },
-          { tag: '#viral',      size: 'broad' },
-          { tag: '#trending',   size: 'medium' },
-        ]
-      : [
-          { tag: '#explorepage', size: 'broad' },
-          { tag: '#reels',       size: 'broad' },
-          { tag: '#instagood',   size: 'broad' },
-          { tag: '#instadaily',  size: 'medium' },
-        ];
-
-    const cats = [
-      {
-        kw: ['food','eat','recipe','cook','meal','delicious','tasty','restaurant','dinner','lunch','breakfast','bake','chef','cuisine'],
-        tags: [
-          { tag: '#foodie',          size: 'broad'  },
-          { tag: '#foodphotography', size: 'broad'  },
-          { tag: '#homecooking',     size: 'medium' },
-          { tag: '#recipeoftheday',  size: 'medium' },
-          { tag: '#easyrecipes',     size: 'medium' },
-          { tag: '#mealprep',        size: 'medium' },
-          { tag: '#whatsfordinner',  size: 'niche'  },
-          { tag: '#cookingvideo',    size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['fitness','workout','gym','exercise','train','lift','run','cardio','muscle','gains','health','squat','deadlift','crossfit'],
-        tags: [
-          { tag: '#fitness',           size: 'broad'  },
-          { tag: '#workout',           size: 'broad'  },
-          { tag: '#gymlife',           size: 'medium' },
-          { tag: '#fitnessmotivation', size: 'medium' },
-          { tag: '#homeworkout',       size: 'medium' },
-          { tag: '#strengthtraining',  size: 'niche'  },
-          { tag: '#workoutroutine',    size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['travel','trip','adventur','explor','wanderlust','vacation','holiday','destination','hotel','flight','passport','backpack'],
-        tags: [
-          { tag: '#travel',            size: 'broad'  },
-          { tag: '#travelgram',        size: 'broad'  },
-          { tag: '#wanderlust',        size: 'medium' },
-          { tag: '#travelphotography', size: 'medium' },
-          { tag: '#travellife',        size: 'niche'  },
-          { tag: '#exploremore',       size: 'niche'  },
-          { tag: '#travelblogger',     size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['fashion','style','outfit','ootd','wear','dress','clothes','brand','trend','closet','wardrobe','accessory'],
-        tags: [
-          { tag: '#fashion',         size: 'broad'  },
-          { tag: '#ootd',            size: 'broad'  },
-          { tag: '#style',           size: 'broad'  },
-          { tag: '#outfitoftheday',  size: 'medium' },
-          { tag: '#fashionista',     size: 'medium' },
-          { tag: '#streetstyle',     size: 'medium' },
-          { tag: '#fashionblogger',  size: 'niche'  },
-          { tag: '#whatiwore',       size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['beauty','makeup','skincare','skin','glow','lipstick','foundation','eyeshadow','routine','moisturizer','serum','concealer','blush'],
-        tags: [
-          { tag: '#beauty',          size: 'broad'  },
-          { tag: '#makeup',          size: 'broad'  },
-          { tag: '#skincare',        size: 'broad'  },
-          { tag: '#makeuptutorial',  size: 'medium' },
-          { tag: '#skincareRoutine', size: 'medium' },
-          { tag: '#glowup',          size: 'medium' },
-          { tag: '#grwm',            size: 'medium' },
-          { tag: '#beautytips',      size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['business','entrepreneur','money','income','side hustle','startup','marketing','success','invest','passive income','online business','brand'],
-        tags: [
-          { tag: '#entrepreneur',     size: 'broad'  },
-          { tag: '#business',         size: 'broad'  },
-          { tag: '#sidehustle',       size: 'medium' },
-          { tag: '#smallbusiness',    size: 'medium' },
-          { tag: '#businesstips',     size: 'niche'  },
-          { tag: '#makemoneyonline',  size: 'niche'  },
-          { tag: '#passiveincome',    size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['motivat','inspir','mindset','quote','positive','growth','self','discipline','consistency','better yourself'],
-        tags: [
-          { tag: '#motivation',      size: 'broad'  },
-          { tag: '#inspiration',     size: 'broad'  },
-          { tag: '#mindset',         size: 'medium' },
-          { tag: '#selfimprovement', size: 'medium' },
-          { tag: '#growthmindset',   size: 'niche'  },
-          { tag: '#dailymotivation', size: 'niche'  },
-          { tag: '#quoteoftheday',   size: 'medium' },
-        ],
-      },
-      {
-        kw: ['pet','dog','cat','puppy','kitten','animal','pup','fur baby','furball','adopt'],
-        tags: [
-          { tag: '#dogsofinstagram', size: 'broad'  },
-          { tag: '#catsofinstagram', size: 'broad'  },
-          { tag: '#petstagram',      size: 'medium' },
-          { tag: '#doglife',         size: 'medium' },
-          { tag: '#catlife',         size: 'niche'  },
-          { tag: '#furbaby',         size: 'niche'  },
-          { tag: '#adoptdontshop',   size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['tech','technology','software','app','coding','developer','ai','gadget','phone','computer','iphone','android','review'],
-        tags: [
-          { tag: '#tech',        size: 'broad'  },
-          { tag: '#technology',  size: 'broad'  },
-          { tag: '#coding',      size: 'medium' },
-          { tag: '#gadgets',     size: 'medium' },
-          { tag: '#ai',          size: 'medium' },
-          { tag: '#techreview',  size: 'niche'  },
-          { tag: '#techtips',    size: 'niche'  },
-        ],
-      },
-      {
-        kw: ['parent','mom','dad','baby','kid','toddler','family','children','pregnan','newborn'],
-        tags: [
-          { tag: '#parenting',          size: 'broad'  },
-          { tag: '#momlife',            size: 'broad'  },
-          { tag: '#family',             size: 'broad'  },
-          { tag: '#dadlife',            size: 'medium' },
-          { tag: '#babiesofinstagram',  size: 'medium' },
-          { tag: '#toddlerlife',        size: 'niche'  },
-          { tag: '#newmom',             size: 'niche'  },
-        ],
-      },
-    ];
-
-    // Word-boundary match: \b before keyword prevents "food" matching inside "seafood"
-    const kwMatch = (str, kw) => new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).test(str);
-    const matched = cats.flatMap(c => c.kw.some(k => kwMatch(t, k)) ? c.tags : []);
-    const all = [...general, ...matched];
-    const seen = new Set();
-    return all.filter(h => { if (seen.has(h.tag)) return false; seen.add(h.tag); return true; }).slice(0, 20);
-  }
-
-  function platformTips(text, plat, hook, length, cta, img) {
-    const t = text.toLowerCase();
-    const tips = [];
-
-    if (plat === 'tiktok') {
-      if (!/(comment|duet|stitch|reply)/.test(t))
-        tips.push({ icon: '💬', text: 'Ask a divisive question — TikTok comment volume is the #1 algorithm signal for distribution (TikTok Creator Academy)' });
-      if (text.length > 150)
-        tips.push({ icon: '✂️', text: 'Keep the first line under 150 chars — longer text hides behind "see more" on mobile' });
-      if (hook < 60)
-        tips.push({ icon: '🔥', text: 'Rewrite your first line as a bold statement or pattern interrupt — you have 1–2 seconds before the scroll' });
-      if (!/(trending|sound|audio|song|music)/.test(t))
-        tips.push({ icon: '🎵', text: 'Mention the trending sound if relevant — audio tags add discoverability in TikTok search' });
-      tips.push({ icon: '📊', text: 'Best TikTok posting times: 7–9am, 12–3pm, 7–11pm in your audience\'s timezone' });
-    } else {
-      if (!/(save|bookmark)/.test(t))
-        tips.push({ icon: '🔖', text: '"Save this post" is the highest-value IG CTA — saves outweigh likes as an algorithm signal (Later, 2024)' });
-      if (text.length < 138)
-        tips.push({ icon: '📝', text: 'Captions 125–300 chars get the best reach on Instagram — longer text triggers the "more" tap and signals depth (HubSpot)' });
-      if (hook < 60)
-        tips.push({ icon: '📸', text: 'On IG, the first visible line must earn the "more" tap — open with a question or bold claim' });
-      const hc = (text.match(/#\w+/g) || []).length;
-      if (hc === 0)
-        tips.push({ icon: '#️⃣', text: 'Add 8–12 targeted hashtags — quality over quantity; mix niche and medium-volume tags' });
-      else if (hc > 20)
-        tips.push({ icon: '#️⃣', text: `${hc} hashtags can look spammy — trim to your best 10–12` });
-      tips.push({ icon: '⏰', text: 'Best IG posting windows: Tue–Fri, 9am–1pm in your audience\'s local time' });
-    }
-
-    // Image-specific tips
-    if (img) {
-      const r = img.ratio;
-      if (plat === 'instagram' && Math.abs(r - 0.8) > 0.08 && Math.abs(r - 1) > 0.08) {
-        tips.unshift({ icon: '📐', text: 'Crop your image to 4:5 (portrait) before posting — it\'s the highest-performing ratio on Instagram, taking up more feed space than any other format.' });
-      }
-      if (plat === 'tiktok' && Math.abs(r - 0.5625) > 0.07) {
-        tips.unshift({ icon: '📱', text: 'Reframe your content to 9:16 vertical — TikTok is a full-screen experience and anything other than vertical gets black bars that kill engagement.' });
-      }
-    }
-
-    return tips.slice(0, 4);
-  }
-
-  // ── Benchmarks (based on Later 2024, HubSpot 2024, Sprout Social 2024) ──
-  function getBenchmarks(plat, nic) {
-    const base = plat === 'tiktok'
-      ? { hook: 43, length: 62, cta: 34, style: 60 }
-      : { hook: 38, length: 58, cta: 31, style: 64 };
-    const adj = {
-      lifestyle: { hook:  0, cta:  0, style:  2 },
-      fashion:   { hook:  2, cta: -2, style:  5 },
-      food:      { hook:  4, cta:  3, style:  2 },
-      travel:    { hook:  3, cta:  2, style:  1 },
-      beauty:    { hook:  1, cta:  4, style:  6 },
-      business:  { hook: -2, cta:  8, style: -1 },
-    }[nic] || {};
-    return {
-      hook:   Math.round(base.hook   + (adj.hook   || 0)),
-      length: Math.round(base.length + (adj.length || 0)),
-      cta:    Math.round(base.cta    + (adj.cta    || 0)),
-      style:  Math.round(base.style  + (adj.style  || 0)),
-    };
-  }
-
-  // ── Rendering ─────────────────────────────────────────────
-  function col(s) { return s >= 75 ? 'green' : s >= 48 ? 'yellow' : 'red'; }
-  function grade(s) { return s >= 82 ? 'Strong' : s >= 65 ? 'Good' : s >= 45 ? 'Fair' : 'Weak'; }
-
-  function render(r) {
-    const { overall, textScore, hook, length, cta, style, tags, tips, image, plat, rewrites, coach } = r;
-    const hasText = hook !== null;
-
-    // Ring
-    const ring = document.getElementById('ring-fill');
-    const ringColor = overall >= 75 ? '#22c55e' : overall >= 48 ? '#f59e0b' : '#ef4444';
-    ring.style.transition = 'none';
-    ring.style.strokeDashoffset = CIRC;
-    ring.style.stroke = ringColor;
-    void ring.getBoundingClientRect();
-    ring.style.transition = `stroke-dashoffset 0.9s cubic-bezier(0.4,0,0.2,1), stroke 0.3s ease`;
-    ring.style.strokeDashoffset = CIRC * (1 - overall / 100);
-
-    document.getElementById('hero-num').textContent = overall;
-    document.getElementById('hero-num').className = `hero-num c-${col(overall)}`;
-    document.getElementById('hero-grade').textContent = grade(overall) + (hasText ? ' Caption' : ' Visual');
-    document.getElementById('hero-grade').className = `hero-grade c-${col(overall)}`;
-    document.getElementById('hero-platform').textContent = plat === 'tiktok' ? 'TikTok Score' : 'Instagram Score';
-
-    // Sub-score breakdown
-    const heroSub = document.getElementById('hero-sub');
-    if (hasText && image) {
-      heroSub.innerHTML =
-        `<span class="hero-sub-item">Caption <strong class="c-${col(textScore)}">${textScore}</strong></span>` +
-        `<span class="hero-sub-item">Visual Fit <strong class="c-${col(image.score)}">${image.score}</strong></span>`;
-    } else if (!hasText && image) {
-      heroSub.innerHTML = `<span class="hero-sub-item" style="font-style:italic">Add a caption for a full score</span>`;
-    } else {
-      heroSub.innerHTML = '';
-    }
-
-    const descs = {
-      green:  'This caption looks strong across the key metrics. Small tweaks could make it perfect.',
-      yellow: 'Decent foundation — there\'s clear room to improve the hook, CTA, or length.',
-      red:    'Several areas need attention before this is ready to post.',
-    };
-    document.getElementById('hero-desc').textContent = hasText ? descs[col(overall)] : '';
-
-    // Metric cards (only show text metrics when text is present)
-    const benchmarks = getBenchmarks(plat, niche);
-    const metrics = [];
-    if (hook !== null)   metrics.push({
-      name: 'Hook', score: hook, avg: benchmarks.hook,
-      tip: hook >= 75 ? 'Great opening line — scroll-stopping!' :
-           hook >= 50 ? 'Could be punchier. Try a question or bold claim.' :
-                        'Weak hook. Rewrite the first line completely.',
-    });
-    if (length !== null) metrics.push({
-      name: 'Length', score: length, avg: benchmarks.length,
-      tip: plat === 'instagram'
-        ? (length >= 80 ? 'Good length for Instagram.' : 'Aim for 138–300 chars for best IG engagement.')
-        : (length >= 80 ? 'Good length for TikTok.'   : 'TikTok captions work best at 50–150 chars.'),
-    });
-    if (cta !== null)    metrics.push({
-      name: 'CTA', score: cta, avg: benchmarks.cta,
-      tip: cta >= 75 ? 'Strong call-to-action!' :
-           cta >= 40 ? 'CTA present but could be more specific or prominent.' :
-                       'Missing CTA. Tell your audience exactly what to do next.',
-    });
-    if (style !== null)  metrics.push({
-      name: 'Style', score: style.score, avg: benchmarks.style,
-      tip: style.score >= 85 ? 'Clean and readable. Great work!' : 'See style notes below for fixes.',
-    });
-
-    // Coach card
-    const coachCard = document.getElementById('coach-card');
-    if (coach && coach.length) {
-      coachCard.classList.remove('hidden');
-      document.getElementById('coach-list').innerHTML = coach.map(c => `
-        <div class="coach-item">
-          <span class="coach-item-icon">${c.icon}</span>
-          <span class="coach-item-msg">${c.msg}</span>
-        </div>
-      `).join('');
-    } else {
-      coachCard.classList.add('hidden');
-    }
-
-    document.getElementById('metrics-grid').innerHTML = metrics.map(m => {
-      const diff = m.score - m.avg;
-      const diffStr = diff >= 0
-        ? `<span class="b-ahead">+${diff} ahead</span>`
-        : `<span class="b-behind">${diff} below</span>`;
-      return `
-      <div class="metric-card">
-        <div class="mc-head">
-          <span class="mc-name">${m.name}</span>
-          <span class="mc-score c-${col(m.score)}">${m.score}</span>
-        </div>
-        <div class="mc-bar-track">
-          <div class="mc-bar bg-${col(m.score)}" style="width:${m.score}%"></div>
-          <div class="mc-bar-avg-tick" style="left:${m.avg}%"></div>
-        </div>
-        <div class="mc-tip">${m.tip}</div>
-        <div class="mc-bench">Avg ${m.avg} · ${diffStr}</div>
-      </div>`;
-    }).join('');
-
-    // Image fit card
-    const imgFitCard = document.getElementById('image-fit-card');
-    if (image) {
-      document.getElementById('img-score-num').textContent  = image.score;
-      document.getElementById('img-score-num').className    = `img-score-num c-${col(image.score)}`;
-      document.querySelector('.img-score-label').textContent = imageData?.isVideo ? 'Video Fit' : 'Image Fit';
-      const screenshotBadge = image.isScreenshot ? ' <span style="font-size:11px;font-weight:600;background:#f59e0b22;color:#b45309;padding:2px 7px;border-radius:99px;">Screenshot detected</span>' : '';
-      document.getElementById('img-fit-title').innerHTML   = image.label + screenshotBadge;
-      document.getElementById('img-fit-title').className    = `img-fit-title c-${col(image.score)}`;
-      document.getElementById('img-fit-tip').textContent    = image.tip;
-      imgFitCard.classList.remove('hidden');
-    } else {
-      imgFitCard.classList.add('hidden');
-    }
-
-    // Style issues
-    const styleCard = document.getElementById('style-card');
-    if (style) {
-      styleCard.classList.remove('hidden');
-      document.getElementById('style-issues').innerHTML = style.issues.map(i => `
-        <div class="issue-row">
-          <span class="issue-icon">${i.ok ? '✅' : '⚠️'}</span>
-          <span>${i.msg}</span>
-        </div>
-      `).join('');
-    } else {
-      styleCard.classList.add('hidden');
-    }
-
-    // Platform tips
-    document.getElementById('tips-title').textContent = plat === 'tiktok' ? 'TikTok Tips' : 'Instagram Tips';
-    document.getElementById('tips-list').innerHTML = tips.map(t => `
-      <div class="tip-row">
-        <span class="tip-icon">${t.icon}</span>
-        <span class="tip-text">${t.text}</span>
-      </div>
-    `).join('');
-
-    // Optimised versions (rewrite card)
-    const rewriteCard = document.getElementById('rewrite-card');
-    if (rewrites && rewrites.length && hasText) {
-      rewriteCard.classList.remove('hidden');
-      document.getElementById('rewrite-list').innerHTML = rewrites.map((v, i) => `
-        <div class="rewrite-variant">
-          <div class="rv-head">
-            <span class="rv-icon">${v.icon}</span>
-            <div class="rv-meta">
-              <span class="rv-label">${v.label}</span>
-              <span class="rv-desc">${v.desc}</span>
-            </div>
-            <button class="rv-copy-btn" data-idx="${i}">Copy</button>
-          </div>
-          <div class="rv-body">${v.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-        </div>
-      `).join('');
-      document.querySelectorAll('.rv-copy-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const idx = parseInt(btn.dataset.idx);
-          copyText(rewrites[idx].text);
-          showToast('Copied ' + rewrites[idx].label + ' version');
-        });
-      });
-    } else {
-      rewriteCard.classList.add('hidden');
-    }
-
-    // AI Rewrite button
-    const aiBtn = document.getElementById('ai-rewrite-btn');
-    const aiUsesEl = document.getElementById('ai-uses-left');
-    const AI_LIMIT = 3;
-    const AI_KEY = 'captioniq-ai-uses';
-
-    function getAiUses() {
-      try {
-        const stored = JSON.parse(localStorage.getItem(AI_KEY) || '{}');
-        const today = new Date().toDateString();
-        if (stored.date !== today) return 0;
-        return stored.count || 0;
-      } catch { return 0; }
-    }
-
-    function incrementAiUses() {
-      try {
-        const today = new Date().toDateString();
-        const stored = JSON.parse(localStorage.getItem(AI_KEY) || '{}');
-        const count = (stored.date === today ? stored.count : 0) + 1;
-        localStorage.setItem(AI_KEY, JSON.stringify({ date: today, count }));
-        return count;
-      } catch { return 1; }
-    }
-
-    function updateAiUsesDisplay() {
-      if (isPro()) {
-        aiUsesEl.textContent = 'Unlimited with Pro ✨';
-        aiBtn.disabled = false;
-        aiBtn.querySelector('.btn-label').textContent = '✨ AI Rewrite';
-        return;
-      }
-      const used = getAiUses();
-      const left = AI_LIMIT - used;
-      if (left > 0) {
-        aiUsesEl.textContent = `${left} free AI rewrites left today`;
-        aiBtn.disabled = false;
-        aiBtn.querySelector('.btn-label').textContent = '✨ AI Rewrite';
-      } else {
-        aiUsesEl.textContent = '';
-        aiBtn.disabled = false;
-        aiBtn.querySelector('.btn-label').textContent = '⚡ Upgrade for Unlimited';
-      }
-    }
-
-    if (rewrites && rewrites.length && hasText) {
-      updateAiUsesDisplay();
-      aiBtn.onclick = async () => {
-        const caption = document.getElementById('caption-input').value.trim();
-        if (!caption) return;
-        if (!isPro() && getAiUses() >= AI_LIMIT) {
-          openPaywall();
-          return;
-        }
-        aiBtn.classList.add('loading');
-        aiBtn.disabled = true;
-        aiUsesEl.textContent = 'Generating…';
-        try {
-          const res = await fetch('/api/rewrite', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ caption, platform: plat, niche }),
-          });
-          const data = await res.json();
-          if (!res.ok || data.error) {
-            showToast(data.error || 'AI rewrite failed. Try again.');
-            return;
-          }
-          incrementAiUses();
-          const list = document.getElementById('rewrite-list');
-          // Remove existing AI variant if present
-          list.querySelector('.ai-variant')?.remove();
-          const aiIdx = 'ai';
-          const div = document.createElement('div');
-          div.className = 'rewrite-variant ai-variant';
-          div.innerHTML = `
-            <div class="rv-head">
-              <span class="rv-icon">✨</span>
-              <div class="rv-meta">
-                <span class="rv-label">AI Rewrite <span class="rv-ai-badge">AI</span></span>
-                <span class="rv-desc">Generated by Llama 3.1 — tailored for ${plat === 'tiktok' ? 'TikTok' : 'Instagram'} ${niche}</span>
-              </div>
-              <button class="rv-copy-btn" data-idx="${aiIdx}">Copy</button>
-            </div>
-            <div class="rv-body">${data.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
-          `;
-          div.querySelector('.rv-copy-btn').addEventListener('click', () => {
-            copyText(data.text);
-            showToast('Copied AI rewrite');
-          });
-          list.appendChild(div);
-          updateAiUsesDisplay();
-          showToast('AI rewrite generated ✨');
-        } catch {
-          showToast('Network error — check your connection');
-        } finally {
-          aiBtn.classList.remove('loading');
-          updateAiUsesDisplay();
-        }
-      };
-    }
-
-    // Hashtags
-    const hashtagSection = document.getElementById('hashtag-section');
-    if (tags.length) {
-      hashtagSection.classList.remove('hidden');
-      const grid = document.getElementById('hashtag-grid');
-      grid.innerHTML = tags.map(h => `
-        <button class="h-chip ${h.size}" data-tag="${h.tag}">${h.tag}</button>
-      `).join('');
-      grid.querySelectorAll('.h-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-          copyText(chip.dataset.tag);
-          showToast('Copied ' + chip.dataset.tag);
-        });
-      });
-      document.getElementById('copy-all-btn').onclick = () => {
-        const all = tags.map(h => h.tag).join(' ');
-        copyText(all);
-        showToast('Copied all ' + tags.length + ' hashtags');
-      };
-    } else {
-      hashtagSection.classList.add('hidden');
-    }
-  }
-
-  // ── Utilities ─────────────────────────────────────────────
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('show'), 1900);
-  }
-
-  function copyText(str) {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(str).catch(() => fallback(str));
-    } else {
-      fallback(str);
-    }
-  }
-
-  function fallback(str) {
-    const ta = Object.assign(document.createElement('textarea'), {
-      value: str, style: 'position:fixed;opacity:0'
-    });
-    document.body.appendChild(ta);
-    ta.focus(); ta.select();
-    try { document.execCommand('copy'); } catch (_) {}
-    document.body.removeChild(ta);
-  }
-
-  // ── Service worker ────────────────────────────────────────
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
-})();
+  save();pendingRec=null;document.getElementById('rec').classList.remove('on');
+  renderStats();renderHoldings();renderTrades();
+}
+
+function confirmReset(){
+  if(!confirm('Reset portfolio to $50,000 cash? All holdings and trades will be lost.'))return;
+  portfolio={cash:START,holdings:[],trades:[],createdAt:new Date().toISOString()};save();
+  pendingRec=null;document.getElementById('rec').classList.remove('on');
+  renderStats();renderHoldings();renderTrades();toast('Portfolio reset to $50,000',true);
+}
+
+function toast(msg,ok){
+  const el=document.getElementById('toast');el.textContent=msg;el.className='toast on '+(ok?'ok':'fail');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),3000);
+}
+
+renderStats();renderHoldings();renderTrades();
+fetchPrices();setInterval(fetchPrices,60000);
 </script>
 </body>
 </html>
